@@ -377,7 +377,7 @@
                         {{#if offer.prerequisites.length}}
                         <div class="shop-prerequisites">
                             {{#each offer.prerequisites as |check|}}
-                            <span class="shop-prereq {{check.status}}">{{check.text}}</span>
+                            <span class="shop-prereq {{check.status}}">{{ruleText check.text @root.ruleset}}</span>
                             {{/each}}
                         </div>
                         {{/if}}
@@ -423,7 +423,7 @@
                         {{#if offer.prerequisites.length}}
                         <div class="shop-prerequisites">
                             {{#each offer.prerequisites as |check|}}
-                            <span class="shop-prereq {{check.status}}">{{check.text}}</span>
+                            <span class="shop-prereq {{check.status}}">{{ruleText check.text @root.ruleset}}</span>
                             {{/each}}
                         </div>
                         {{/if}}
@@ -457,7 +457,7 @@
                         {{#if offer.prerequisites.length}}
                         <div class="shop-prerequisites">
                             {{#each offer.prerequisites as |check|}}
-                            <span class="shop-prereq {{check.status}}">{{check.text}}</span>
+                            <span class="shop-prereq {{check.status}}">{{ruleText check.text @root.ruleset}}</span>
                             {{/each}}
                         </div>
                         {{/if}}
@@ -509,7 +509,7 @@
                                 <span class="shop-prereq unmet">{{localize "WIZARD.SHOP_TREE_NEEDS"}} {{offer.parentsText}}</span>
                                 {{/unless}}
                                 {{#each offer.prerequisites as |check|}}
-                                <span class="shop-prereq {{check.status}}">{{check.text}}</span>
+                                <span class="shop-prereq {{check.status}}">{{ruleText check.text @root.ruleset}}</span>
                                 {{/each}}
                             </div>
                             {{/if}}

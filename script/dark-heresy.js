@@ -1,5 +1,6 @@
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
+import {ruleText} from "./localization/rule-text.mjs";
 import { createDataModels } from "./data/models.mjs";
 import { halfRoundedUp } from "./data/rounding.mjs";
 import { carryingLimits, baseLeapAndJump } from "./data/carry.mjs";
@@ -13977,6 +13978,8 @@ function preloadHandlebarsTemplates() {
  * Add custom Handlerbars helpers.
  */
 function registerHandlebarsHelpers() {
+    Handlebars.registerHelper("ruleText", (value, book, field) => ruleText(value, book, game.i18n.lang,
+        typeof field === "string" ? field : ""));
     Handlebars.registerHelper("removeMarkup", function(text) {
         const markup = /<(.*?)>/gi;
         return text.replace(markup, "");
