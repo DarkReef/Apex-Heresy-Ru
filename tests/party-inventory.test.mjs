@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {descendants, contentsMass, itemMass, movePatch, remapContainers, validateMoney} from '../script/party/inventory.mjs';
-import {integrationConfig, prepareContainerTrade} from '../script/party/item-piles.mjs';
+import {descendants, contentsMass, itemMass, movePatch, remapContainers, validateMoney} from '../modules/itempileffg/scripts/inventory.mjs';
+import {integrationConfig, prepareContainerTrade} from '../modules/itempileffg/scripts/item-piles.mjs';
 class Collection extends Map { [Symbol.iterator]() { return this.values(); } }
 function item(id, {parent='', key='', parentKey='', weight=0, quantity=1, capacity=0, bag=false}={}) {
     const data = {_id:id,id,type:'gear',name:id,system:{quantity,weight,price:10,equipped:true,

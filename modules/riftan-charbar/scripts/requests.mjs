@@ -12,7 +12,7 @@ export function acceptedResponses(messages, requestId, request, actorFor, userFo
     const results = new Map();
     for (const message of messages) {
         if (message.visible === false || message.isContentVisible === false) continue;
-        const response = message.getFlag?.('dark-heresy', 'partyResponse');
+        const response = message.getFlag?.('riftan-charbar', 'partyResponse');
         if (!response || response.requestId !== requestId || results.has(response.actorUuid)) continue;
         const author = userFor(message.author?.id ?? message.user?.id ?? message.user);
         const actor = actorFor(response.actorUuid);

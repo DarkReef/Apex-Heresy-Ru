@@ -36,3 +36,6 @@ sheet-*.png
 
 # Local agent/session state
 .claude/
+
+# Packaged standalone modules
+dist/foundry-modules/

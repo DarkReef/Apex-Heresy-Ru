@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {validateRequest,canRespond,acceptedResponses} from '../script/party/requests.mjs';
+import {validateRequest,canRespond,acceptedResponses} from '../modules/riftan-charbar/scripts/requests.mjs';
 const actor={uuid:'Actor.a',testUserPermission:user=>user.id==='owner'};
 test('requests require one valid test, bounded modifier and unique recipients',()=>{
     assert.throws(()=>validateRequest({actorUuids:[],skill:'dodge'}));

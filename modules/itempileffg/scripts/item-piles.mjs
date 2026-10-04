@@ -21,7 +21,7 @@ export function integrationConfig() {
         ITEM_FILTERS:[{path:'type', filters:'aptitude,criticalInjury,malignancy,mentalDisorder,mutation,psychicPower,specialAbility,talent,trait,race,origin,vehicleTrait,shipComponent,shipWeapon'},
             {path:'system.installed', filters:'installed'}],
         ITEM_SIMILARITIES:['name','type','system.craftsmanship','system.price','system.special','system.traitOverrides','system.inventory.containerId','system.inventory.containerKey'],
-        CURRENCIES:[{type:'attribute', name:'PARTY.CREDITS', img:'icons/svg/coins.svg', abbreviation:'{#} cr',
+        CURRENCIES:[{type:'attribute', name:'ITEMPILEFFG.CREDITS', img:'icons/svg/coins.svg', abbreviation:'{#} cr',
             data:{path:'system.economy.credits'}, primary:true, exchangeRate:1}],
         CURRENCY_DECIMAL_DIGITS:0.01, ITEM_TYPE_HANDLERS:handlers,
         ITEM_COST_TRANSFORMER:item => validateMoney(item.system?.price ?? 0),

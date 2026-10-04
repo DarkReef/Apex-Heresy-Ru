@@ -1,0 +1,66 @@
+{
+  "id": "itempileffg",
+  "title": "ItemPileFFG",
+  "description": "Item Piles economy and nested inventory containers for Apex Heresy.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "DarkReef"
+    },
+    {
+      "name": "Apex"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "style.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dark-heresy",
+        "type": "system",
+        "compatibility": {
+          "minimum": "1.4.2"
+        }
+      }
+    ],
+    "requires": [
+      {
+        "id": "item-piles",
+        "type": "module"
+      },
+      {
+        "id": "lib-wrapper",
+        "type": "module"
+      },
+      {
+        "id": "socketlib",
+        "type": "module"
+      }
+    ]
+  },
+  "url": "https://github.com/DarkReef/Apex-Heresy-Ru",
+  "manifest": "https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/itempileffg/module.json",
+  "download": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/download/itempileffg-v0.1.0/itempileffg.zip",
+  "license": "LICENSE",
+  "readme": "https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/itempileffg/README.md"
+}

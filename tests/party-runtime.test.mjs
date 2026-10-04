@@ -6,7 +6,8 @@ globalThis.foundry={utils:{escapeHTML:value=>value.replaceAll('<','&lt;'),random
 globalThis.fromUuid=async()=>globalThis.currentActor;
 globalThis.fromUuidSync=()=>globalThis.currentActor;
 globalThis.ui={notifications:{error(){},warn(){}},chat:{render(){}}};
-const {requestChecks,respondCheck,moveItem,configureItem}=await import('../script/party/panel.mjs');
+const {requestChecks,respondCheck}=await import('../modules/riftan-charbar/scripts/main.mjs');
+const {moveItem,configureItem}=await import('../modules/itempileffg/scripts/main.mjs');
 const gm={id:'gm',isGM:true},owner={id:'owner',isGM:false};
 function setup() {
     const writes=[],messages=new Map();
@@ -25,7 +26,7 @@ test('GM requests persist and an owner response invokes the system API once with
     const {actor,writes,messages}=setup();const request=await requestChecks({actorUuids:[actor.uuid],characteristic:'agility',modifier:10});
     game.user=owner;await respondCheck(request.id,actor.uuid);await respondCheck(request.id,actor.uuid);
     assert.equal(writes.length,1);assert.equal(writes[0].actorUuid,actor.uuid);assert.equal(writes[0].dialog,false);
-    const response=[...messages.values()].at(-1);assert.equal(response.getFlag('dark-heresy','partyResponse').roll,24);
+    const response=[...messages.values()].at(-1);assert.equal(response.getFlag('riftan-charbar','partyResponse').roll,24);
     assert.deepEqual(response.whisper,['gm']);
 });
 test('players cannot issue requests, operate unowned inventories or answer forged GM requests',async()=>{

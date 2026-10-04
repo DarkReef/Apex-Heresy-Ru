@@ -1,4 +1,3 @@
-import "./party/panel.mjs";
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
 import {ruleText} from "./localization/rule-text.mjs";
