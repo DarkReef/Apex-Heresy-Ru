@@ -16,7 +16,6 @@ desktop.ini
 
 # Node modules (if any)
 node_modules/
-package-lock.json
 yarn.lock
 
 # Executable files

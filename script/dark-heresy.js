@@ -1,3 +1,5 @@
+import "./localization/babele.mjs";
+import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
 import { createDataModels } from "./data/models.mjs";
 import { halfRoundedUp } from "./data/rounding.mjs";
 import { carryingLimits, baseLeapAndJump } from "./data/carry.mjs";
@@ -629,7 +631,7 @@ class DarkHeresyActor extends Actor {
         // Черты и тип шасси правят Маневренность, а особые состояния — то, что
         // машина ещё может делать. Система их только считает и показывает:
         // запрещать действия она не берётся, потому что стол вправе играть иначе.
-        const named = new Set(this.vehicleTraits.map(t => t.name.toLowerCase()));
+        const named = new Set(this.vehicleTraits.map(t => ruleName(t).toLowerCase()));
         const has = (...names) => names.some(n => [...named].some(t => t.includes(n)));
         // Шасси правит Маневренность: гусеницы её съедают, колёса и гравипривод
         // добавляют. Шагоходам книга поправки не даёт.
@@ -1266,7 +1268,7 @@ class DarkHeresyActor extends Actor {
 
     _computeExperience_auto() {
         let config = game.darkHeresy.config;
-        let characterAptitudes = this.items.filter(it => it.isAptitude).map(it => it.name.trim());
+        let characterAptitudes = this.items.filter(it => it.isAptitude).map(it => ruleName(it).trim());
         if (!characterAptitudes.includes("General")) characterAptitudes.push("General");
         this.experience.spentCharacteristics = 0;
         this.experience.spentSkills = 0;
@@ -3236,7 +3238,7 @@ async function combatRoll(rollData) {
 function _offerCounterAttack(rollData) {
     const actor = _fateActorFor(rollData);
     if (!actor) return;
-    const talents = (actor.items ?? []).filter?.(item => item.type === "talent").map(item => item.name) ?? [];
+    const talents = (actor.items ?? []).filter?.(item => item.type === "talent").map(item => ruleName(item)) ?? [];
     rollData.counterAttackOffered = canCounterAttack({
         selected: rollData.evasions?.selected,
         success: !!rollData.flags?.isSuccess,
@@ -10565,7 +10567,7 @@ async function _lookupTableRow(tableName, value) {
     const pack = game.packs.get("dark-heresy.bc-tables");
     if (!pack) return null;
     const index = await pack.getIndex();
-    const entry = index.find(e => e.name === tableName);
+    const entry = index.find(e => matchesRuleName(e, tableName));
     if (!entry) return null;
     const table = await pack.getDocument(entry._id);
     const rows = [...(table?.results ?? [])];
@@ -14140,10 +14142,10 @@ async function migrateActorDocument(actor, version) {
     // Import old textual aptitudes before deleting their source. Retrying cannot duplicate items.
     const oldAptitudes = actor._source?.system?.aptitudes ?? actor._source?.system?.legacyData?.aptitudes;
     if (version < 4 && oldAptitudes) {
-        const existing = new Set(Array.from(actor.items).filter(i => i.type === "aptitude").map(i => i.name));
+        const existing = new Set(Array.from(actor.items).filter(i => i.type === "aptitude").map(i => ruleName(i)));
         const items = [];
         for (const aptitude of Object.values(oldAptitudes)) {
-            const name = aptitude?.name?.trim();
+            const name = ruleName(aptitude).trim();
             if (!name || existing.has(name)) continue;
             items.push({name, type: "aptitude", img: "systems/dark-heresy/assets/icons/generic.webp"});
             existing.add(name);
@@ -18663,7 +18665,7 @@ function bloodLossDeathThreshold(actor) {
     const rules = Dh.rulesetFor(actor).bloodLoss;
     const chance = Number(rules?.deathChance) || 10;
     const halved = (actor?.items ?? []).some(item =>
-        item?.type === "trait" && /Chaos Space Marine Implants/i.test(item.name ?? ""));
+        item?.type === "trait" && /Chaos Space Marine Implants/i.test(ruleName(item)));
     return 100 - (halved ? Math.floor(chance / 2) : chance) + 1;
 }
 

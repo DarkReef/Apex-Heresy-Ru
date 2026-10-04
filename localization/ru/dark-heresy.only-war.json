@@ -1,0 +1,324 @@
+{
+  "label": "Только Война",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "0qQa5Azt4GVSItg7": {
+      "name": "Осколочная ракета"
+    },
+    "1C0vwmJS7x96KGyO": {
+      "name": "Громовой натиск"
+    },
+    "1QXo3hzMQ23yRt1k": {
+      "name": "Бионическое сердце"
+    },
+    "1Z2vB5Qkh6zUaYhH": {
+      "name": "Священные масла"
+    },
+    "1qIP06JK3HgxQWJ6": {
+      "name": "Игольчатая винтовка"
+    },
+    "2CknoK6cnhanJE8f": {
+      "name": "Френзон"
+    },
+    "2DFS0KzBUGDwX17V": {
+      "name": "Уличный бой"
+    },
+    "2Mgas9xBtIxo0CoQ": {
+      "name": "Обоерукость"
+    },
+    "2fhIxbvxTogxFFMF": {
+      "name": "Неистовство"
+    },
+    "2rHho3X2Xr6PpiW8": {
+      "name": "Ослепляющая граната"
+    },
+    "2vguhbaSz0RCHdjb": {
+      "name": "Поле смещения"
+    },
+    "3T6YN82b255RMrKo": {
+      "name": "Мастер клинка"
+    },
+    "4mgfhC4cWDNcONmG": {
+      "name": "Меч"
+    },
+    "4rWrlOa4vLdW4b0o": {
+      "name": "Мельтаган"
+    },
+    "4z6B0CCKRTbiksNH": {
+      "name": "Нож"
+    },
+    "64xPpgobWsjgbMWA": {
+      "name": "Дробовик"
+    },
+    "6SxKxxmG3mp4vsfz": {
+      "name": "Спук"
+    },
+    "6u0ykiDMlauv2Lyk": {
+      "name": "Демонический"
+    },
+    "7YkhDvc6CDhUGrWM": {
+      "name": "Автопистолет"
+    },
+    "8FXdn5Wdm64FUTUf": {
+      "name": "Стаб-револьвер"
+    },
+    "8PiKC83Oy7gjpxp5": {
+      "name": "Кибернетические органы чувств"
+    },
+    "CHatbJ1feoNng6Os": {
+      "name": "Силовой меч"
+    },
+    "EoHA52DZSUMks3UL": {
+      "name": "Псайкер"
+    },
+    "FWrpIjv3W0myLwr5": {
+      "name": "Бронебойная граната"
+    },
+    "G2izZ3w0IeXpzH6S": {
+      "name": "Психосиловой меч"
+    },
+    "HBEQiKPihAgEhwfE": {
+      "name": "Страх"
+    },
+    "HyJWkPYYXczMkDel": {
+      "name": "Стимм"
+    },
+    "I0csOMc0eBs5YYuj": {
+      "name": "Силовой топор"
+    },
+    "I4AZw3maBcevgnts": {
+      "name": "Аура власти"
+    },
+    "ITgSxsU3gBFIHiMW": {
+      "name": "Шагающее"
+    },
+    "IWWjI6Ep2ghJXHn5": {
+      "name": "Пустотный скафандр"
+    },
+    "IdadLyfg5OA3nwep": {
+      "name": "Плазменная пушка"
+    },
+    "LHnm01hJSf4p6Idk": {
+      "name": "Множество рук"
+    },
+    "LPJcbFqlPeH6pipR": {
+      "name": "Слот"
+    },
+    "LanAxNzUXgVqlxde": {
+      "name": "Открытый верх"
+    },
+    "MQmPATimEVUv9QZU": {
+      "name": "Игольчатый пистолет"
+    },
+    "MWvi5L0D98rYrmEX": {
+      "name": "Крепкое телосложение"
+    },
+    "NbIp0fwxSpOOyuXF": {
+      "name": "Лёгкая панцирная броня"
+    },
+    "OmUDJIv419XPMKP3": {
+      "name": "Противоосколочный жилет"
+    },
+    "PETQu5Z5VoddhGQ0": {
+      "name": "Бионические ноги"
+    },
+    "PvM834ngCQdlGDAd": {
+      "name": "Проводник варпа"
+    },
+    "QX0GzYlsLZbzNVuV": {
+      "name": "Меткий стрелок"
+    },
+    "R41dvefUMqvHVgHd": {
+      "name": "Силовой кулак"
+    },
+    "R5ngQVGFOYU2lJe4": {
+      "name": "Голосовой имплант"
+    },
+    "SaqeRf8d4DawuPBH": {
+      "name": "Конверсионное поле"
+    },
+    "TfKDBuhLtUMq1eCJ": {
+      "name": "Тяжёлый болтер"
+    },
+    "U1q5LKd0c6i77Eo4": {
+      "name": "Микробусина"
+    },
+    "UM5VnN5JZetj5ePz": {
+      "name": "Гранатомёт"
+    },
+    "VSw6vXVmDm1w1n9D": {
+      "name": "Огнемёт"
+    },
+    "Ve3zfxG9ZZKlvEs8": {
+      "name": "Щит"
+    },
+    "W2lxz1eydVkYQWNL": {
+      "name": "Посох"
+    },
+    "XLv8HcfXW2RXsFJl": {
+      "name": "Молниеносные рефлексы"
+    },
+    "YDquaXaEgTwMby4x": {
+      "name": "Размер"
+    },
+    "ZBs9nFJXTg6cCszp": {
+      "name": "Психосиловой посох"
+    },
+    "ZIUvFrHQwHqTharO": {
+      "name": "Токсичное"
+    },
+    "ZRmtZ3yODmi2nmgR": {
+      "name": "Владение оружием"
+    },
+    "ZqfqMxiWTV1bTw5V": {
+      "name": "Стаб-автоматический пистолет"
+    },
+    "a3v6NFj52Jvt7lH1": {
+      "name": "Плазменный пистолет"
+    },
+    "aD5OhczhpYUzuNze": {
+      "name": "Бионическая рука"
+    },
+    "amhvN3Gcb1U8CRf2": {
+      "name": "Машина"
+    },
+    "azazllFCwDKGCioZ": {
+      "name": "Снайперская винтовка"
+    },
+    "bZpbztzCP2jUQmJS": {
+      "name": "Психосила"
+    },
+    "bfildA7II0Fp787M": {
+      "name": "Магнокуляры"
+    },
+    "cMpkMefljttJZcet": {
+      "name": "Медицинский набор"
+    },
+    "eJETyM0MNOQzLghA": {
+      "name": "Антигравитационное"
+    },
+    "fCwSHPTTMtciLOxy": {
+      "name": "Цепной меч"
+    },
+    "faxo1U5xxyzHzlK5": {
+      "name": "Автоперо"
+    },
+    "gdcs0DMpyelY5lj2": {
+      "name": "Закрытое"
+    },
+    "iLPyYJfs5lnVGYJd": {
+      "name": "Ракетная установка"
+    },
+    "iMk8pELipouZrlNX": {
+      "name": "Ручной огнемёт"
+    },
+    "iqZyNDiudPNlpc6K": {
+      "name": "Рефракторное поле"
+    },
+    "jpOvhcvDhQcALsx1": {
+      "name": "Болтер"
+    },
+    "lpJkFBF65GmBCsFO": {
+      "name": "Осколочная граната"
+    },
+    "mqMZKFyItpOwv2Vn": {
+      "name": "Тяжёлый огнемёт"
+    },
+    "n2v4w2zi2tU94JqR": {
+      "name": "Регенерация"
+    },
+    "nt8BZldxj60WzJ3W": {
+      "name": "Импланты Механикус"
+    },
+    "oHZ8rvkz0sP4KZdj": {
+      "name": "Лазпистолет"
+    },
+    "pxU9An1R7w8hA39x": {
+      "name": "Боевой дробовик"
+    },
+    "qN05vWygMgjdKsJj": {
+      "name": "Могучий выстрел"
+    },
+    "qciD9ajbwF3Gcu3r": {
+      "name": "Автомат"
+    },
+    "rAuweB1vnGjb96Zh": {
+      "name": "Дымовая граната"
+    },
+    "rnGPZaLPhnAIkKF1": {
+      "name": "Болт-пистолет"
+    },
+    "t9MgLgy63ZuNZlEY": {
+      "name": "Контратака"
+    },
+    "tSrhJqdlFsF6mZ1I": {
+      "name": "Копьё"
+    },
+    "uOijXTdL7xYrr4rx": {
+      "name": "Плазменная винтовка"
+    },
+    "uZs8eTsZ22ubU0iy": {
+      "name": "Обскура"
+    },
+    "v5KGYe8X5quaNRdy": {
+      "name": "Бронебойная ракета"
+    },
+    "yIfo35tuB8SsIidB": {
+      "name": "Личное силовое поле"
+    },
+    "yo807eyuacUwj4He": {
+      "name": "Детокс"
+    }
+  },
+  "folders": {
+    "Flak": "Противоосколочная",
+    "Force Fields": "Силовые поля",
+    "Plasma": "Плазменное",
+    "Gear": "Снаряжение",
+    "Divination": "Предсказание",
+    "Melta": "Мельта",
+    "Psychic Powers": "Психосилы",
+    "Vehicle Weapons": "Оружие техники",
+    "Cybernetics": "Импланты",
+    "Talents": "Таланты",
+    "Ranged Weapons": "Стрелковое оружие",
+    "Telekinesis": "Телекинез",
+    "Chain": "Цепное",
+    "Telepathy": "Телепатия",
+    "Carapace": "Панцирная",
+    "Primitive": "Примитивное",
+    "Grenades & Missiles": "Гранаты и ракеты",
+    "Upgrades": "Улучшения",
+    "Traits": "Особенности",
+    "Vehicle Traits": "Особенности техники",
+    "Standard": "Стандартная",
+    "Ammunition": "Боеприпасы",
+    "Las": "Лазерное",
+    "Low-Tech": "Низкотехнологичное",
+    "Force": "Психосиловое",
+    "Pyromancy": "Пиромантия",
+    "Weapon Upgrades": "Улучшения оружия",
+    "Customisations": "Настройки",
+    "Solid Projectile": "Твердотельное",
+    "Exotic": "Экзотическое",
+    "Unusual": "Необычное",
+    "Melee Weapons": "Оружие ближнего боя",
+    "Launchers": "Пусковые установки",
+    "Artillery Shells": "Артиллерийские снаряды",
+    "Armour": "Броня",
+    "Implants": "Импланты",
+    "Flame": "Огнемётное",
+    "Power": "Силовая",
+    "Tools": "Инструменты",
+    "Biomancy": "Биомантия",
+    "Drugs & Consumables": "Препараты и расходники",
+    "Bionics": "Бионика",
+    "Bolt": "Разряд"
+  }
+}

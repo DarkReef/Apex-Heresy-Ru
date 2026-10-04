@@ -127,6 +127,11 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
     }
   ],
   "documentTypes": {
@@ -281,12 +286,20 @@
   },
   "primaryTokenAttribute": "system.wounds",
   "secondaryTokenAttribute": "system.fate",
-  "url": "https://github.com/xalatathzx-art/Apex-Heresy",
-  "readme": "https://github.com/xalatathzx-art/Apex-Heresy#readme",
-  "bugs": "https://github.com/xalatathzx-art/Apex-Heresy/issues",
-  "changelog": "https://github.com/xalatathzx-art/Apex-Heresy/releases",
+  "url": "https://github.com/DarkReef/Apex-Heresy-Ru",
+  "readme": "https://github.com/DarkReef/Apex-Heresy-Ru#readme",
+  "bugs": "https://github.com/DarkReef/Apex-Heresy-Ru/issues",
+  "changelog": "https://github.com/DarkReef/Apex-Heresy-Ru/releases",
   "socket": true,
-  "manifest": "https://raw.githubusercontent.com/xalatathzx-art/Apex-Heresy/main/system.json",
-  "download": "https://github.com/xalatathzx-art/Apex-Heresy/releases/download/v1.4.2/dark-heresy-v1.4.2.zip",
-  "license": "LICENSE"
+  "manifest": "https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/main/system.json",
+  "download": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/latest/download/apex-heresy-ru.zip",
+  "license": "LICENSE",
+  "relationships": {
+    "recommends": [
+      {
+        "id": "babele",
+        "type": "module"
+      }
+    ]
+  }
 }

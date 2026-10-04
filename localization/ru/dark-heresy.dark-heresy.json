@@ -1,0 +1,359 @@
+{
+  "label": "Тёмная Ересь",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "0JzNVvU484GL6Ut9": {
+      "name": "Множество рук"
+    },
+    "0g8Yuh5STnwgb1UP": {
+      "name": "Проводник варпа"
+    },
+    "0jf27rco5JFGGt7D": {
+      "name": "Выносливость"
+    },
+    "0v1iTRWrkrMPF8pN": {
+      "name": "Меткий стрелок"
+    },
+    "1u2uF9fZIXIIzQ0i": {
+      "name": "Шоковый кнут"
+    },
+    "25fQnCehQBISj9Ek": {
+      "name": "Хронометр"
+    },
+    "2VGQuaqXBnyuNvcI": {
+      "name": "Обскура"
+    },
+    "2mmEXBTJcvYFkuKC": {
+      "name": "Противоосколочный жилет"
+    },
+    "32hysGSpfjQfdKnV": {
+      "name": "Голосовой имплант"
+    },
+    "33idPGa19VfoVmXc": {
+      "name": "Личное силовое поле"
+    },
+    "36vgsdYQ7vWMYoXq": {
+      "description": "<p>Существо с этой особенностью имеет пугающий облик. Одни воплощают глубинные страхи человечества, другие используют оскверняющую силу варпа. Страх всегда имеет рейтинг от 1 до 4, указанный в скобках (X). Чем выше рейтинг, тем труднее сохранить рассудок при встрече: см. таблицу 4–5 «Рейтинг страха». При встрече с существом персонаж проходит проверку Силы воли со штрафом по рейтингу Страха. Успех позволяет избежать последствий; при провале бросьте по таблице 8–11 «Шок» (с. 287), добавив +10 за каждую степень провала.</p>",
+      "benefit": "Заставляет проходить проверки Страха, чтобы избежать шока и безумия.",
+      "name": "Страх"
+    },
+    "3OL3XPCh37TilC58": {
+      "name": "Силовой меч"
+    },
+    "3YNsncvb1aidwLzQ": {
+      "name": "Микробусина"
+    },
+    "6qUVcSKTtEJfIrT6": {
+      "name": "Мельтаган"
+    },
+    "6suzi41EFfYtnXGu": {
+      "name": "Неистовство"
+    },
+    "6tN2VPdGWTdEm1aq": {
+      "description": "<p>Склонность «Псайкер» доступна лишь тем, кто обладает редкой способностью применять психосилы. Она отражает связь с ужасающими силами варпа, а также способность чувствовать сверхъестественные энергии, указывающие на обитателей варпа или применение психосил.</p>",
+      "name": "Псайкер"
+    },
+    "7aJIyZakDgyRcCgW": {
+      "name": "Интеллект"
+    },
+    "8hbxdzoJ073QgOWh": {
+      "name": "Инфопланшет"
+    },
+    "8qMtITWJvawTAyUY": {
+      "name": "Слот"
+    },
+    "9w7poggIXCKF5vVQ": {
+      "name": "Силовой топор"
+    },
+    "A9cUfCcWn4cLHHd8": {
+      "name": "Конверсионное поле"
+    },
+    "AOyi5Uzhz8utVKdh": {
+      "name": "Ракетная установка"
+    },
+    "Aw9SYW9MGVAL4Gkk": {
+      "name": "Машина"
+    },
+    "B93D8xXZyzKNyngo": {
+      "name": "Общее"
+    },
+    "BcZC5nBES1jkBaeQ": {
+      "name": "Ручной огнемёт"
+    },
+    "Bs29v3aSHcTcXFTu": {
+      "name": "Автомат"
+    },
+    "C4uzp6a1BsUctXoa": {
+      "name": "Болт-пистолет"
+    },
+    "CC5tWJGFu43USSXF": {
+      "name": "Бионические ноги"
+    },
+    "Cq4iHT7798hFvM3D": {
+      "name": "Игольчатый пистолет"
+    },
+    "ERHwbIfBprT5COPc": {
+      "name": "Бионическое сердце"
+    },
+    "Ep49eHZ2AI8T1JOa": {
+      "name": "Дробовик"
+    },
+    "EsB2epCwl2iBZd9c": {
+      "name": "Игольчатая винтовка"
+    },
+    "FKwNYFOV2f9ZJ0ZY": {
+      "name": "Рефракторное поле"
+    },
+    "GJGIeb7yipGxvTuW": {
+      "name": "Цепной меч"
+    },
+    "HHA1YErn3sf13m4M": {
+      "name": "Стимм"
+    },
+    "Hz0Cil92o9DevmOv": {
+      "name": "Лазган"
+    },
+    "I3txYtCGy1D8PjrN": {
+      "name": "Посох"
+    },
+    "IOHBlhsrkHHRupxd": {
+      "name": "Демонический"
+    },
+    "IUfcFMLqKRdNXGk5": {
+      "name": "Снайперская винтовка"
+    },
+    "Kqx21B7nv5zJFl7N": {
+      "name": "Токсичное"
+    },
+    "KyRiMy68vfnA563g": {
+      "name": "Поле смещения"
+    },
+    "LGz8OLdvEeDHba1F": {
+      "name": "Огнемёт"
+    },
+    "LfLiHD7hH894bvyW": {
+      "name": "Владение оружием*"
+    },
+    "LwjlZ9HhiefyclGO": {
+      "name": "Отринь ведьму"
+    },
+    "MNNNTtWF3D7kg3eP": {
+      "name": "Восприятие"
+    },
+    "N9upwUQrHO7L4y3W": {
+      "name": "Плазменная винтовка"
+    },
+    "NDx84oIErKD3lFQN": {
+      "name": "Детокс"
+    },
+    "NWdbetjGuboI6fEe": {
+      "name": "Дымовая граната"
+    },
+    "NuTsgXaqoZQPfr29": {
+      "name": "Нож"
+    },
+    "OxZGK504028cEcrK": {
+      "name": "Стаб-револьвер"
+    },
+    "PGPoicHmra6tETEf": {
+      "name": "Силовой кулак"
+    },
+    "PU3P8X1UyZQGlXX1": {
+      "name": "Медицинский набор"
+    },
+    "PhacDbbuvkXA5NrS": {
+      "name": "Стаб-автоматический пистолет"
+    },
+    "QsVcp57KMd3p4Sku": {
+      "name": "Регенерация"
+    },
+    "Qyu7rmXh3HZR9oQc": {
+      "name": "Стрельба"
+    },
+    "SL4MSm0GjoRpTs2X": {
+      "name": "Спук"
+    },
+    "SjO1wwBXmt8vbuMu": {
+      "description": "<p>Вследствие сверхъестественного влияния, изучения запретных знаний или силы воли этот персонаж стал псайкером. Особенность сама по себе не даёт преимуществ, но позволяет приобретать навык «Психочутьё» и психосилы. Каждый псайкер имеет пси-рейтинг (см. с. 193), указанный отдельно для каждого НИП.</p>",
+      "benefit": "Существо имеет пси-рейтинг не ниже 1.",
+      "name": "Псайкер"
+    },
+    "UW6vAvPJRmCf6ZJL": {
+      "name": "Импланты Механикус"
+    },
+    "V8VJiBeTH2WZvNA6": {
+      "name": "Ловкость"
+    },
+    "Xf2QxZYWQrVnHz7n": {
+      "name": "Тяжёлый огнемёт"
+    },
+    "YEKwUyyRlt9cgr3T": {
+      "name": "Цепной топор"
+    },
+    "baSQMZBYeWNCOIXk": {
+      "name": "Громовой натиск"
+    },
+    "cfSMhmDbFEPvfon4": {
+      "name": "Осколочная граната"
+    },
+    "cwFNsskFcwYK5IXl": {
+      "name": "Меч"
+    },
+    "d5BBJoHiXOxaCcPM": {
+      "name": "Лазпистолет"
+    },
+    "d6T8tRxacqcm2mDw": {
+      "name": "Могучий выстрел"
+    },
+    "dnB2nBxke8uh2jdy": {
+      "name": "Психосиловой посох"
+    },
+    "fFFiF9VObb2BensW": {
+      "name": "Ослепляющая граната"
+    },
+    "hLuvSdxGP8zQHSsm": {
+      "name": "Сила воли"
+    },
+    "hPIMrizToSz44vkb": {
+      "name": "Автопистолет"
+    },
+    "hPX4PIOxiSMSEl0H": {
+      "name": "Гранатомёт"
+    },
+    "is8yVn4ffd0Cl4jk": {
+      "name": "Бионическая рука"
+    },
+    "jHnEK2HImVkYybvL": {
+      "name": "Магнокуляры"
+    },
+    "jIwswtEh5xCJzJWw": {
+      "name": "Священные масла"
+    },
+    "lV2Wx8pSl0cHXOjj": {
+      "name": "Щит"
+    },
+    "o0PP4TCz48dQgddi": {
+      "name": "Психосиловой меч"
+    },
+    "p9unbeu8yotb1yOw": {
+      "name": "Копьё"
+    },
+    "pEMmOYO8YZgplois": {
+      "name": "Размер"
+    },
+    "q8gwGXhO9UvgmzlZ": {
+      "name": "Пустотный скафандр"
+    },
+    "que70OKfRiLouy8f": {
+      "name": "Плазменный пистолет"
+    },
+    "sg5IajMyJYIvz92q": {
+      "name": "Осколочная ракета"
+    },
+    "tTZ5nWQp4oy7SI44": {
+      "name": "Бронебойная граната"
+    },
+    "tvCGqcCtN5Zzp0n1": {
+      "name": "Мастер клинка"
+    },
+    "uSatBHiSBN8ID7CQ": {
+      "name": "Общительность"
+    },
+    "w6HPstPTUtoPYngL": {
+      "name": "Френзон"
+    },
+    "w9yj1ikRm7JL6jAl": {
+      "name": "Контратака"
+    },
+    "wG0sNmguiGD3Jkhy": {
+      "name": "Тяжёлый болтер"
+    },
+    "wJTqHEzxKIKWf6VD": {
+      "name": "Автоперо"
+    },
+    "wbw9IfEEOOvMTZWK": {
+      "description": "<p>Аколит получает дополнительную рану. Талант можно покупать повторно, но не более удвоенного бонуса Выносливости. Число приобретений указывается после названия, например «Крепкое телосложение (3)».</p>",
+      "benefit": "Даёт дополнительную рану.",
+      "name": "Крепкое телосложение"
+    },
+    "y6RWGQYax75aq1RV": {
+      "description": "<p>Этот талант отражает скорее достаточную подготовку обеих рук, чем врождённую обоерукость. В сочетании с талантом «Боец с двумя оружиями» штраф к атакам обоими оружиями в один ход снижается до −10.</p>",
+      "benefit": "Снижает штрафы за применение двух оружий.",
+      "name": "Обоерукость"
+    },
+    "yqzhN5yYxT1hLPVd": {
+      "name": "Ближний бой"
+    },
+    "zGIGRjPGgzVUmTQe": {
+      "name": "Бронебойная ракета"
+    },
+    "zHnGQYtjssewGNH7": {
+      "name": "Сила"
+    },
+    "zhAgS5FhjqOalr73": {
+      "name": "Санкционированный"
+    },
+    "zz59wCxBBhuleXFi": {
+      "name": "Одежда"
+    }
+  },
+  "folders": {
+    "Special Abilities": "Особые способности",
+    "Standard": "Стандартная",
+    "Telekinesis": "Телекинез",
+    "Telepathy": "Телепатия",
+    "Tools": "Инструменты",
+    "Xeno": "Ксено",
+    "Armour": "Броня",
+    "Las": "Лазерное",
+    "Melee Weapons": "Оружие ближнего боя",
+    "Cybernetics": "Импланты",
+    "Launcher": "Пусковое",
+    "Low-Tech": "Низкотехнологичное",
+    "Power": "Силовая",
+    "Pyromancy": "Пиромантия",
+    "Ammunition": "Боеприпасы",
+    "Bolt": "Разряд",
+    "Exotic": "Экзотическое",
+    "Traits": "Особенности",
+    "Tier 3": "Ступень 3",
+    "Flak": "Противоосколочная",
+    "Special": "Особое",
+    "Talents": "Таланты",
+    "Psychic Powers": "Психосилы",
+    "Sanctic": "Санктика",
+    "Power Armor": "Силовая броня",
+    "Background Bonus": "Бонус происхождения",
+    "Force": "Психосиловое",
+    "Force Fields": "Силовые поля",
+    "Mesh": "Сетчатая",
+    "Gear": "Снаряжение",
+    "Home World Bonus": "Бонус родного мира",
+    "Ranged Weapons": "Стрелковое оружие",
+    "Weapon & Armour Modifications": "Модификации оружия и брони",
+    "Biomancy": "Биомантия",
+    "Tier 1": "Ступень 1",
+    "Flame": "Огнемётное",
+    "Shock": "Шоковое",
+    "Divination": "Предсказание",
+    "Melta": "Мельта",
+    "Drugs & Consumables": "Препараты и расходники",
+    "Aptitudes": "Склонности",
+    "Chain": "Цепное",
+    "Carapace": "Панцирная",
+    "Basic": "Основное",
+    "Role Bonus": "Бонус роли",
+    "Solid-Projectile": "Твердотельное",
+    "Malefic": "Малефика",
+    "Tier 2": "Ступень 2",
+    "Explosives": "Взрывчатка",
+    "Plasma": "Плазменное",
+    "Minor": "Малые"
+  }
+}

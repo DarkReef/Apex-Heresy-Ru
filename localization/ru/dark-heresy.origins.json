@@ -1,0 +1,250 @@
+{
+  "label": "Происхождения персонажей",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "1bIEmQ20fD0R2pS9": {
+      "name": "Нигилизм"
+    },
+    "1faXAR7yvEQsw3D7": {
+      "name": "Штурмовик Караула Смерти"
+    },
+    "1sH0BLQ40nuQ7FOp": {
+      "name": "Закалённые бойцы"
+    },
+    "20cBj3ZB5hcpOoZ0": {
+      "name": "Меланхоличный"
+    },
+    "24kHiAn9Xe9O7DxZ": {
+      "name": "Независимый"
+    },
+    "2TkxMDpWJrmVHhmU": {
+      "name": "Штрафная колония"
+    },
+    "2TyQkiHeeiJ4Bgce": {
+      "name": "Жизнерадостный"
+    },
+    "3djrvYW1TdGrILPl": {
+      "name": "Изгой"
+    },
+    "41fOfPv8Jno8kRG5": {
+      "name": "Мир-улей"
+    },
+    "4IXwcgHKkCJ7FkYB": {
+      "name": "Человек"
+    },
+    "4U10EAqWFegmrZ30": {
+      "name": "Комиссар"
+    },
+    "4h9ryUjcjefMP9CF": {
+      "name": "Охотники-убийцы"
+    },
+    "667WZgarG50sEVgp": {
+      "name": "Вспыльчивый"
+    },
+    "6C3kfsmOsf9s2Uxo": {
+      "name": "Дикий мир"
+    },
+    "7MxweSBQi0e8zdMt": {
+      "name": "Обаяние"
+    },
+    "7swXehOpKu2OBctl": {
+      "name": "Адептус Министорум"
+    },
+    "8BvpV2yuPS99qRB4": {
+      "name": "Стражи Бури"
+    },
+    "8iMqMdqpIVW9gOAa": {
+      "name": "Покорный"
+    },
+    "92iaTBRESeDdEoAU": {
+      "name": "Механизированная пехота"
+    },
+    "9hferofDpTeW6FZf": {
+      "name": "Месть"
+    },
+    "AamhPwY71A4vnUiD": {
+      "name": "Ратлинг"
+    },
+    "B9XCzhTKrSjNX8lx": {
+      "name": "Колдун"
+    },
+    "BSwB1PDWqmlGuGKb": {
+      "name": "Гнев"
+    },
+    "BcaVfhyai90re4Ho": {
+      "name": "Желчный"
+    },
+    "DArOUyo8IuW6AjLT": {
+      "name": "Мир-крепость"
+    },
+    "DBSBTB2t3SfAeZpK": {
+      "name": "Библиарий Караула Смерти"
+    },
+    "DNcXsMGAFBLoRapd": {
+      "name": "Богатство"
+    },
+    "DPmYDSakTsBOzeLm": {
+      "name": "Опустошитель Караула Смерти"
+    },
+    "DazZZwCEgTbhangI": {
+      "name": "Сорвиголова"
+    },
+    "FHuz8XgQvUHc6wVj": {
+      "name": "Неподвижное"
+    },
+    "FqgZ7vLUruZvPY6Z": {
+      "name": "Ренегат"
+    },
+    "GgqVrSPxCyHdHNTp": {
+      "name": "Космодесантник Хаоса"
+    },
+    "IBkhSYqPiyZhx42B": {
+      "name": "Адептус Астра Телепатика"
+    },
+    "K6eM8EitDRKdjekQ": {
+      "name": "Воин"
+    },
+    "LK7wLNywWdabik7e": {
+      "name": "Отступник"
+    },
+    "MI45UXJEe02kyfUA": {
+      "name": "Мудрец"
+    },
+    "N7jaIib85e1CIWna": {
+      "name": "Тёмные Ангелы"
+    },
+    "NGeSCZsHhhx9lAYy": {
+      "name": "Хирург"
+    },
+    "PNvn4BaEh4MJBTeb": {
+      "name": "Отверженный"
+    },
+    "PZlob9IkFmRX8U9L": {
+      "name": "Иерофант"
+    },
+    "QhUOlcjadVydz5NV": {
+      "name": "Наследие"
+    },
+    "TBoy3aq9PrcLIz7c": {
+      "name": "Высокородный"
+    },
+    "TDqHpm0T6o9IgDpY": {
+      "name": "Искатель"
+    },
+    "TO7RZDTkrj4SMFDt": {
+      "name": "Огрин"
+    },
+    "TOIz55nEdxhLKt4d": {
+      "name": "Тактический десантник Караула Смерти"
+    },
+    "VOJaBZHm325WEik5": {
+      "name": "Логика"
+    },
+    "VwrYvHTKHas72tiv": {
+      "name": "Адептус Механикус"
+    },
+    "WPsL238FZJuabQff": {
+      "name": "Имперская Гвардия"
+    },
+    "WqBdFKPS9TDes6T3": {
+      "name": "Космические Волки"
+    },
+    "YqHSG5oQ0INXM9JK": {
+      "name": "Высокородный"
+    },
+    "aEjtYlzJH6tIvS6q": {
+      "name": "Чемпион"
+    },
+    "avg7QGdQXaf1BPx4": {
+      "name": "Мир-улей"
+    },
+    "bdsAsEKFjhEghl1l": {
+      "name": "Имперский мир"
+    },
+    "cKlk52mhBIV7De8n": {
+      "name": "Ассасин"
+    },
+    "cPTxATSUzXAGCy4Q": {
+      "name": "Космодесантник"
+    },
+    "cg4HCSx343DsuCNX": {
+      "name": "Псайкер"
+    },
+    "dySjied25TMSmcj5": {
+      "name": "Ультрамарины"
+    },
+    "fQI7YWfkRGEj3brK": {
+      "name": "Апотекарий Караула Смерти"
+    },
+    "fXPo9FGEuh70u9jz": {
+      "name": "Мир смерти"
+    },
+    "fpvuUmqpRN2Xowgr": {
+      "name": "Рождённый в пустоте"
+    },
+    "hI25x31u55r0JJWj": {
+      "name": "Качество"
+    },
+    "iegRnYJ5UrwTwgzW": {
+      "name": "Кровавые Ангелы"
+    },
+    "p3bnY5WegGMmRQd3": {
+      "name": "Оператор"
+    },
+    "r3PznvE6SFEa9BWp": {
+      "name": "Еретех"
+    },
+    "sJXdDtgeTNDZTWG4": {
+      "name": "Избранный"
+    },
+    "sij08nj1opXTE2ne": {
+      "name": "Технодесантник Караула Смерти"
+    },
+    "ukzEQUBKuovItr71": {
+      "name": "Адептус Арбитес"
+    },
+    "vVPlElpglt3AvPFo": {
+      "name": "Адептус Администратум"
+    },
+    "wjL50lK7g1d3jya6": {
+      "name": "Мир-кузница"
+    },
+    "ydRbnM2ZarL89zlA": {
+      "name": "Мир-святыня"
+    },
+    "yi2nOkWNyAi6Og6o": {
+      "name": "Мистик"
+    }
+  },
+  "folders": {
+    "Regiments": "Полки",
+    "Roles": "Роли",
+    "Prides": "Гордость",
+    "Only War": "Только Война",
+    "Motivations": "Мотивации",
+    "Races": "Расы",
+    "Advances": "Улучшения",
+    "Home Worlds": "Родные миры",
+    "Deathwatch": "Караул Смерти",
+    "Commanding Officers": "Командующие офицеры",
+    "Regiment Creation": "Создание полка",
+    "Archetypes": "Архетипы",
+    "Disgraces": "Позор",
+    "Specialities": "Специальности",
+    "Black Crusade": "Чёрный Крестовый Поход",
+    "Training Doctrines": "Доктрины подготовки",
+    "Rogue Trader": "Вольный Торговец",
+    "Space Marine": "Космодесантник",
+    "Chapters": "Ордена",
+    "Special Equipment Doctrines": "Доктрины особого снаряжения",
+    "Dark Heresy": "Тёмная Ересь",
+    "Regiment Types": "Типы полков",
+    "Backgrounds": "Происхождения"
+  }
+}

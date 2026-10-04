@@ -1,3 +1,7 @@
+# Apex Heresy RU
+
+Русская локализация форка на основе Babele. Текущий этап покрывает весь языковой файл интерфейса и часть компендиумов; полная русификация ещё не завершена. [Установка, покрытие и работа с переводом](docs/russian-localization.md).
+
 # Apex Heresy
 
 An unofficial Foundry VTT system for the Warhammer 40,000 roleplaying games built on the

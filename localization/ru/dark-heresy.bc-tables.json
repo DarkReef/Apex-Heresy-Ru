@@ -1,0 +1,51 @@
+{
+  "label": "Таблицы Чёрного Крестового Похода",
+  "mapping": {
+    "name": "name",
+    "description": "description",
+    "results": {
+      "path": "results",
+      "converter": "tableResults"
+    }
+  },
+  "entries": {
+    "2He312JcNO1qZxag": {
+      "name": "История силовой брони"
+    },
+    "9agWkwngwvYU39Ho": {
+      "name": "Гордость"
+    },
+    "CTt6G35j3tj7oTR9": {
+      "name": "Предсказания"
+    },
+    "X8FYsruAY38NmlFX": {
+      "name": "Опасности варпа"
+    },
+    "bMXZ7eeQEjNY00xr": {
+      "name": "Психические феномены"
+    },
+    "euVUo3PINWUC0XL2": {
+      "name": "Позор"
+    },
+    "hEDHrOYdHnc7miBJ": {
+      "name": "Шоковое"
+    },
+    "k8wOkjC4VVQMt4Ef": {
+      "name": "Мотивации"
+    },
+    "tjwK3BpQZ9CK4dnZ": {
+      "name": "Дары богов"
+    }
+  },
+  "folders": {
+    "Fear and Insanity": "Страх и безумие",
+    "Corruption": "Порча",
+    "Armoury": "Арсенал",
+    "Critical Effects (Black Crusade)": "Критические эффекты (Чёрный Крестовый Поход)",
+    "Character Creation": "Создание персонажа",
+    "Critical Effects (Dark Heresy 2)": "Критические эффекты (Тёмная Ересь 2)",
+    "Vehicle Combat": "Бой техники",
+    "Starship Combat": "Корабельный бой",
+    "Psychic Powers": "Психосилы"
+  }
+}

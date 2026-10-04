@@ -1,3 +1,4 @@
+import {matchesRuleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Поиск выданного предмета в компендиумах по имени.
 //
@@ -56,7 +57,7 @@ export function findContent(index, types, name) {
     const allowed = new Set(types);
     for (const candidate of lookupCandidates(name)) {
         const key = normaliseName(candidate);
-        const hit = index.find(entry => allowed.has(entry.type) && normaliseName(entry.name) === key);
+        const hit = index.find(entry => allowed.has(entry.type) && matchesRuleName(entry, key));
         if (hit) return hit;
     }
     return null;
