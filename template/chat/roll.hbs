@@ -206,6 +206,14 @@
                         {{/if}}
                         <button type="button" class="invoke-damage">{{localize "CHAT.ROLL_DAMAGE"}}</button>
                     </div>
+                {{else}}
+                    {{!-- Подавляющий огонь прижимает всех в зоне обстрела, попал стрелок
+                          или нет (DH2, стр. 225): проверка нужна и после промаха. --}}
+                    {{#if (eq attackType.name "suppression")}}
+                        <div class="effect-buttons">
+                            <button type="button" class="invoke-suppression">{{localize "SUPPRESSION.HEADER"}}</button>
+                        </div>
+                    {{/if}}
                 {{/if}}
             {{/if}}
 

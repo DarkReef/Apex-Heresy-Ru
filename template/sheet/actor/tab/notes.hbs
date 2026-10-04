@@ -47,11 +47,20 @@
                 <input name="system.bio.momentos" type="text" value="{{system.bio.momentos}}" />
             </label>
             {{!-- Характер — подсказка для отыгрыша (Only War, стр. 106); Comrade идёт
-                  в бой рядом с гвардейцем и записан тут же, своим именем и характером. --}}
+                  в бой рядом с гвардейцем и записан тут же, своим именем и характером.
+
+                  Поле в форме должно быть одно. Only War держит нрав в анкете, а Comrade
+                  на своей вкладке; Deathwatch держит нрав в анкете. Два поля с одним именем
+                  уходят массивом и ложатся в строку как «X,X» — нрав удваивался при каждом
+                  сохранении листа. Здесь эти поля рисуются только тем книгам, у которых
+                  другого места для них нет. --}}
+            {{#unless (eq ruleset "ow")}}
+            {{#unless (eq ruleset "dw")}}
             <label class="notes-field">
                 <span class="notes-label">{{localize "BIO.DEMEANOUR"}}</span>
                 <input name="system.bio.demeanour" type="text" value="{{system.bio.demeanour}}" />
             </label>
+            {{/unless}}
             <label class="notes-field">
                 <span class="notes-label">{{localize "BIO.COMRADE"}}</span>
                 <input name="system.bio.comrade" type="text" value="{{system.bio.comrade}}" />
@@ -60,6 +69,7 @@
                 <span class="notes-label">{{localize "BIO.COMRADE_DEMEANOUR"}}</span>
                 <input name="system.bio.comradeDemeanour" type="text" value="{{system.bio.comradeDemeanour}}" />
             </label>
+            {{/unless}}
         </div>
     </div>
 

@@ -4,6 +4,7 @@ import { carryingLimits, baseLeapAndJump } from "./data/carry.mjs";
 import { effectiveMaxAgility } from "./data/max-agility.mjs";
 import { traitArmour } from "./data/armour-traits.mjs";
 import { resolveJamClear } from "./combat/jam.mjs";
+import { collapseRepeatedText } from "./data/repeated-text.mjs";
 import { OVERHEAT_THRESHOLD, overheatArm, overheatSelfDamage } from "./combat/overheat.mjs";
 import { fieldProtects } from "./combat/force-field.mjs";
 import { corrosiveBite } from "./combat/corrosive.mjs";
@@ -2350,7 +2351,12 @@ class DarkHeresyActor extends Actor {
     _getEffectiveArmour(damage) {
         const traits = damage?.weaponTraits || {};
         const penetration = Number(damage?.penetration) || 0;
-        let armour = Math.max(this._getArmour(damage?.location, traits.warpWeapon === true) - penetration, 0);
+        // Пробитие снимает очки брони, но не тело под ней (DH2, стр. 227). На листе
+        // у локации одно число — броня вместе с бонусом Стойкости, — и пробитие
+        // вычиталось из суммы: выстрел с высоким пробитием съедал и Стойкость.
+        const soak = this._getToughnessSoak(damage?.location);
+        const protection = this._getArmour(damage?.location, traits.warpWeapon === true);
+        let armour = Math.max(protection - soak - penetration, 0) + soak;
 
         const felling = Number(traits.felling) || 0;
         if (felling > 0) {
@@ -2363,6 +2369,19 @@ class DarkHeresyActor extends Actor {
             armour = Math.max(armour - Math.min(felling, unnatural), 0);
         }
         return armour;
+    }
+
+    /**
+     * Бонус Стойкости, уже сложенный в защиту локации: его пробитие не трогает.
+     * @param {string} location ключ локации (`ARMOUR.BODY`)
+     * @returns {number}
+     */
+    _getToughnessSoak(location) {
+        const part = {
+            "ARMOUR.HEAD": "head", "ARMOUR.LEFT_ARM": "leftArm", "ARMOUR.RIGHT_ARM": "rightArm",
+            "ARMOUR.BODY": "body", "ARMOUR.LEFT_LEG": "leftLeg", "ARMOUR.RIGHT_LEG": "rightLeg"
+        }[location];
+        return Math.max(Number(this.armour?.[part]?.toughnessBonus) || 0, 0);
     }
 
     _getArmourTotal(location) {
@@ -3702,7 +3721,7 @@ async function _consumeAmmo(rollData) {
     
     const required = _calculateRequiredAmmo(rollData);
     const currentClip = Number(clip.value) || 0;
-    const newClip = Math.max(0, currentClip - required);
+    let newClip = Math.max(0, currentClip - required);
 
     // Патроны машинного орудия лежат в машине, а не в карманах стрелка: искать
     // предмет надо там же, где он записан, иначе выстрел уходит бесплатно.
@@ -3766,7 +3785,11 @@ async function _consumeAmmo(rollData) {
         return;
     }
     
-    // Update clip value
+    // Считаем от того, что в стволе сейчас, а не от того, что запомнил диалог:
+    // два окна атаки, открытые подряд, оба помнили полный магазин, и второй
+    // выстрел записывал тот же остаток, что и первый, — патроны не убывали.
+    const loaded = Number(weapon.system?.clip?.value);
+    if (Number.isFinite(loaded)) newClip = Math.max(0, loaded - required);
     await weapon.update({"system.clip.value": newClip});
     
     // Sync for unlinked acolyte tokens
@@ -3799,8 +3822,11 @@ async function _consumeAmmo(rollData) {
  * @returns {Promise<{success: boolean, reason?: string}>}
  */
 async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = true) {
-    // Check if weapon has ammunition reference
-    const ammunitionRef = weapon.system.ammunitionId;
+    // Выбранный для ствола боеприпас лежит в system.ammo — там же, где его читает
+    // getLoadedAmmunition. Раньше здесь и на листе оружия стояло ammunitionId,
+    // поля которого в модели нет: выбор не сохранялся, а эффекты патрона не доходили
+    // до атаки, потому что искали его в другом поле.
+    const ammunitionRef = weapon.system.ammo;
 
     // Get actor
     const actor = await _getActorFromOwnerId(ownerId, tokenId);
@@ -3812,7 +3838,7 @@ async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = 
     let ammunition = null;
     if (!ammunitionRef || ammunitionRef.trim() === "") {
         // Без заранее выбранного патрона перезарядка просто не шла: система знала
-        // только ammunitionId и никогда не искала в снаряжении сама. Поэтому
+        // только выбранный патрон и никогда не искала в снаряжении сама. Поэтому
         // лазган с батареями в подсумке отказывался перезаряжаться, а расстановка
         // категорий у патронов делу не помогала — сверять было не с чем.
         ammunition = actor.items.find(item => item.type === "ammunition"
@@ -3888,10 +3914,11 @@ async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = 
     const newQuantity = Math.max(quantity - 1, 0);
     const clipMax = Number(weapon.system.clip.max) || 0;
     
-    // Update ammunition and weapon
+    // Update ammunition and weapon. Что заряжено, запоминается на стволе: иначе
+    // патрон списывался, а его урон, пробитие и свойства к выстрелу не применялись.
     await Promise.all([
         ammunition.update({"system.quantity": newQuantity}),
-        weapon.update({"system.clip.value": clipMax})
+        weapon.update({"system.clip.value": clipMax, "system.ammo": ammunition.id})
     ]);
     
     // Sync for unlinked acolyte tokens
@@ -4199,8 +4226,11 @@ async function _rollTarget(rollData) {
                 // Unreliable weapons jam on 91-100
                 isJam = (unmodifiedResult >= 91 && unmodifiedResult <= 100);
             } else {
-                // Standard weapons jam on 96-100
-                isJam = (unmodifiedResult >= 96 && unmodifiedResult <= 100);
+                // Одиночный выстрел клинит с 96, очередь и подавляющий огонь — уже с 94
+                // (DH2, стр. 222, 224, 225: «a dice result of 94 or higher»).
+                const automatic = ["semi_auto", "full_auto", "suppression", "wide_auto"]
+                    .includes(rollData.attackType?.name);
+                isJam = (unmodifiedResult >= (automatic ? 94 : 96) && unmodifiedResult <= 100);
             }
             
             if (isJam) {
@@ -12918,7 +12948,7 @@ class WeaponSheet extends DarkHeresyItemSheet {
         // Get ammunition items from actor's inventory for the select dropdown
         data.ammunitionOptions = [];
         const actor = this.item.actor || this.actor;
-        const currentAmmunitionId = this.item.system.ammunitionId || "";
+        const currentAmmunitionId = this.item.system.ammo || "";
         
         if (actor && actor.items) {
             const ammunitionItems = actor.items.filter(item => item.isAmmunition);
@@ -14076,7 +14106,7 @@ function registerHandlebarsHelpers() {
 }
 
 const migrateWorld = async () => {
-    const schemaVersion = 15;
+    const schemaVersion = 16;
     if (game.user !== game.users.activeGM) return;
     const previous = Number(game.settings.get("dark-heresy", "worldSchemaVersion"));
     if (previous > schemaVersion) throw new Error("World schema is newer than this system; migration refused.");
@@ -14223,8 +14253,30 @@ const migrateItemData = (item) => {
     return foundry.utils.isEmpty(update) ? {} : { _id: item.id, ...update };
 };
 
+/**
+ * Строки анкеты, которые лист успел размножить (схема 16).
+ *
+ * Нрав и Comrade стояли в форме листа дважды — в анкете и на вкладке заметок, —
+ * а два поля с одним именем уходят массивом и ложатся в строку как «X,X». Каждое
+ * сохранение удваивало прежнее. Здесь значение возвращается к тому, что вводили.
+ *
+ * @param {Actor} actor
+ * @returns {object} патч для actor.update; пустой, если чинить нечего
+ */
+function repeatedBioPatch(actor) {
+    const update = {};
+    const bio = actor?._source?.system?.bio;
+    if (!bio) return update;
+    for (const field of ["demeanour", "comrade", "comradeDemeanour"]) {
+        const repaired = collapseRepeatedText(bio[field]);
+        if (repaired !== bio[field]) update[`system.bio.${field}`] = repaired;
+    }
+    return update;
+}
+
 const migrateActorData = (actor, worldSchemaVersion) => {
     const update = {};
+    if (worldSchemaVersion < 16) Object.assign(update, repeatedBioPatch(actor));
     if (worldSchemaVersion < 12 && actor.type === "heretic") {
         // Покровитель раньше был свободной строкой в bio.background, а теперь от
         // него зависят цены улучшений, поэтому он стал выбором из пяти. Угадывать

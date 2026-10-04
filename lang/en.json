@@ -240,7 +240,7 @@
   "CHAT.APPLY_DAMAGED": "Damage applied to {targets}.",
   "CHAT.APPLY_HEALED": "Healing applied to {targets}.",
   "DIALOG.RELOAD_TITLE": "Not enough ammo",
-  "DIALOG.RELOAD_MESSAGE": "Not enough ammo for this attack. Required: {required}, available: {available}. Reload weapon?",
+  "DIALOG.RELOAD_MESSAGE": "Not enough rounds in the weapon for this attack. Needed: {required}, in the weapon: {available}. Reload weapon?",
   "BUTTON.RELOAD": "Reload",
   "CHAT.DIED_FROM_BLEEDING": "died from bleeding!",
   "CHAT.TAKES_FIRE_DAMAGE": "takes fire damage",

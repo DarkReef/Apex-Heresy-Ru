@@ -68,3 +68,37 @@ test('nothing in the suppression flow still speaks of fear', () => {
     const card = readFileSync(new URL('../template/chat/suppression.hbs', import.meta.url), 'utf8');
     assert.doesNotMatch(card, /FEAR/);
 });
+
+/** The conditions a piece of a template sits under, innermost last. */
+function conditionsAround(template, needle) {
+    const found = [];
+    const stack = [];
+    const token = /{{#(if|unless) ([^}]+)}}|{{else}}|{{\/(if|unless)}}/g;
+    let last = 0;
+    const scan = upTo => {
+        for (let at = template.indexOf(needle, last); at !== -1 && at < upTo; at = template.indexOf(needle, at + 1))
+            found.push(stack.map(entry => `${entry.holds ? '' : 'not '}${entry.condition}`));
+    };
+    for (const match of template.matchAll(token)) {
+        scan(match.index);
+        last = match.index;
+        if (match[1]) stack.push({condition: match[2].trim(), holds: match[1] === 'if'});
+        else if (match[0] === '{{else}}') stack.at(-1).holds = !stack.at(-1).holds;
+        else stack.pop();
+    }
+    scan(template.length);
+    return found;
+}
+
+test('the suppression test is offered whether or not the burst hit anyone (p. 225)', () => {
+    // "All targets within the kill zone must make a ... Pinning test": the test
+    // is for being under fire. The button sat inside the branch for a successful
+    // attack roll, so a burst that hit nobody pinned nobody.
+    const card = readFileSync(new URL('../template/chat/roll.hbs', import.meta.url), 'utf8');
+    const places = conditionsAround(card, 'invoke-suppression');
+    assert.ok(places.length > 0, 'the card has a suppression button');
+    assert.ok(places.some(under => !under.includes('flags.isSuccess')),
+        `every suppression button requires a hit: ${JSON.stringify(places)}`);
+    assert.ok(places.every(under => under.some(condition => condition.includes('"suppression"'))),
+        'and it is still offered only for Suppressing Fire');
+});

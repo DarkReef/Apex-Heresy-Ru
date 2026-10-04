@@ -14,10 +14,10 @@ function round(id, name, weaponTypes, quantity = 1) {
 }
 
 /** A weapon with an empty magazine, optionally pointing at a chosen round. */
-function weapon(id, name, type, ammunitionId = '') {
+function weapon(id, name, type, ammo = '') {
     return {
         id, name, type: 'weapon',
-        system: {type, class: 'basic', ammunitionId, clip: {value: 0, max: 30}},
+        system: {type, class: 'basic', ammo, clip: {value: 0, max: 30}},
         updates: [],
         async update(data) { this.updates.push(data); }
     };
@@ -51,7 +51,7 @@ test('a weapon with no chosen round reloads from what the character carries', as
     // Spread the object: deepStrictEqual compares prototypes, and this one was
     // built inside the vm realm, so a bare deepEqual fails on identity alone.
     assert.equal(lasgun.updates.length, 1);
-    assert.deepEqual({...lasgun.updates[0]}, {'system.clip.value': 30});
+    assert.deepEqual({...lasgun.updates[0]}, {'system.clip.value': 30, 'system.ammo': 'a1'});
 });
 
 test('a weapon carrying only the wrong round says so, rather than failing blankly', async () => {
