@@ -22,6 +22,25 @@ test('every interface key has Russian text and preserves all formatting paramete
         if (/[a-z]/i.test(original)) assert.match(ru[key], /[А-Яа-яЁё]/u, key);
     }
 });
+test('all origins preserve source HTML structure and numeric rules in Russian descriptions', () => {
+    const source = read('./fixtures/origins-localization-source.json');
+    const catalog = read('../localization/ru/dark-heresy.origins.json');
+    assert.equal(Object.keys(source).length, 134);
+    assert.deepEqual(Object.keys(catalog.entries).sort(), Object.keys(source).sort());
+    for (const [id, original] of Object.entries(source)) {
+        const entry = catalog.entries[id];
+        assert.match(entry.name, /[А-Яа-яЁё]/u, id);
+        assert.match(entry.description, /[А-Яа-яЁё]/u, id);
+        assert.deepEqual(entry.description.match(/<[^>]+>/g), original.tags, id);
+        assert.deepEqual(entry.description.match(/\d+/g) ?? [], original.numbers, id);
+    }
+});
+test('all table titles are translated while canonical names remain searchable', () => {
+    const catalog = read('../localization/ru/dark-heresy.bc-tables.json');
+    assert.equal(Object.keys(catalog.entries).length, 74);
+    for (const entry of Object.values(catalog.entries)) assert.match(entry.name, /[А-Яа-яЁё]/u);
+    assert.ok(matchesRuleName(translated('Шок', 'Shock'), 'Shock'));
+});
 test('compendium lookup finds translated names through Babele index and document metadata', () => {
     const entry = {name: 'Владение оружием*', originalName: 'Weapon Training*', type: 'talent'};
     assert.equal(findContent([entry], ['talent'], 'Weapon Training (Las)'), entry);

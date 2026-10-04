@@ -29,8 +29,13 @@ for (const pack of json('system.json').packs) {
         const translation = {label: glossary[pack.label] ?? pack.label, mapping, entries: {}, folders: {}};
         let total = 0, names = 0, descriptions = 0;
         const pending = [];
+        const tableRows = [];
         for await (const [key, raw] of db.iterator()) {
             const data = JSON.parse(raw);
+            if (key.startsWith('!tables.results!')) {
+                tableRows.push({tableId: key.slice('!tables.results!'.length).split('.')[0], data});
+                continue;
+            }
             if (key.startsWith('!folders!')) {
                 if (glossary[data.name]) translation.folders[data.name] = glossary[data.name];
                 continue;
@@ -49,8 +54,16 @@ for (const pack of json('system.json').packs) {
             if (!entry.name || (fields.description && !entry.description)) pending.push({id: data._id, name: data.name,
                 fields: [!entry.name && 'name', fields.description && !entry.description && 'description'].filter(Boolean)});
         }
+        const results = {total: tableRows.length, names: 0, descriptions: 0, pending: []};
+        for (const {tableId, data} of tableRows) {
+            const entry = translation.entries[tableId]?.results?.[data._id];
+            if (entry?.name) results.names++;
+            if (entry?.description) results.descriptions++;
+            const fields = [data.name && !entry?.name && 'name', data.description && !entry?.description && 'description'].filter(Boolean);
+            if (fields.length) results.pending.push({tableId, id: data._id, name: data.name, fields});
+        }
         write(`localization/ru/dark-heresy.${pack.name}.json`, translation);
-        coverage.packs[pack.name] = {total, names, descriptions, pending};
+        coverage.packs[pack.name] = {total, names, descriptions, pending, ...(tableRows.length ? {results} : {})};
     } finally {
         if (db) await db.close();
         rmSync(temporary, {recursive: true, force: true});
