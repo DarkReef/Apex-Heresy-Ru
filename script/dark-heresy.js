@@ -1,3 +1,4 @@
+import "./party/panel.mjs";
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
 import {ruleText} from "./localization/rule-text.mjs";
@@ -1173,7 +1174,7 @@ class DarkHeresyActor extends Actor {
         for (let item of this.items) {
 
             if (item.weight) {
-                encumbrance = encumbrance + (item.quantity ? item.weightSum : item.weight);
+                encumbrance += Number(item.system.weight) * Number(item.system.quantity ?? 1);
             }
         }
         this._computeEncumbrance(encumbrance);
@@ -5745,7 +5746,13 @@ async function _sendRollToChat(rollData) {
 }
 
 async function _sendSingleRollToChat(rollData) {
-    let speaker = ChatMessage.getSpeaker();
+    // Requested checks may belong to another character than the selected token.
+    const rollingActor = _actorFromRollData(rollData);
+    let speaker = rollingActor ? {
+        actor:rollingActor.id, alias:rollingActor.name,
+        scene:rollingActor.token?.parent?.id ?? canvas?.scene?.id ?? null,
+        token:rollingActor.token?.id ?? null
+    } : ChatMessage.getSpeaker();
     let chatData = {
         user: game.user.id,
         rollMode: game.settings.get("core", "rollMode"),
@@ -5792,6 +5799,7 @@ async function _sendSingleRollToChat(rollData) {
         chatData.whisper = [game.user];
     }
 
+    ChatMessage.applyRollMode?.(chatData, chatData.rollMode);
     ChatMessage.create(chatData);
 }
 /**

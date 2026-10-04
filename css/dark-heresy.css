@@ -14616,3 +14616,20 @@ body:not(.no-theme) .dark-heresy.app.window-app .voidship .ship-sp input {
   font-variant-numeric: tabular-nums;
   color: var(--dh-ink-muted);
 }
+.dh-party-app .window-content { overflow: auto; }
+.dh-party-content { padding: 12px; }
+.dh-party-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.dh-party-toolbar button, .dh-party-actions button, .dh-inventory-row button { width: auto; }
+.dh-party-roster article { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--color-border-light-2, #555); padding: 10px 0; }
+.dh-party-roster article > div:first-of-type { flex: 1; }
+.dh-party-roster img, .dh-inventory-row img { width: 42px; height: 42px; object-fit: cover; border-radius: 5px; }
+.dh-party-actions { display: flex; gap: 4px; flex-wrap: wrap; max-width: 210px; }
+.dh-party-form { display: grid; gap: 10px; }
+.dh-party-form label { display: grid; gap: 4px; }
+.dh-party-form input[type=checkbox] { display: inline; }
+.dh-inventory-row { display: flex; align-items: center; gap: 8px; padding-top: 7px; padding-bottom: 7px; border-bottom: 1px solid #5555; }
+.dh-inventory-row span { flex: 1; min-width: 100px; }
+.dh-inventory-row select { max-width: 160px; }
+.dh-party-request div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.dh-party-request button { width: auto; }
+@media (max-width: 600px) { .dh-party-roster article, .dh-inventory-row { flex-wrap: wrap; } }

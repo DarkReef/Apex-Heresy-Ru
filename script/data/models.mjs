@@ -58,7 +58,9 @@ export function createDataModels(data, runtime) {
         const options = {required: false, initial};
         if (key === 'traitOverrides') return new fields.ObjectField({...options,
             validate: value => {validateTraitOverrides(value); return true;}});
-        if (typeof value === "number") return new fields.NumberField({...options, nullable:false});
+        if (typeof value === "number") return new fields.NumberField({...options, nullable:false,
+            ...(['price','credits','capacity','quantity'].includes(key) ? {min:0} : {}),
+            ...(key === 'quantity' ? {integer:true} : {})});
         if (typeof value === "boolean") return new fields.BooleanField({...options, nullable:false});
         if (typeof value === "string") return new fields.StringField({...options, blank:true});
         if (Array.isArray(value)) return new fields.ArrayField(new fields.AnyField({nullable:true}), options);

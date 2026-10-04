@@ -1973,6 +1973,9 @@
         "full": 0,
         "charge": 0,
         "run": 0
+      },
+      "economy": {
+        "credits": 0
       }
     },
     "heretic": {
@@ -2024,6 +2027,9 @@
         "full": 0,
         "charge": 0,
         "run": 0
+      },
+      "economy": {
+        "credits": 0
       }
     },
     "npc": {
@@ -2054,7 +2060,10 @@
         "run": 0
       },
       "notes": "",
-      "ruleset": ""
+      "ruleset": "",
+      "economy": {
+        "credits": 0
+      }
     },
     "vehicle": {
       "vehicleType": "wheeled",
@@ -2105,7 +2114,10 @@
         "round": 0
       },
       "notes": "",
-      "gmNotes": ""
+      "gmNotes": "",
+      "economy": {
+        "credits": 0
+      }
     },
     "voidship": {
       "hullClass": "",
@@ -2150,7 +2162,10 @@
       "gmNotes": "",
       "notes": "",
       "crewRating": 30,
-      "sp": 0
+      "sp": 0,
+      "economy": {
+        "credits": 0
+      }
     }
   },
   "Item": {
@@ -2234,7 +2249,15 @@
       },
       "weapon": "",
       "weaponTypes": [],
-      "weaponClasses": []
+      "weaponClasses": [],
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "armour": {
       "templates": [
@@ -2251,7 +2274,16 @@
         "rightLeg": 0
       },
       "maxAgility": 0,
-      "sizeModifier": 0
+      "sizeModifier": 0,
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "criticalInjury": {
       "templates": [
@@ -2265,26 +2297,62 @@
       "templates": [
         "equipment"
       ],
-      "installed": false
+      "installed": false,
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "drug": {
       "templates": [
         "equipment"
       ],
-      "shortDescription": ""
+      "shortDescription": "",
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "forceField": {
       "templates": [
         "equipment"
       ],
       "protectionRating": 0,
-      "overloadChance": 0
+      "overloadChance": 0,
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "gear": {
       "templates": [
         "equipment"
       ],
-      "shortDescription": ""
+      "shortDescription": "",
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "malignancy": {
       "templates": [
@@ -2359,7 +2427,16 @@
       "templates": [
         "equipment"
       ],
-      "shortDescription": ""
+      "shortDescription": "",
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "trait": {
       "templates": [
@@ -2390,7 +2467,16 @@
       "reload": "",
       "special": "",
       "attack": 0,
-      "ammo": ""
+      "ammo": "",
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "weaponModification": {
       "templates": [
@@ -2410,6 +2496,15 @@
         "availabilityShift": 1,
         "addTraits": "",
         "removeTraits": ""
+      },
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
       }
     },
     "aptitude": {
@@ -2500,7 +2595,16 @@
       "special": "",
       "attack": 0,
       "ammo": "",
-      "destroyed": false
+      "destroyed": false,
+      "quantity": 1,
+      "price": 0,
+      "inventory": {
+        "containerId": "",
+        "parentKey": "",
+        "containerKey": "",
+        "isContainer": false,
+        "capacity": 0
+      }
     },
     "vehicleTrait": {
       "templates": [

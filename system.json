@@ -2,7 +2,7 @@
   "id": "dark-heresy",
   "title": "Apex Heresy",
   "description": "Unofficial Foundry VTT system for the Warhammer 40,000 roleplaying games: Dark Heresy 2nd Edition, Black Crusade, Only War, Rogue Trader and Deathwatch. Each book gets its own character sheet and its own rules.",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14.365"
@@ -298,6 +298,10 @@
     "recommends": [
       {
         "id": "babele",
+        "type": "module"
+      },
+      {
+        "id": "item-piles",
         "type": "module"
       }
     ]
