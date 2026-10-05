@@ -17,3 +17,15 @@ input[data-rsa-state="warning"] {border-color:#b18b25;}
 input[data-rsa-state="invalid"] {border-color:#b51232;}
 .rsa-field-hint[data-rsa-state="invalid"] {color:#b51232;}
 .rsa-field-hint[data-rsa-state="warning"] {color:#97711f;}
+/* Keep every future chip within the chat column; explanations live outside it. */
+.dark-heresy.chat.roll.rsa-compact-card {min-width:0;max-width:100%;}
+.dark-heresy.chat.roll.rsa-compact-card .dh-card-h {flex-wrap:wrap;}
+.dark-heresy.chat.roll.rsa-compact-card .dh-card-h .who {min-width:0;overflow-wrap:anywhere;}
+.dark-heresy.chat.roll.rsa-compact-card .dh-chips .chip {min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;}
+.dark-heresy.chat.roll.rsa-compact-card .dh-kv {grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+.dark-heresy.chat.roll.rsa-compact-card .dh-kv dt,
+.dark-heresy.chat.roll.rsa-compact-card .dh-kv dd {min-width:0;white-space:normal;overflow-wrap:anywhere;}
+.dark-heresy.chat.roll.rsa-compact-card .rsa-trait-list {display:flex;flex-wrap:wrap;gap:.25rem .5rem;}
+body .dark-heresy.chat.roll.rsa-compact-card button.rsa-rule-link {display:inline;width:auto;height:auto;min-height:0;padding:0;border:0;background:none;color:inherit;font:inherit;line-height:inherit;white-space:normal;text-align:left;text-decoration:underline dotted;overflow-wrap:anywhere;box-shadow:none;}
+body .rsa-rule-dialog .window-content {background:#171b21!important;color:#eee!important;padding:1rem;}
+body .rsa-rule-dialog p,body .rsa-rule-dialog small {color:#eee!important;white-space:normal;overflow-wrap:anywhere;}

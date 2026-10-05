@@ -15,3 +15,27 @@
 .dh-party-request div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
 .dh-party-request button { width: auto; }
 @media (max-width: 600px) { .dh-party-roster article, .dh-inventory-row { flex-wrap: wrap; } }
+/* Isolate Item Piles' light palette from the system's global textured theme. */
+body.itempileffg-active .item-piles-app {
+ --item-piles-app-background:#eff0e8; --item-piles-app-color:#171d23;
+ --item-piles-input-background:#fff; --item-piles-input-text-color:#171d23;
+ --item-piles-input-placeholder-color:#555; --item-piles-button-background-color:#e1e5db;
+ --item-piles-even-color:#dce3d4; --item-piles-text-light-highlight:#172027;
+ --color-text-primary:#171d23; --color-text-dark-primary:#171d23;
+ --color-text-dark-secondary:#3c4650; --color-text-light-highlight:#171d23;
+ color:#171d23;
+}
+body.itempileffg-active .item-piles-app .window-content {background:#eff0e8!important;background-image:none!important;color:#171d23!important;}
+body.itempileffg-active .item-piles-app :is(p,label,h1,h2,h3,h4,small,.hint,.notes,.item-name,.item-piles-item-row,nav a) {color:#171d23!important;text-shadow:none!important;}
+body.itempileffg-active .item-piles-app :is(input,select,textarea) {background:#fff!important;color:#171d23!important;border:1px solid #737e86!important;}
+body.itempileffg-active .item-piles-app input::placeholder {color:#59616a!important;opacity:1;}
+body.itempileffg-active .item-piles-app :is(button,.item-piles-even-color) {background:#dce3d4!important;color:#171d23!important;text-shadow:none!important;}
+body.itempileffg-active .item-piles-app :is(button,nav a):hover {background:#c7d3bc!important;}
+body.itempileffg-active .item-piles-app .window-header {background:#202832!important;color:#f3f3eb!important;}
+body.itempileffg-active .item-piles-app .window-header :is(a,button,h4) {color:#f3f3eb!important;background:transparent!important;}
+body.itempileffg-active .item-piles-app :is(.item-name,.item-piles-item-row span) {min-width:0;overflow-wrap:anywhere;}
+.itempileffg-price-field {flex-basis:100%;padding:.5rem;}
+.itempileffg-price-field label {display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;}
+.itempileffg-price-field input {max-width:160px;}
+body.itempileffg-active .item-piles-app .item-piles-item-row :is(span,a),
+body.itempileffg-active .item-piles-app .item-piles-flexrow > span {color:#171d23!important;}

@@ -14,7 +14,12 @@ export function extendSchemas(config = CONFIG, runtime = foundry) {
         };
     }
     for (const [type, Base] of Object.entries(config.Item.dataModels)) {
-        if (!PHYSICAL_TYPES.has(type)) continue;
+        if (!PHYSICAL_TYPES.has(type)) {
+            if (!Base.defineSchema().price) config.Item.dataModels[type] = class extends Base {
+                static defineSchema() { return {...super.defineSchema(), price:number(0)}; }
+            };
+            continue;
+        }
         const fields = Base.defineSchema();
         if (fields.quantity && fields.price && fields.inventory) continue;
         config.Item.dataModels[type] = class extends Base {

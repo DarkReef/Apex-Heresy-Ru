@@ -10,9 +10,9 @@ function files(directory) {return readdirSync(directory).flatMap(name=>{const pa
 test('each module is a self-contained installable package with its own name and dependencies',()=>{
     for(const id of ['riftan-charbar','itempileffg','riftan-smart-assessment']) {
         const directory=join(root,'modules',id),manifest=json(join(directory,'module.json'));
-        assert.equal(manifest.id,id);assert.equal(manifest.version,'0.1.0');assert.equal(manifest.compatibility.minimum,'14');
+        assert.equal(manifest.id,id);assert.match(manifest.version,/^0\.1\.\d+$/);assert.equal(manifest.compatibility.minimum,'14');
         assert.match(manifest.manifest,new RegExp(`/modules/${id}/module.json$`));
-        assert.match(manifest.download,new RegExp(`/releases/download/${id}-v0.1.0/${id}.zip$`));
+        assert.match(manifest.download,new RegExp(`/releases/download/${id}-v${manifest.version}/${id}.zip$`));
         for(const path of [...manifest.esmodules,...manifest.styles,...manifest.languages.map(lang=>lang.path),'README.md','LICENSE']) assert.ok(statSync(join(directory,path)).isFile());
         for(const path of files(directory).filter(path=>path.endsWith('.mjs'))) {
             const text=readFileSync(path,'utf8');
@@ -49,6 +49,6 @@ test('ItemPileFFG extends old system models before loading documents and preserv
     assert.equal(config.Item.dataModels.ammunition.defineSchema().quantity,originalQuantity);
     assert.equal(config.Item.dataModels.gear.defineSchema().quantity.options.initial,1);
     assert.equal(config.Item.dataModels.gear.defineSchema().inventory.fields.capacity.options.min,0);
-    assert.equal(config.Item.dataModels.talent,GearModel);
+    assert.equal(config.Item.dataModels.talent.defineSchema().price.options.initial,0);
     const extended=config.Item.dataModels.gear;extendSchemas(config,runtime);assert.equal(config.Item.dataModels.gear,extended);
 });

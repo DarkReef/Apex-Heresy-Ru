@@ -143,9 +143,12 @@ export async function makeMerchant() {
     await game.itempiles.API.turnTokensIntoItemPiles(tokens.map(token => token.document), {pileSettings:{enabled:true,type:'merchant'}});
 }
 
+Hooks.once('init', () => {
+    game.settings.register(SCOPE, 'economyAdapterVersion', {scope:'world',config:false,type:Number,default:0});
+});
 Hooks.once('setup', () => {
     extendSchemas(); registerItemPiles();
-    if (typeof CONFIG.Actor.documentClass?.prototype?._computeEncumbrance === 'function') {
+    if (game.modules.get('lib-wrapper')?.active && typeof CONFIG.Actor.documentClass?.prototype?._computeEncumbrance === 'function') {
         libWrapper.register(SCOPE, 'CONFIG.Actor.documentClass.prototype._computeEncumbrance', function(wrapped, _oldWeight, ...args) {
             return wrapped([...this.items].reduce((sum,item) => sum + itemMass(item),0), ...args);
         }, 'WRAPPER');
@@ -153,8 +156,12 @@ Hooks.once('setup', () => {
 });
 Hooks.on('item-piles-preTradeItems', guardContainerTrade);
 Hooks.once('ready', () => {
+    if (game.system.id !== 'dark-heresy') return;
+    document.body.classList.add('itempileffg-active');
+    const missing = ['item-piles','lib-wrapper','socketlib'].filter(id => !game.modules.get(id)?.active);
+    if (missing.length) ui.notifications.error(`${t('INSTALL_ITEM_PILES')}: ${missing.join(', ')}`, {permanent:true});
     createApplications();
-    const api = {version:1, openInventory, moveItem, configureItem, createMerchantFromSelected:makeMerchant};
+    const api = {version:1, openInventory, moveItem, configureItem, createMerchantFromSelected:makeMerchant, repairEconomy:() => repairEconomy(true)};
     game.itempileffg = api; game.modules.get(SCOPE).api = api;
     for (const hook of ['updateActor','createItem','updateItem','deleteItem']) Hooks.on(hook, () => {
         for (const app of inventoryWindows) if (app.rendered) app.render(true);
@@ -171,3 +178,64 @@ Hooks.on('getSceneControlButtons', controls => {
         if (actor) openInventory(actor); else ui.notifications.warn(t('SELECT_TOKEN'));
     }};
 });
+
+// Item Piles settings persist across upgrades. A registered adapter alone does
+// not replace the empty price/currency paths of the built-in FFG adapter.
+export async function repairEconomy(force = false) {
+    const api = game.itempiles?.API;
+    if (!game.user.isGM || !api || !game.modules.get('item-piles')?.active) return false;
+    if (game.users.activeGM?.id && game.users.activeGM.id !== game.user.id) return false;
+    registerItemPiles();
+    // _createItemPile calls Actor.create with the persisted actorClassType.
+    // Registering an integration does not repair an existing blank setting.
+    // Check every load, even after an earlier economy migration was completed.
+    const actorTypes = CONFIG.Actor.dataModels;
+    if (force || !Object.hasOwn(actorTypes, api.ACTOR_CLASS_TYPE ?? '')) {
+        if (!Object.hasOwn(actorTypes, 'acolyte')) throw new Error('Missing acolyte actor model');
+        await api.setActorClassType('acolyte');
+    }
+    if (!force && game.settings.get(SCOPE, 'economyAdapterVersion') >= 2) return true;
+    if (force || !api.ITEM_PRICE_ATTRIBUTE) await api.setItemPriceAttribute('system.price');
+    if (force || !api.ITEM_QUANTITY_ATTRIBUTE) await api.setItemQuantityAttribute('system.quantity');
+    if (force || !api.CURRENCIES?.length) await api.setCurrencies(integrationConfigForWallet());
+    await game.settings.set(SCOPE, 'economyAdapterVersion', 2);
+    return true;
+}
+function integrationConfigForWallet() {
+    return [{type:'attribute',name:'ITEMPILEFFG.CREDITS',img:'icons/svg/coins.svg',abbreviation:'{#} cr',
+        data:{path:'system.economy.credits'},primary:true,exchangeRate:1}];
+}
+Hooks.once('item-piles-ready', () => void repairEconomy().catch(error => ui.notifications.error(errorText(error))));
+Hooks.once('ready', () => void repairEconomy().catch(error => ui.notifications.error(errorText(error))));
+
+/** Works on world items, owned items and unlocked compendium items. Never use
+ * system.cost: that field is the XP cost of talents and powers in FFG. */
+export function enhanceItemSheet(app, html) {
+    if (game.system.id !== 'dark-heresy') return;
+    const item = app.item ?? app.document ?? app.object;
+    if (item?.documentName !== 'Item') return;
+    const root = html?.querySelector ? html : html?.[0] ?? app.element?.[0] ?? app.element;
+    if (!root || root.querySelector('[name="system.price"]')) return;
+    const anchor = root.querySelector('.sheet-header') ?? root.querySelector('form') ?? root;
+    const row = document.createElement('div'); row.className = 'itempileffg-price-field';
+    const label = document.createElement('label'); label.textContent = t('PRICE');
+    const input = document.createElement('input'); input.type = 'number'; input.name = 'system.price';
+    input.min = '0'; input.step = '0.01'; input.value = String(item.system.price ?? 0);
+    input.disabled = !item.isOwner || app.isEditable === false;
+    label.append(input); row.append(label); anchor.append(row);
+    input.addEventListener('change', async event => {
+        event.stopPropagation();
+        try {
+            const value = validateMoney(input.value);
+            if (!item.isOwner || app.isEditable === false) throw new Error(t('NO_PERMISSION'));
+            await item.update({'system.price':value});
+            input.setCustomValidity('');
+        } catch(error) {
+            input.setCustomValidity(errorText(error)); input.reportValidity();
+            input.value = String(item.system.price ?? 0); ui.notifications.error(errorText(error));
+        }
+    });
+}
+Hooks.on('renderItemSheet', enhanceItemSheet);
+Hooks.on('renderItemSheetV2', enhanceItemSheet);
+Hooks.on('renderApplicationV2', enhanceItemSheet);

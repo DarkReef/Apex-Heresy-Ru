@@ -1,10 +1,12 @@
-# Riftan Smart Assessment 0.1.0 — prerelease
+# Riftan Smart Assessment 0.1.1 — предварительный релиз
 
-- Russian/English search and validity hints in the native Active Effect editor.
-- GM-authoritative, queued Fate rerolls preserving the original target and visibility.
-- Gold success cards and blood-scarlet failure cards, ten persistent phrases for each outcome.
-- Original/result links and Fate spending history; no effect summary.
+- Карточки бросков адаптированы к узкой панели чата; длинные подписи переносятся внутри карточки.
+- Подробности режимов оружия раскрываются при наведении и нажатии; полный текст не перегружает карточку.
+- Русские подписи известных свойств оружия, включая Las Weapon Setting и Reliable, без изменения исходных данных и механики.
+- Объяснение смены режима лазерного оружия и свойства «Надёжное».
 
-Requires Foundry VTT 14 and **Apex Heresy Ru 1.5.1**. Install/update the system first using the branch's system.json manifest. A connected GM is required for Fate spending.
+Требует Foundry VTT 14 и Apex Heresy Ru 1.5.1. Обновление системы не требуется. Перебросы Fate и помощник Active Effects сохранены.
 
-Automated rules and mocked DOM checks passed; live Foundry multiplayer QA is still outstanding.
+Установка: https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/riftan-smart-assessment/module.json
+
+Живая проверка в многопользовательском Foundry ещё требуется.

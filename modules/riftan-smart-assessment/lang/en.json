@@ -108,5 +108,8 @@
   "RSA.FIELD_armour.leftLeg.tempModifier": "Temporary armour: Left leg",
   "RSA.FIELD_armour.rightLeg.value": "Armour: Right leg",
   "RSA.FIELD_armour.rightLeg.tempModifier": "Temporary armour: Right leg",
-  "RSA.NOT_FAILED": "Only failed tests may be rerolled with Fate."
+  "RSA.NOT_FAILED": "Only failed tests may be rerolled with Fate.",
+  "RSA.CLOSE": "Close",
+  "RSA.TRAIT_RELIABLE": "Reliable: this weapon jams only on a result of 100.",
+  "RSA.TRAIT_LAS_WEAPON_SETTING": "Las weapon setting: standard; overcharge gives +1 damage and double ammunition use; maximal gives +2 damage, +2 penetration and quadruple ammunition use."
 }

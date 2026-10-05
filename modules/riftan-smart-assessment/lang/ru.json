@@ -108,5 +108,8 @@
   "RSA.FIELD_armour.leftLeg.tempModifier": "Временная броня: Левая нога",
   "RSA.FIELD_armour.rightLeg.value": "Броня: Правая нога",
   "RSA.FIELD_armour.rightLeg.tempModifier": "Временная броня: Правая нога",
-  "RSA.NOT_FAILED": "За Fate можно перебросить только проваленную проверку."
+  "RSA.NOT_FAILED": "За Fate можно перебросить только проваленную проверку.",
+  "RSA.CLOSE": "Закрыть",
+  "RSA.TRAIT_RELIABLE": "Надёжное: оружие заклинивает только при результате 100.",
+  "RSA.TRAIT_LAS_WEAPON_SETTING": "Смена режима: стандартный заряд; усиленный — +1 урон, двойной расход; максимальный — +2 урон, +2 ББ, четверной расход."
 }

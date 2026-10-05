@@ -1,3 +1,4 @@
+import {enhanceRollCard} from './chat.mjs';
 import {fieldCatalog,assessChange,searchFields} from './fields.mjs';
 import {SCOPE,rollData,fateActor,validateReroll,createFateService} from './fate.mjs';
 const t=key=>game.i18n.localize('RSA.'+key);
@@ -185,3 +186,5 @@ function historyLink(id,label) {
     });return button;
 }
 Hooks.on('updateChatMessage',message=>{if(message.getFlag(SCOPE,'replacement'))ui.chat?.render(true);});
+
+Hooks.on('renderChatMessageHTML',enhanceRollCard);

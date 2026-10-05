@@ -37,3 +37,7 @@ await game.modules.get('riftan-smart-assessment').api.requestReroll(messageId);
 Automated tests cover field selection/types/phases, ownership, visibility, saved modifiers, failure/refunds and simultaneous requests. DOM integration is tested using a mocked Foundry host. Live Foundry multiplayer QA remains required before treating this prerelease as production-ready.
 
 GPL-3.0; system integration derives from Apex Heresy. See LICENSE.
+
+## Компактные карточки (0.1.1)
+
+Подробности режима оружия открываются при наведении на подчёркнутую ссылку и по нажатию в отдельном окне. Длинные подписи переносятся, включая неизвестные свойства. Русские подписи относятся к отображению карточки: исходные названия предметов и механические свойства не переписываются. Новые пояснения следует добавлять во всплывающие подсказки, сохраняя короткую подпись в чате.
