@@ -1,0 +1,261 @@
+{
+  "label": "Вольный Торговец",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "0qQa5Azt4GVSItg7": {
+      "name": "Осколочная ракета"
+    },
+    "1Z2vB5Qkh6zUaYhH": {
+      "name": "Священные масла"
+    },
+    "1qIP06JK3HgxQWJ6": {
+      "name": "Игольчатая винтовка"
+    },
+    "2CknoK6cnhanJE8f": {
+      "name": "Френзон"
+    },
+    "2Mgas9xBtIxo0CoQ": {
+      "name": "Обоерукость"
+    },
+    "2SbhPwcWuNGHfUeI": {
+      "name": "Тёмное зрение"
+    },
+    "2fhIxbvxTogxFFMF": {
+      "name": "Неистовство"
+    },
+    "2nZsPMyWQhmZ7PJg": {
+      "name": "Имплант логис"
+    },
+    "2rHho3X2Xr6PpiW8": {
+      "name": "Ослепляющая граната"
+    },
+    "3T6YN82b255RMrKo": {
+      "name": "Мастер клинка"
+    },
+    "64xPpgobWsjgbMWA": {
+      "name": "Дробовик"
+    },
+    "6u0ykiDMlauv2Lyk": {
+      "name": "Демонический"
+    },
+    "7YkhDvc6CDhUGrWM": {
+      "name": "Автопистолет"
+    },
+    "8FXdn5Wdm64FUTUf": {
+      "name": "Стаб-револьвер"
+    },
+    "8PiKC83Oy7gjpxp5": {
+      "name": "Кибернетические органы чувств"
+    },
+    "Ey3Nn9wszI5Rqis7": {
+      "name": "Обаяние"
+    },
+    "FWrpIjv3W0myLwr5": {
+      "name": "Бронебойная граната"
+    },
+    "HBEQiKPihAgEhwfE": {
+      "name": "Страх"
+    },
+    "HyJWkPYYXczMkDel": {
+      "name": "Стимм"
+    },
+    "I4AZw3maBcevgnts": {
+      "name": "Аура власти"
+    },
+    "LHnm01hJSf4p6Idk": {
+      "name": "Множество рук"
+    },
+    "LPJcbFqlPeH6pipR": {
+      "name": "Слот"
+    },
+    "MQmPATimEVUv9QZU": {
+      "name": "Игольчатый пистолет"
+    },
+    "MWvi5L0D98rYrmEX": {
+      "name": "Крепкое телосложение"
+    },
+    "MpUxn0phNZIamARS": {
+      "name": "Силовая броня"
+    },
+    "Mu8YZTePqs3yEGjh": {
+      "name": "Бионическое сердце"
+    },
+    "NzAe7yQjJUPrJNAH": {
+      "name": "Посох"
+    },
+    "PvM834ngCQdlGDAd": {
+      "name": "Проводник варпа"
+    },
+    "QNUQirw3uWyk3fgZ": {
+      "name": "Гвардейская противоосколочная броня"
+    },
+    "QX0GzYlsLZbzNVuV": {
+      "name": "Меткий стрелок"
+    },
+    "TMbSg4vDzfc4XibI": {
+      "name": "Щит"
+    },
+    "TXLSfwFllEfY9Awz": {
+      "name": "Копьё"
+    },
+    "U1q5LKd0c6i77Eo4": {
+      "name": "Микробусина"
+    },
+    "VNOPfxd2xB83G2Tr": {
+      "name": "Варп-оружие"
+    },
+    "WssFSSHH9cw6AeAy": {
+      "name": "Лазган"
+    },
+    "XIHwv1W4j5WAnMFk": {
+      "name": "Хронометр"
+    },
+    "XLv8HcfXW2RXsFJl": {
+      "name": "Молниеносные рефлексы"
+    },
+    "YDquaXaEgTwMby4x": {
+      "name": "Размер"
+    },
+    "ZIUvFrHQwHqTharO": {
+      "name": "Отравленное"
+    },
+    "ZqfqMxiWTV1bTw5V": {
+      "name": "Стаб-автоматический пистолет"
+    },
+    "amhvN3Gcb1U8CRf2": {
+      "name": "Машина"
+    },
+    "bfildA7II0Fp787M": {
+      "name": "Магнокуляры"
+    },
+    "cclPeMJEzhbGrJcz": {
+      "name": "Меч"
+    },
+    "dz1r6UxuxI1mJf5g": {
+      "name": "Психосилы"
+    },
+    "helSgcIOBRvRosbB": {
+      "name": "Железная дисциплина"
+    },
+    "jToVtLPMWmiuUEpQ": {
+      "name": "Пустотный скафандр"
+    },
+    "jhsCMjvUkPlpfCdl": {
+      "name": "Навигатор"
+    },
+    "kBm9jnVu11NqQfxF": {
+      "name": "Предвидение"
+    },
+    "lpJkFBF65GmBCsFO": {
+      "name": "Осколочная граната"
+    },
+    "n2v4w2zi2tU94JqR": {
+      "name": "Регенерация"
+    },
+    "nt8BZldxj60WzJ3W": {
+      "name": "Импланты Механикус"
+    },
+    "oHZ8rvkz0sP4KZdj": {
+      "name": "Лазпистолет"
+    },
+    "q1SXTOvyG03qlf1r": {
+      "name": "Нож"
+    },
+    "qN05vWygMgjdKsJj": {
+      "name": "Могучий выстрел"
+    },
+    "qciD9ajbwF3Gcu3r": {
+      "name": "Автомат"
+    },
+    "rAuweB1vnGjb96Zh": {
+      "name": "Дымовая граната"
+    },
+    "rRUuPXanQnrrjCjn": {
+      "name": "Крупный"
+    },
+    "svnmDX8iQFJtJ24S": {
+      "shortDescription": "Тёмное зрение"
+    },
+    "t9MgLgy63ZuNZlEY": {
+      "name": "Контратака"
+    },
+    "uZs8eTsZ22ubU0iy": {
+      "name": "Обскура"
+    },
+    "v5KGYe8X5quaNRdy": {
+      "name": "Бронебойная ракета"
+    },
+    "yhTbWXxj83Q7fS7E": {
+      "name": "Пси-рейтинг"
+    }
+  },
+  "folders": {
+    "Additional Facilities": "Дополнительные помещения",
+    "Flak": "Противоосколочная",
+    "Plasma": "Плазменное",
+    "Macrobatteries": "Макробатареи",
+    "Telekinesis": "Телекинез",
+    "Gear": "Снаряжение",
+    "Warp Engines": "Варп-двигатели",
+    "Mesh": "Сетчатая",
+    "Melta": "Мельта",
+    "Archeotech": "Археотех",
+    "Lances": "Лэнсы",
+    "Essential Components": "Основные компоненты",
+    "Special Abilities": "Особые способности",
+    "Archeotech & Xenotech Components": "Археотехнические и ксенотехнические компоненты",
+    "Cybernetics": "Импланты",
+    "Talents": "Таланты",
+    "Ranged Weapons": "Стрелковое оружие",
+    "Augments and Enhancements": "Аугментации и улучшения",
+    "Clothing": "Одежда",
+    "Exotic": "Экзотическое",
+    "Ship's Bridge": "Корабельный мостик",
+    "Chain": "Цепное",
+    "Divination": "Предсказание",
+    "Mutations": "Мутации",
+    "Carapace": "Панцирная",
+    "Navigator": "Навигатор",
+    "Primitive": "Примитивное",
+    "Grenades & Missiles": "Гранаты и ракеты",
+    "Psychic Techniques": "Психические техники",
+    "Life Sustainers": "Системы жизнеобеспечения",
+    "Power": "Силовая",
+    "Telepathy": "Телепатия",
+    "General": "Общее",
+    "Traits": "Особенности",
+    "Geller Fields": "Поля Геллера",
+    "Crew Quarters": "Жилые отсеки экипажа",
+    "Standard": "Стандартная",
+    "Ammunition": "Боеприпасы",
+    "Las": "Лазерное",
+    "Supplemental Components": "Дополнительные компоненты",
+    "Xeno-tech": "Ксенотех",
+    "Weapon Upgrades": "Улучшения оружия",
+    "Solid Projectile": "Стабберы",
+    "Navigator Powers": "Силы навигатора",
+    "Other": "Прочее",
+    "Plasma Drives": "Плазменные двигатели",
+    "Unusual": "Необычное",
+    "Melee Weapons": "Оружие ближнего боя",
+    "Launchers": "Пусковые установки",
+    "Armour": "Броня",
+    "Implants": "Импланты",
+    "Starship Weapons": "Корабельное оружие",
+    "Flame": "Огненное",
+    "Shock": "Шоковое",
+    "Void Shields": "Пустотные щиты",
+    "Cargo and Passenger Compartments": "Грузовые и пассажирские отсеки",
+    "Tools": "Инструменты",
+    "Augur Arrays": "Сканирующие массивы",
+    "Drugs & Consumables": "Препараты и расходники",
+    "Bionics": "Бионика",
+    "Bolt": "Разряд"
+  }
+}

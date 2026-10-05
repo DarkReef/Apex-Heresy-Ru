@@ -1,3 +1,4 @@
+import {ruleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  План → записи на актора, и обратно.
 //
@@ -46,7 +47,7 @@ const normalise = value => String(value ?? "").toLowerCase().replace(/\s+/g, " "
  */
 export function ownedAptitudes(actor) {
     const owned = new Set([UNIVERSAL_APTITUDE]);
-    for (const item of actor?.items ?? []) if (item?.type === "aptitude" && item.name) owned.add(item.name.trim());
+    for (const item of actor?.items ?? []) if (item?.type === "aptitude" && item.name) owned.add(ruleName(item).trim());
     return owned;
 }
 
@@ -220,7 +221,7 @@ export function planToActorUpdate(actor, plan, {characteristicMode = "flat", dup
     // Повторный талант не выдаётся второй раз; книга может дать за него опыт (стр. 41).
     const ownedTalents = new Set((actor.items ?? [])
         .filter(item => item?.type === "talent" && item.name)
-        .map(item => item.name.toLowerCase().trim()));
+        .map(item => ruleName(item).toLowerCase().trim()));
     for (const talent of plan.talents ?? [])
         if (ownedTalents.has(String(talent.name).toLowerCase().trim())) applied.duplicateTalents.push(talent.name);
     applied.duplicateExperience = applied.duplicateTalents.length * rule.talentExperience;

@@ -220,7 +220,7 @@
                         <div class="name">
                             <b class="weapon-name">{{item.name}}</b>
                             {{#if item.traitLine}}
-                                <span class="weapon-traits">{{item.traitLine}}</span>
+                                <span class="weapon-traits">{{ruleText item.traitLine item.source}}</span>
                             {{/if}}
                         </div>
                         <div class="class">{{item.WeaponClass}}</div>

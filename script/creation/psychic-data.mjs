@@ -1,3 +1,4 @@
+import {ruleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Психосилы Dark Heresy: деревья дисциплин, цены и рейтинг пси.
 //
@@ -99,7 +100,7 @@ export function psyRatingCost(rating, base = 1) {
  */
 export function psyBase(traits, ruleset = "dh2") {
     if (ruleset === "ow") return 2;
-    return (traits ?? []).some(entry => lower(entry.name ?? entry) === "sanctioned") ? 2 : 1;
+    return (traits ?? []).some(entry => lower(ruleName(entry)) === "sanctioned") ? 2 : 1;
 }
 
 /** Открыта ли сила: верхняя — всегда, остальные — через имеющегося родителя. */

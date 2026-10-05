@@ -1,0 +1,250 @@
+{
+  "label": "Чёрный Крестовый Поход",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "04mMNxBLEtX3rhqX": {
+      "name": "Психосиловой меч"
+    },
+    "081FRzEIWhsp00MP": {
+      "name": "Плазменный пистолет"
+    },
+    "0blcguZsuHehpkHg": {
+      "name": "Огнемёт"
+    },
+    "0trUa2uzlzNJ1IEV": {
+      "name": "Автомат"
+    },
+    "0uGdn85RuN1FTfOO": {
+      "name": "Серворука"
+    },
+    "0wPgQoXxv5RBE8uT": {
+      "name": "Могучий выстрел"
+    },
+    "0yuskLpfjQGwaJe8": {
+      "description": "<div class=\"bc-entry\"><p class=\"bc-lead\">Персонаж получает дополнительную рану. Талант можно приобретать многократно, но не более бонуса Выносливости. Число приобретений указывается после названия, например «Крепкое телосложение (3)».</p></div>",
+      "name": "Крепкое телосложение"
+    },
+    "1XcAqcYUKsZHrugE": {
+      "name": "Бионические ноги"
+    },
+    "2CTqK42QBQwE1ypb": {
+      "name": "Посох"
+    },
+    "2KoUx255IAfVf2u5": {
+      "name": "Конверсионное поле"
+    },
+    "3m2DRHN75dJAV9I2": {
+      "name": "Уличный бой"
+    },
+    "4ZdDIf826RQHLQ2d": {
+      "name": "Детокс"
+    },
+    "4r9YoQDi9q4ce9NY": {
+      "name": "Нож"
+    },
+    "5AOq5AbpqruGscNU": {
+      "name": "Контратака"
+    },
+    "6Q9KgaD9Amw4hbRE": {
+      "name": "Лазган"
+    },
+    "6epNbGdgHhOzZ7Mx": {
+      "name": "Тяжёлый огнемёт"
+    },
+    "6vHwDc6NJxiGWLRq": {
+      "name": "Слот"
+    },
+    "7kRfkMETiqQcKB7D": {
+      "name": "Стимм"
+    },
+    "9lmLmJHKjNR1mOol": {
+      "name": "Магнокуляры"
+    },
+    "AUJGVTQBPucUGws5": {
+      "name": "Тяжёлый болтер"
+    },
+    "AsfbBjtGvmWoKxLD": {
+      "name": "Громовой натиск"
+    },
+    "D79g4MNKoAHhClZt": {
+      "name": "Лёгкая панцирная броня"
+    },
+    "DOqVRiudRQ8RbiOA": {
+      "name": "Железная дисциплина"
+    },
+    "E1bLjflI6tFyQudb": {
+      "name": "Психосиловой посох"
+    },
+    "EUP16ONUiKYbaHaT": {
+      "name": "Топор"
+    },
+    "EgzoQLsebaw7HaBh": {
+      "name": "Ракетная установка"
+    },
+    "G1XXw71GzEYK8Ncu": {
+      "name": "Бронебойная ракета"
+    },
+    "G4wOU1P1GSQDJ3mr": {
+      "name": "Картограф"
+    },
+    "GLc8BGeGauffyOXa": {
+      "name": "Хронометр"
+    },
+    "I0XpvewyPU6fr0bv": {
+      "name": "Автопистолет"
+    },
+    "IyK5XBVxqr9ZkCv2": {
+      "name": "Кибернетические органы чувств"
+    },
+    "JW2NHgaw1pquEXb9": {
+      "name": "Меткий стрелок"
+    },
+    "L5UoTVh7uy2d4fuM": {
+      "name": "Плазменная пушка"
+    },
+    "LRc3CZ6OqIaW93Wy": {
+      "name": "Психосила"
+    },
+    "LbGiE79cFMaLDHFQ": {
+      "name": "Гвардейская противоосколочная броня"
+    },
+    "LlZfTNExZ284ZXQT": {
+      "name": "Предвидение"
+    },
+    "Me6ejPgTS2w1znAL": {
+      "name": "Мастер клинка"
+    },
+    "NXnag1NW3mjmGi58": {
+      "name": "Молниеносные рефлексы"
+    },
+    "OKhv3CYF6zoILHQf": {
+      "name": "Плазменная винтовка"
+    },
+    "OrV6e099xOmcc1o6": {
+      "name": "Рефракторное поле"
+    },
+    "QV7dzZ06HHOAiCoH": {
+      "name": "Пси-рейтинг"
+    },
+    "RgUrJR1SSErpPB8a": {
+      "name": "Мельтаган"
+    },
+    "SLaUaCeK8tvSFvun": {
+      "name": "Обскура"
+    },
+    "T5aleuIJzCtUptSQ": {
+      "name": "Стаб-револьвер"
+    },
+    "XwyLzmsFhBbmq8DF": {
+      "name": "Френзон"
+    },
+    "YzaNpzX1Kg62jcx8": {
+      "name": "Проводник варпа"
+    },
+    "Zig0GRdamgEBzuce": {
+      "name": "Бионическая рука"
+    },
+    "aIcMrSS8RM7O2AGQ": {
+      "name": "Осколочная ракета"
+    },
+    "aWad0xCv4vwQJZBE": {
+      "name": "Микробусина"
+    },
+    "avfgwikqKlMOa1dn": {
+      "name": "Бронебойная граната"
+    },
+    "bR8wdIAhcEQkend8": {
+      "description": "<div class=\"bc-entry\"><p class=\"bc-lead\">Талант отражает достаточную подготовку обеих рук, а не обязательно врождённую обоерукость. Персонаж одинаково хорошо пользуется обеими руками и не получает штраф −20 за действия неосновной рукой. Особое: в сочетании с талантом «Боец с двумя оружиями» штраф к атакам обоими оружиями в один ход снижается до −10.</p></div>",
+      "name": "Обоерукость"
+    },
+    "cEsWXjJ8ZMoCHbjU": {
+      "name": "Поле смещения"
+    },
+    "dOsuoXKqjs4MiAsF": {
+      "name": "Щит"
+    },
+    "dl8BYCvqpQXrkCxR": {
+      "name": "Владение оружием"
+    },
+    "gD4UH3LTamtWmlqT": {
+      "name": "Гранатомёт"
+    },
+    "gMcALyX6b8gaVX1s": {
+      "name": "Болт-пистолет"
+    },
+    "hQ50rF503W76d3Tk": {
+      "name": "Стаб-автоматический пистолет"
+    },
+    "maFc2QgYZsoM8Gu7": {
+      "name": "Пустотный скафандр"
+    },
+    "me9G1e5pWK8j0Cb9": {
+      "name": "Ручной огнемёт"
+    },
+    "mwciGf5hSD418SPJ": {
+      "name": "Меч"
+    },
+    "n60ZWaahMNrnNf9I": {
+      "name": "Силовая броня"
+    },
+    "nwfWrITGK6rSrROp": {
+      "name": "Лазпистолет"
+    },
+    "qb0YSdy103wyDXBk": {
+      "name": "Неистовство"
+    },
+    "qtaZl0uGJ3YHvlNN": {
+      "name": "Медицинский набор"
+    },
+    "uVVk1KloZe4VsRg0": {
+      "name": "Копьё"
+    },
+    "vHEgKPdVAfIi0FAC": {
+      "name": "Противоосколочный жилет"
+    },
+    "vV6X8rRInudLkf0L": {
+      "name": "Личное силовое поле"
+    },
+    "vs7aG1ajFO20pVlC": {
+      "name": "Осколочная граната"
+    },
+    "wkNKsn3YMe13o3Ej": {
+      "name": "Дробовик"
+    },
+    "xQsIpiX33W3Qy395": {
+      "name": "Псайкер"
+    },
+    "xZiL7OUEPpKH8W7m": {
+      "name": "Дымовая граната"
+    },
+    "xyx0zeRdS2xHwyNk": {
+      "description": "<div class=\"bc-entry\"><p class=\"bc-lead\">Персонаж рождён командовать, вдохновляя или устрашая подчинённых. При проверках Командования он может воздействовать на число целей, равное десятикратному бонусу Общительности. Прислужники (с. 135) получают +10 к лояльности в его присутствии. Талант не действует на враждебные цели и влияет только на НИП.</p></div>",
+      "benefit": "Командование влияет на бонус Общительности × 10 целей; прислужники получают +10 к лояльности.",
+      "name": "Аура власти"
+    }
+  },
+  "folders": {
+    "Talents & Traits": "Таланты и особенности",
+    "Talents": "Таланты",
+    "Protection": "Защита",
+    "Weapons": "Оружие",
+    "Tools": "Инструменты",
+    "Gear": "Снаряжение",
+    "Traits": "Особенности",
+    "Corruption & Injury": "Порча и травмы",
+    "Weapon Modifications": "Модификации оружия",
+    "Gifts of the Gods": "Дары богов",
+    "Psychic Powers": "Психосилы",
+    "Melee Weapons": "Оружие ближнего боя",
+    "Drugs": "Препараты",
+    "Cybernetics": "Импланты",
+    "Daemon Weapons": "Демоническое оружие",
+    "Grenades & Missiles": "Гранаты и ракеты"
+  }
+}

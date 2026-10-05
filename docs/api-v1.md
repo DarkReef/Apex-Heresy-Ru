@@ -49,3 +49,32 @@ await game.darkHeresy.api.useItem({actorUuid: actor.uuid, itemId: weapon.id, dia
 Структурированные свойства проверены автоматическими тестами парсера, API, моделей, подготовки модификаций и редактора. На Foundry 14.365 проверены кнопка в листе, рендер DialogV2, фильтр, точечный патч сохранения и сохранение окна при потере прав. Персистентность редактора была подменена записью патча в память; реальные игровые предметы этим тестом не обновлялись. На временном Actor проверены значения в данных атаки и после reset; валидатор поля отвергает неправильный тип.
 
 При возобновлении браузерной проверки вкладка перешла в GMTEST, мир сообщает worldSchemaVersion=14. Время обновления этой версии данной проверкой не установлено; испытания миграции с исходной старой схемы на изолированной копии всё ещё требуются.
+
+## Only War 1.5.1 — extension contract
+
+The system contains no optional modules or module economy fields. Charbar,
+ItemPileFFG and Smart Assessment are installed independently. Historical
+`codex/party-bar-item-piles` and `codex/foundry-modules` branches are prototypes,
+not system release sources.
+
+`game.darkHeresy.localization.ruleTerm(value, book = "ow", field = "")`
+translates an exact display term. `ruleText` has the same arguments and translates
+plain text, including numbered qualities. Both use the current UI language;
+unknown terms, English and other books pass through. Never persist their output
+in mechanical fields.
+
+`game.darkHeresy.tests.fateSnapshotVersion === 1` advertises the synchronous
+`darkHeresy.preComputeRollTarget` hook. A listener may restore a validated saved
+roll target and return false to skip target recomputation. Common and combat
+checks call the hook. Ownership, spending and snapshot validation belong to the
+module. Chat creation is awaited and persistence errors propagate to callers.
+
+Russian UI source: `localization/ru/glossary.json`; ambiguous English labels use
+`localization/ru/interface-overrides.json`. Rebuild with `npm run localization:build`.
+Do not edit generated `lang/ru.json`. Only War content completeness is covered by
+source/translation tests; other books are not claimed complete.
+
+Release remains a candidate until Foundry 14.365 + Russian + Babele is checked
+with no modules, each optional module, and all three together, including GM and
+player clients, private rolls, failed persistence and Fate rerolls after modifiers
+change. Automated tests do not replace this live multiplayer validation.

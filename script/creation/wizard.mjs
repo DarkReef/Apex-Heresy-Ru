@@ -1,3 +1,4 @@
+import {ruleName, matchesRuleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Мастер создания персонажа.
 //
@@ -566,7 +567,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             const data = (await pack.getDocument(hit._id)).toObject();
             // Имя с уточнением остаётся за копией: специалистский талант лежит в паке
             // одной записью «Weapon Training*», а на листе он «Weapon Training (Las)».
-            data.name = name;
+            if (ruleName(data) !== name) data.name = name;
             return data;
         }
         return null;
@@ -785,7 +786,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     async _applyElite(key, {free = false, carrier = null} = {}) {
         const actor = this.actor;
         const plan = elitePlan(key, {free, riders: this._eliteRiders(),
-            traits: actor.items.filter(item => item.type === "trait").map(item => item.name)});
+            traits: actor.items.filter(item => item.type === "trait").map(item => ruleName(item))});
         if (!plan) return null;
         const flags = carrier
             ? {[GRANT_FLAG_SCOPE]: {[GRANT_FLAG_KEY]: carrier.getFlag(GRANT_FLAG_SCOPE, GRANT_FLAG_KEY),
@@ -803,7 +804,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // суммирует cost у черт и особых способностей.
         for (const trait of plan.traits) items.push(await fromPack("trait", trait.name, {cost: trait.cost}));
         for (const name of plan.talents)
-            if (!actor.items.some(item => item.type === "talent" && item.name === name))
+            if (!actor.items.some(item => item.type === "talent" && matchesRuleName(item, name)))
                 items.push(await fromPack("talent", name, {starter: true, cost: 0}));
         for (const ability of plan.specialAbilities)
             items.push({name: ability.name, type: "specialAbility", img: "icons/svg/aura.svg", flags,
@@ -1047,7 +1048,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             remaining: this._remaining(),
             check: text => checkPrerequisites(text, snapshot, CharacterWizard.CHARACTERISTIC_NAMES)
         });
-        const advance = offers.find(entry => entry.name === name);
+        const advance = offers.find(entry => matchesRuleName(entry, name));
         if (!advance || advance.blocked) {
             if (advance?.lockedAtCreation)
                 ui.notifications?.warn(game.i18n.localize("WIZARD.ADVANCE_DEATHWATCH_CLOSED"));
@@ -1112,9 +1113,9 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     async _buyAdvance(name) {
         // У Deathwatch продвижения приходят списками и стоят каждое своё (стр. 58).
         if (RULESET_DEFS[this.ruleset]?.advanceLists) return this._buyListedAdvance(name);
-        const advance = this._specialityAdvances().find(entry => entry.name === name);
+        const advance = this._specialityAdvances().find(entry => matchesRuleName(entry, name));
         if (!advance) return;
-        if (this.actor.items.some(item => item.type === "specialAbility" && item.name === advance.name)) return;
+        if (this.actor.items.some(item => item.type === "specialAbility" && matchesRuleName(item, advance.name))) return;
         const data = {name: advance.name, type: "specialAbility", img: "icons/svg/aura.svg",
                       system: {cost: advance.cost, benefit: advance.effect},
                       flags: {[GRANT_FLAG_SCOPE]: {creationPurchase: true}}};
@@ -1536,12 +1537,12 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             characteristics, characteristicValues,
             skills: foundry.utils.deepClone(system.skills ?? {}),
             talents: this.actor.items.filter(item => item.type === "talent")
-                .map(item => ({name: item.name, starter: !!item.system.starter})),
-            traits: this.actor.items.filter(item => item.type === "trait").map(item => ({name: item.name})),
+                .map(item => ({name: ruleName(item), starter: !!item.system.starter})),
+            traits: this.actor.items.filter(item => item.type === "trait").map(item => ({name: ruleName(item)})),
             elite: eliteKeysIn(system.bio?.elite),
             psyRating: Number(system.psy?.rating) || 0,
             psyCost: Number(system.psy?.cost) || 0,
-            powers: this.actor.items.filter(item => item.type === "psychicPower").map(item => item.name)
+            powers: this.actor.items.filter(item => item.type === "psychicPower").map(item => ruleName(item))
         };
     }
 
@@ -1564,7 +1565,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!pack) return (this._catalogue = []);
         const index = await pack.getIndex({fields: ["system.tier", "system.aptitudes", "system.prerequisites", "system.benefit"]});
         this._catalogue = index.contents.filter(entry => entry.type === "talent").map(entry => ({
-            name: entry.name, uuid: entry.uuid, tier: entry.system?.tier,
+            name: entry.name, originalName: ruleName(entry), uuid: entry.uuid, tier: entry.system?.tier,
             aptitudes: entry.system?.aptitudes ?? "", prerequisites: entry.system?.prerequisites ?? "",
             benefit: entry.system?.benefit ?? ""
         }));
@@ -1633,12 +1634,12 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // Специалистский талант берут по имени специализации: «Weapon Training (Las)».
         const spec = String(specialisation ?? "").trim();
         if (offer.specialist && !spec) { ui.notifications?.warn(game.i18n.localize("WIZARD.SHOP_NAME_SPECIALISATION")); return; }
-        const name = offer.specialist ? `${offer.name.replace(/\*$/, "")} (${spec})` : offer.name;
-        if (this.actor.items.some(item => item.type === "talent" && item.name === name)) return;
+        const name = offer.specialist ? `${ruleName(offer).replace(/\*$/, "")} (${spec})` : ruleName(offer);
+        if (this.actor.items.some(item => item.type === "talent" && matchesRuleName(item, name))) return;
 
         const data = (await fromUuid(uuid)).toObject();
         delete data._id;
-        data.name = name;
+        if (ruleName(data) !== name) data.name = name;
         data.system = {...data.system, starter: false, cost: offer.cost};
         data.flags = foundry.utils.mergeObject(data.flags ?? {}, {[GRANT_FLAG_SCOPE]: {creationPurchase: true}});
         await this._commitPurchase({update: {}, record: {kind: "talent", name, cost: offer.cost, label: name}},
@@ -1784,9 +1785,9 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
                            .filter(check => check.status === "unmet").map(check => check.text).join(", ")})
                        : ""}
                 : {...entry,
-                   owned: this.actor.items.some(item => item.type === "specialAbility" && item.name === entry.name),
+                   owned: this.actor.items.some(item => item.type === "specialAbility" && matchesRuleName(item, entry.name)),
                    affordable: !locked && entry.cost <= remaining
-                       && !this.actor.items.some(item => item.type === "specialAbility" && item.name === entry.name)}),
+                       && !this.actor.items.some(item => item.type === "specialAbility" && matchesRuleName(item, entry.name))}),
             shopRank: listed ? this._rank() : null,
             // Пси-рейтинг Black Crusade покупается талантом Psy Rating, а не лестницей,
             // поэтому отдельной строки у него там нет (стр. 79).
@@ -2183,12 +2184,12 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     /** Таблица по имени: сперва мира, потом компендиума — как у дивинации. */
     async _lifeTable(name) {
-        const inWorld = game.tables?.find(table => table.name === name);
+        const inWorld = game.tables?.find(table => matchesRuleName(table, name));
         if (inWorld) return inWorld;
         const pack = game.packs.get("dark-heresy.bc-tables");
         if (!pack) return null;
         const index = await pack.getIndex();
-        const hit = index.contents.find(entry => entry.name === name);
+        const hit = index.contents.find(entry => matchesRuleName(entry, name));
         return hit ? pack.getDocument(hit._id) : null;
     }
 
@@ -2217,12 +2218,12 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     async _divinationTable() {
-        const inWorld = game.tables?.find(table => table.name === "Divinations");
+        const inWorld = game.tables?.find(table => matchesRuleName(table, "Divinations"));
         if (inWorld) return inWorld;
         const pack = game.packs.get("dark-heresy.bc-tables");
         if (!pack) return null;
         const index = await pack.getIndex();
-        const hit = index.contents.find(entry => entry.name === "Divinations");
+        const hit = index.contents.find(entry => matchesRuleName(entry, "Divinations"));
         return hit ? pack.getDocument(hit._id) : null;
     }
 

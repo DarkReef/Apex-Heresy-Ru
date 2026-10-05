@@ -1,0 +1,10 @@
+{
+  "name": "apex-heresy-ru",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "localization:build": "node tools/build-russian.mjs",
+    "localization:test": "node --test tests/localization-ru.test.mjs tests/localization-only-war.test.mjs"
+  },
+  "devDependencies": {"classic-level": "3.0.0"}
+}

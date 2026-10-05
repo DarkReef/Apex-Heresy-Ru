@@ -1,3 +1,4 @@
+import {ruleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Трата стартового опыта (Dark Heresy, стр. 78-81): что можно купить, почём,
 //  и какая запись на лист у каждой покупки.
@@ -182,7 +183,7 @@ export function checkPrerequisites(text, snapshot, characteristicNames) {
 
     // Предпосылкой бывает и другая сила («Endurance» у Iron Arm, Only War стр. 230).
     const owned = new Set([...(snapshot.talents ?? []), ...(snapshot.traits ?? []), ...(snapshot.powers ?? [])]
-        .map(entry => String(entry.name ?? entry).toLowerCase().replace(/\*$/, "").trim()));
+        .map(entry => ruleName(entry).toLowerCase().replace(/\*$/, "").trim()));
     const talentNames = snapshot.talentNames ?? new Set();
     const meets = (advance, required) => advance === null ? "unknown" : advance >= required ? "met" : "unmet";
 
@@ -226,24 +227,24 @@ export function checkPrerequisites(text, snapshot, characteristicNames) {
  * @param {Record<string, string>} characteristicNames
  */
 export function talentOffers(catalogue, snapshot, characteristicNames) {
-    const owned = new Set((snapshot.talents ?? []).map(entry => String(entry.name ?? entry).toLowerCase()));
+    const owned = new Set((snapshot.talents ?? []).map(entry => ruleName(entry).toLowerCase()));
     // Имена талантов из самого каталога: предпосылка «Frenzy» — талант, которого может не быть.
     const withNames = {...snapshot, talentNames: new Set((catalogue ?? [])
-        .map(entry => String(entry.name).toLowerCase().replace(/\*$/, "").trim()))};
+        .map(entry => ruleName(entry).toLowerCase().replace(/\*$/, "").trim()))};
     const offers = [];
     for (const entry of catalogue ?? []) {
         const tier = Number(entry.tier);
         if (!(tier >= 1 && tier <= 3)) continue;
         // Специалистский талант («Weapon Training*») берут много раз с разными
         // специализациями, поэтому уже имеющаяся копия его не прячет.
-        const specialist = String(entry.name).endsWith("*");
-        if (!specialist && owned.has(String(entry.name).toLowerCase())) continue;
+        const specialist = ruleName(entry).endsWith("*");
+        if (!specialist && owned.has(ruleName(entry).toLowerCase())) continue;
         const aptitudes = String(entry.aptitudes ?? "").split(",").map(part => part.trim()).filter(Boolean);
         const matched = matchingAptitudes(snapshot.aptitudes, aptitudes);
         const prerequisites = checkPrerequisites(entry.prerequisites, withNames, characteristicNames);
-        const relation = relationIn(snapshot, patronOf({name: entry.name, system: {patron: entry.patron}}));
+        const relation = relationIn(snapshot, patronOf({name: ruleName(entry), system: {patron: entry.patron}}));
         offers.push({
-            name: entry.name, uuid: entry.uuid, tier, aptitudes, matched, specialist, relation,
+            name: entry.name, originalName: ruleName(entry), uuid: entry.uuid, tier, aptitudes, matched, specialist, relation,
             cost: advanceCost("talent", tier, matched, snapshot.ruleset, relation),
             prerequisites,
             blocked: prerequisites.some(check => check.status === "unmet")

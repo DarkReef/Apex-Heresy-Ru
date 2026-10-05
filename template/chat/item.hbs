@@ -22,11 +22,11 @@
             <dl class="dh-kv">
 
                 {{#if item.isAmmunition}}
-                    {{#if item.weapon}}<dt>{{localize "AMMUNITION.WEAPON"}}</dt><dd>{{item.weapon}}</dd>{{/if}}
+                    {{#if item.weapon}}<dt>{{localize "AMMUNITION.WEAPON"}}</dt><dd>{{ruleText item.weapon item.source}}</dd>{{/if}}
                     {{#if item.effect.damage.modifier}}<dt>{{localize "AMMUNITION.DAMAGE"}}</dt><dd>{{item.effect.damage.modifier}}{{#if item.DamageType}} {{item.DamageType}}{{/if}}</dd>{{/if}}
                     {{#if item.effect.attack.modifier}}<dt>{{localize "AMMUNITION.ATTACK"}}</dt><dd>{{item.effect.attack.modifier}}</dd>{{/if}}
                     {{#if item.effect.penetration}}<dt>{{localize "AMMUNITION.PENETRATION"}}</dt><dd>{{item.effect.penetration}}</dd>{{/if}}
-                    {{#if item.effect.special}}<dt>{{localize "AMMUNITION.SPECIAL"}}</dt><dd>{{item.effect.special}}</dd>{{/if}}
+                    {{#if item.effect.special}}<dt>{{localize "AMMUNITION.SPECIAL"}}</dt><dd>{{ruleText item.effect.special item.source}}</dd>{{/if}}
                     {{#if item.weight}}<dt>{{localize "AMMUNITION.WEIGHT"}}</dt><dd>{{item.weight}}</dd>{{/if}}
                     {{#if item.Craftsmanship}}<dt>{{localize "AMMUNITION.CRAFTSMANSHIP"}}</dt><dd>{{item.Craftsmanship}}</dd>{{/if}}
                     {{#if item.Availability}}<dt>{{localize "AMMUNITION.AVAILABILITY"}}</dt><dd>{{item.Availability}}</dd>{{/if}}
@@ -73,16 +73,16 @@
                 {{/if}}
 
                 {{#if item.isPsychicPower}}
-                    {{#if item.prerequisite}}<dt>{{localize "PSYCHIC_POWER.PREREQUISITE"}}</dt><dd>{{item.prerequisite}}</dd>{{/if}}
-                    {{#if item.action}}<dt>{{localize "PSYCHIC_POWER.ACTION"}}</dt><dd>{{item.action}}</dd>{{/if}}
-                    {{#if item.focusPower.test}}<dt>{{localize "PSYCHIC_POWER.FOCUS_POWER"}}</dt><dd>{{item.focusPower.test}}{{#if item.focusPower.difficulty}} ({{item.focusPower.difficulty}}){{/if}}</dd>{{/if}}
-                    {{#if item.range}}<dt>{{localize "PSYCHIC_POWER.RANGE"}}</dt><dd>{{item.range}}</dd>{{/if}}
-                    {{#if item.sustained}}<dt>{{localize "PSYCHIC_POWER.SUSTAINED"}}</dt><dd>{{item.sustained}}</dd>{{/if}}
-                    {{#if item.psychicType}}<dt>{{localize "PSYCHIC_POWER.SUBTYPE"}}</dt><dd>{{item.psychicType}}</dd>{{/if}}
+                    {{#if item.prerequisite}}<dt>{{localize "PSYCHIC_POWER.PREREQUISITE"}}</dt><dd>{{ruleText item.prerequisite item.source}}</dd>{{/if}}
+                    {{#if item.action}}<dt>{{localize "PSYCHIC_POWER.ACTION"}}</dt><dd>{{ruleText item.action item.source}}</dd>{{/if}}
+                    {{#if item.focusPower.test}}<dt>{{localize "PSYCHIC_POWER.FOCUS_POWER"}}</dt><dd>{{ruleText item.focusPower.test item.source}}{{#if item.focusPower.difficulty}} ({{item.focusPower.difficulty}}){{/if}}</dd>{{/if}}
+                    {{#if item.range}}<dt>{{localize "PSYCHIC_POWER.RANGE"}}</dt><dd>{{ruleText item.range item.source}}</dd>{{/if}}
+                    {{#if item.sustained}}<dt>{{localize "PSYCHIC_POWER.SUSTAINED"}}</dt><dd>{{ruleText item.sustained item.source}}</dd>{{/if}}
+                    {{#if item.psychicType}}<dt>{{localize "PSYCHIC_POWER.SUBTYPE"}}</dt><dd>{{ruleText item.psychicType item.source}}</dd>{{/if}}
                     {{#if item.PsychicPowerZone}}<dt>{{localize "PSYCHIC_POWER.ZONE"}}</dt><dd>{{item.PsychicPowerZone}}</dd>{{/if}}
                     {{#if item.damage.formula}}<dt>{{localize "PSYCHIC_POWER.DAMAGE_FULL"}}</dt><dd>{{item.damage.formula}}{{#if item.DamageType}} {{item.DamageType}}{{/if}}</dd>{{/if}}
                     {{#if item.damage.penetration}}<dt>{{localize "PSYCHIC_POWER.PENETRATION"}}</dt><dd>{{item.damage.penetration}}</dd>{{/if}}
-                    {{#if item.damage.special}}<dt>{{localize "PSYCHIC_POWER.SPECIAL"}}</dt><dd>{{item.damage.special}}</dd>{{/if}}
+                    {{#if item.damage.special}}<dt>{{localize "PSYCHIC_POWER.SPECIAL"}}</dt><dd>{{ruleText item.damage.special item.source}}</dd>{{/if}}
                     {{#if item.effect}}<dt>{{localize "PSYCHIC_POWER.EFFECT"}}</dt><dd>{{{item.effect}}}</dd>{{/if}}
                 {{/if}}
 
@@ -91,8 +91,8 @@
                 {{/if}}
 
                 {{#if item.isTalent}}
-                    {{#if item.prerequisites}}<dt>{{localize "TALENT.PREREQUISITES"}}</dt><dd>{{item.prerequisites}}</dd>{{/if}}
-                    {{#if item.aptitudes}}<dt>{{localize "TALENT.APTITUDES"}}</dt><dd>{{item.aptitudes}}</dd>{{/if}}
+                    {{#if item.prerequisites}}<dt>{{localize "TALENT.PREREQUISITES"}}</dt><dd>{{ruleText item.prerequisites item.source}}</dd>{{/if}}
+                    {{#if item.aptitudes}}<dt>{{localize "TALENT.APTITUDES"}}</dt><dd>{{ruleText item.aptitudes item.source "aptitudes"}}</dd>{{/if}}
                     {{#if item.tier}}<dt>{{localize "TALENT.TIER"}}</dt><dd>{{item.tier}}</dd>{{/if}}
                 {{/if}}
 
@@ -108,13 +108,13 @@
 
                 {{#if item.isWeapon}}
                     {{#if item.WeaponClass}}<dt>{{localize "WEAPON.CLASS"}}</dt><dd>{{item.WeaponClass}}</dd>{{/if}}
-                    {{#if item.range}}<dt>{{localize "WEAPON.RANGE"}}</dt><dd>{{item.range}}</dd>{{/if}}
+                    {{#if item.range}}<dt>{{localize "WEAPON.RANGE"}}</dt><dd>{{ruleText item.range item.source}}</dd>{{/if}}
                     {{#if item.RateOfFire}}<dt>{{localize "WEAPON.RATE_OF_FIRE_FULL"}}</dt><dd>{{item.RateOfFire}}</dd>{{/if}}
                     {{#if item.damage}}<dt>{{localize "WEAPON.DAMAGE_FULL"}}</dt><dd>{{item.damage}}{{#if item.DamageType}} {{item.DamageType}}{{/if}}</dd>{{/if}}
                     {{#if item.penetration}}<dt>{{localize "WEAPON.PENETRATION_FULL"}}</dt><dd>{{item.penetration}}</dd>{{/if}}
                     {{#if item.Clip}}<dt>{{localize "WEAPON.CLIP"}}</dt><dd>{{item.Clip}}</dd>{{/if}}
-                    {{#if item.reload}}<dt>{{localize "WEAPON.RELOAD_FULL"}}</dt><dd>{{item.reload}}</dd>{{/if}}
-                    {{#if item.special}}<dt>{{localize "WEAPON.SPECIAL"}}</dt><dd>{{item.special}}</dd>{{/if}}
+                    {{#if item.reload}}<dt>{{localize "WEAPON.RELOAD_FULL"}}</dt><dd>{{ruleText item.reload item.source}}</dd>{{/if}}
+                    {{#if item.special}}<dt>{{localize "WEAPON.SPECIAL"}}</dt><dd>{{ruleText item.special item.source}}</dd>{{/if}}
                     {{#if item.weight}}<dt>{{localize "WEAPON.WEIGHT"}}</dt><dd>{{item.weight}}</dd>{{/if}}
                     {{#if item.Craftsmanship}}<dt>{{localize "WEAPON.CRAFTSMANSHIP"}}</dt><dd>{{item.Craftsmanship}}</dd>{{/if}}
                     {{#if item.Availability}}<dt>{{localize "WEAPON.AVAILABILITY"}}</dt><dd>{{item.Availability}}</dd>{{/if}}

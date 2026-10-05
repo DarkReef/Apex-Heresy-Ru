@@ -1,3 +1,4 @@
+import {ruleName} from "../localization/rule-name.mjs";
 /**
  * Armour granted by creature traits.
  *
@@ -37,7 +38,7 @@ export function traitArmour(items) {
     for (const item of items ?? []) {
         if (item?.type !== 'trait') continue;
         for (const {source, pattern} of PATTERNS) {
-            const found = pattern.exec(String(item.name ?? ''));
+            const found = pattern.exec(ruleName(item));
             if (!found) continue;
             const value = Number(found[1]) || 0;
             if (value > best.value) best = {value, source};

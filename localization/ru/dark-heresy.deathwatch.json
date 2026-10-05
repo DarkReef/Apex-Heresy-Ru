@@ -1,0 +1,247 @@
+{
+  "label": "Караул Смерти",
+  "mapping": {
+    "name": "name",
+    "description": "system.description",
+    "benefit": "system.benefit",
+    "shortDescription": "system.shortDescription",
+    "effect": "system.effect"
+  },
+  "entries": {
+    "004bG1lG5cGWJl4u": {
+      "name": "Кибернетические органы чувств"
+    },
+    "1C0vwmJS7x96KGyO": {
+      "name": "Громовой натиск"
+    },
+    "1WCdk47Um7Dbxcoq": {
+      "name": "Чёрный панцирь"
+    },
+    "1Z2vB5Qkh6zUaYhH": {
+      "name": "Священные масла"
+    },
+    "1d4UeAits2kifKlo": {
+      "name": "Опустошитель Караула Смерти"
+    },
+    "2DFS0KzBUGDwX17V": {
+      "name": "Уличный бой"
+    },
+    "2Mgas9xBtIxo0CoQ": {
+      "name": "Обоерукость"
+    },
+    "2SbhPwcWuNGHfUeI": {
+      "name": "Тёмное зрение"
+    },
+    "2WWlBnRnW97GMV0b": {
+      "name": "Силовая броня Астартес"
+    },
+    "2dmgFLadVU5ngTsM": {
+      "name": "Фонарь / светосфера"
+    },
+    "2fD84QLYm6j4LE2G": {
+      "name": "Космические Волки"
+    },
+    "2fhIxbvxTogxFFMF": {
+      "name": "Неистовство"
+    },
+    "2k38RwKMhRh4Db71": {
+      "name": "Картограф"
+    },
+    "2nZsPMyWQhmZ7PJg": {
+      "name": "Имплант логис"
+    },
+    "3T6YN82b255RMrKo": {
+      "name": "Мастер клинка"
+    },
+    "6u0ykiDMlauv2Lyk": {
+      "name": "Демонический"
+    },
+    "7YkhDvc6CDhUGrWM": {
+      "name": "Автопистолет"
+    },
+    "DQqpB07ZDTyFRxmF": {
+      "name": "Хронометр"
+    },
+    "FIYi82zWfFwiafUG": {
+      "name": "Авгур"
+    },
+    "HBEQiKPihAgEhwfE": {
+      "name": "Страх"
+    },
+    "HSLpoK8NPaJhriwa": {
+      "name": "Тёмные Ангелы"
+    },
+    "HTypRtSQ42Aanxed": {
+      "name": "Панцирная броня"
+    },
+    "I4AZw3maBcevgnts": {
+      "name": "Аура власти"
+    },
+    "LHnm01hJSf4p6Idk": {
+      "name": "Множество рук"
+    },
+    "MW6wcg9wT3mVV1fu": {
+      "name": "Тактический десантник Караула Смерти"
+    },
+    "MWvi5L0D98rYrmEX": {
+      "name": "Крепкое телосложение"
+    },
+    "PvM834ngCQdlGDAd": {
+      "name": "Проводник варпа"
+    },
+    "QSo4pTFZmBlnp9zv": {
+      "name": "Обаяние"
+    },
+    "QX0GzYlsLZbzNVuV": {
+      "name": "Меткий стрелок"
+    },
+    "QdQQGhMPYhPejmRa": {
+      "name": "Броня разведчика Астартес"
+    },
+    "WssFSSHH9cw6AeAy": {
+      "name": "Лазган"
+    },
+    "XKgEDrbpFKNV8S8x": {
+      "name": "Стражи Бури"
+    },
+    "XLv8HcfXW2RXsFJl": {
+      "name": "Молниеносные рефлексы"
+    },
+    "Xj7ArhpsoIJv35Ri": {
+      "name": "Штурмовик Караула Смерти"
+    },
+    "YDquaXaEgTwMby4x": {
+      "name": "Размер"
+    },
+    "ZIUvFrHQwHqTharO": {
+      "name": "Отравленное"
+    },
+    "ZuHaWP0QTlnliCUP": {
+      "name": "Импланты Механикус"
+    },
+    "a6kUNwF7PAmZg2TG": {
+      "name": "Противоосколочная броня"
+    },
+    "a9hgE7g1Nb161Sso": {
+      "name": "Технодесантник Караула Смерти"
+    },
+    "amhvN3Gcb1U8CRf2": {
+      "name": "Машина"
+    },
+    "bfildA7II0Fp787M": {
+      "name": "Магнокуляры"
+    },
+    "dj4KACYgBWrOjVX9": {
+      "name": "Апотекарий Караула Смерти"
+    },
+    "eIkbiUHBjbptUmzI": {
+      "name": "Библиарий Караула Смерти"
+    },
+    "helSgcIOBRvRosbB": {
+      "name": "Железная дисциплина"
+    },
+    "kBm9jnVu11NqQfxF": {
+      "name": "Предвидение"
+    },
+    "mkJSbBmaSBPusJt8": {
+      "name": "Чёрные Храмовники"
+    },
+    "n2v4w2zi2tU94JqR": {
+      "name": "Регенерация"
+    },
+    "nci3qpFJciEC7stJ": {
+      "name": "Предсказание"
+    },
+    "oHZ8rvkz0sP4KZdj": {
+      "name": "Лазпистолет"
+    },
+    "qN05vWygMgjdKsJj": {
+      "name": "Могучий выстрел"
+    },
+    "qciD9ajbwF3Gcu3r": {
+      "name": "Автомат"
+    },
+    "t9MgLgy63ZuNZlEY": {
+      "name": "Контратака"
+    },
+    "v4qQRm8ewrEnjvVe": {
+      "name": "Бионическая рука"
+    },
+    "xy0RyD5MlcvT3R74": {
+      "name": "Бионическое сердце"
+    },
+    "y1hDWQUUTUNfFA4s": {
+      "name": "Кровавые Ангелы"
+    },
+    "yhTbWXxj83Q7fS7E": {
+      "name": "Пси-рейтинг"
+    },
+    "yo807eyuacUwj4He": {
+      "name": "Детокс"
+    },
+    "yqbHQ62UUKWDXtSu": {
+      "name": "Терминаторская броня Астартес"
+    },
+    "zmY8FReBKSgabnHh": {
+      "name": "Ультрамарины"
+    },
+    "zopyT3vbrQsHDb9D": {
+      "name": "Экзотическое"
+    }
+  },
+  "folders": {
+    "Space Wolves": "Космические Волки",
+    "Force Fields": "Силовые поля",
+    "Chapter Relics": "Реликвии ордена",
+    "Plasma": "Плазменное",
+    "Gear": "Снаряжение",
+    "Solo Mode Abilities": "Способности одиночного режима",
+    "Divination": "Предсказание",
+    "Melta": "Мельта",
+    "Storm Wardens": "Стражи Бури",
+    "Psychic Powers": "Психосилы",
+    "Special Abilities": "Особые способности",
+    "Cybernetics": "Импланты",
+    "Codex": "Кодекс",
+    "Talents": "Таланты",
+    "Ranged Weapons": "Стрелковое оружие",
+    "Servitors & Familiars": "Сервиторы и фамильяры",
+    "Chapters": "Ордена",
+    "Chain": "Цепное",
+    "Telepathy": "Телепатия",
+    "Blood Angels": "Кровавые Ангелы",
+    "Grenades & Missiles": "Гранаты и ракеты",
+    "Mechanicus Implants": "Импланты Механикус",
+    "Traits": "Особенности",
+    "Standard": "Стандартная",
+    "Dark Angels": "Тёмные Ангелы",
+    "Deathwatch Relics": "Реликвии Караула Смерти",
+    "Relics": "Реликвии",
+    "Ammunition": "Боеприпасы",
+    "Ultramarines": "Ультрамарины",
+    "Las": "Лазерное",
+    "Force": "Психосиловое",
+    "Weapon Upgrades": "Улучшения оружия",
+    "Special Issue": "Особое снабжение",
+    "Solid Projectile": "Стабберы",
+    "Defensive Stances": "Оборонительные стойки",
+    "Exotic": "Экзотическое",
+    "Other": "Прочее",
+    "Astartes": "Астартес",
+    "Squad Mode Abilities": "Способности отрядного режима",
+    "Melee Weapons": "Оружие ближнего боя",
+    "Launchers": "Пусковые установки",
+    "Armour": "Броня",
+    "Flame": "Огненное",
+    "Space Marine": "Космодесантник",
+    "Power": "Силовая",
+    "Attack Patterns": "Схемы атаки",
+    "Chapter": "Орден",
+    "Tools": "Инструменты",
+    "Specialities": "Специальности",
+    "Chapter Trappings": "Атрибуты ордена",
+    "Drugs & Consumables": "Препараты и расходники",
+    "Bolt": "Разряд",
+    "Traditional": "Традиционное"
+  }
+}
