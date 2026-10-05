@@ -13,6 +13,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
+      - run: npm run localization:build
+      - run: git diff --exit-code -- lang localization script/localization
       - run: npm test
       - name: Build root-level Foundry archive
         run: zip -r apex-heresy-ru.zip system.json template.json script template css assets logo packs lang localization LICENSE README.md
@@ -21,4 +23,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(node -p "JSON.parse(require('fs').readFileSync('system.json')).version")
-          gh release create "v${VERSION}-ru" apex-heresy-ru.zip system.json --target "$GITHUB_SHA" --title "Apex Heresy RU ${VERSION}" --generate-notes
+          gh release create "v${VERSION}-ru" apex-heresy-ru.zip system.json --target "$GITHUB_SHA" --title "Apex Heresy RU ${VERSION}" --draft --generate-notes

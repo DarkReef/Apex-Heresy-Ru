@@ -1,6 +1,6 @@
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
-import {ruleText} from "./localization/rule-text.mjs";
+import {ruleText, ruleTerm} from "./localization/rule-text.mjs";
 import { createDataModels } from "./data/models.mjs";
 import { halfRoundedUp } from "./data/rounding.mjs";
 import { carryingLimits, baseLeapAndJump } from "./data/carry.mjs";
@@ -3975,6 +3975,8 @@ async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = 
  * @param {object} rollData
  */
 async function _computeCombatTarget(rollData) {
+    // A module can restore a saved target and cancel recomputation.
+    if (Hooks.call("darkHeresy.preComputeRollTarget", rollData) === false) return;
 
     let attackType = 0;
     if (rollData.attackType) {
@@ -4094,6 +4096,8 @@ function _getHordeAttackBonus(rollData) {
  * @param {object} rollData
  */
 async function _computeCommonTarget(rollData) {
+    // A module can restore a saved target and cancel recomputation.
+    if (Hooks.call("darkHeresy.preComputeRollTarget", rollData) === false) return;
     const difficultyMod = Number(rollData?.difficulty?.value) || 0;
     const actor = _actorFromRollData(rollData);
     const actorConditionMod = _getActorConditionModifier(actor, rollData);
@@ -5745,7 +5749,13 @@ async function _sendRollToChat(rollData) {
 }
 
 async function _sendSingleRollToChat(rollData) {
-    let speaker = ChatMessage.getSpeaker();
+    // Requested checks may belong to another character than the selected token.
+    const rollingActor = _actorFromRollData(rollData);
+    let speaker = rollingActor ? {
+        actor:rollingActor.id, alias:rollingActor.name,
+        scene:rollingActor.token?.parent?.id ?? canvas?.scene?.id ?? null,
+        token:rollingActor.token?.id ?? null
+    } : ChatMessage.getSpeaker();
     let chatData = {
         user: game.user.id,
         rollMode: game.settings.get("core", "rollMode"),
@@ -5792,7 +5802,8 @@ async function _sendSingleRollToChat(rollData) {
         chatData.whisper = [game.user];
     }
 
-    ChatMessage.create(chatData);
+    ChatMessage.applyRollMode?.(chatData, chatData.rollMode);
+    return await ChatMessage.create(chatData);
 }
 /**
  * Post rolled damage to chat.
@@ -17677,6 +17688,10 @@ Hooks.once("init", async function() {
     registerActiveEffectAttributeKeys();
     game.darkHeresy = {
         api: createDarkHeresyAPI(),
+        localization: Object.freeze({
+            ruleTerm: (value, book = "ow", field = "") => ruleTerm(value, book, game.i18n.lang, field),
+            ruleText: (value, book = "ow", field = "") => ruleText(value, book, game.i18n.lang, field)
+        }),
         config: Dh,
         templateData: templateData,
         // Разбор свойств оружия пригождается в макросах и в консоли: проверить,
@@ -17729,6 +17744,7 @@ Hooks.once("init", async function() {
             preparePsychicPowerRoll
         },
         tests: {
+            fateSnapshotVersion: 1,
             commonRoll,
             combatRoll,
             // Урон — отдельный шаг: по карточке его запускает кнопка. Чтобы

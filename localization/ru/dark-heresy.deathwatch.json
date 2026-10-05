@@ -114,7 +114,7 @@
       "name": "Размер"
     },
     "ZIUvFrHQwHqTharO": {
-      "name": "Токсичное"
+      "name": "Отравленное"
     },
     "ZuHaWP0QTlnliCUP": {
       "name": "Импланты Механикус"
@@ -223,7 +223,7 @@
     "Force": "Психосиловое",
     "Weapon Upgrades": "Улучшения оружия",
     "Special Issue": "Особое снабжение",
-    "Solid Projectile": "Твердотельное",
+    "Solid Projectile": "Стабберы",
     "Defensive Stances": "Оборонительные стойки",
     "Exotic": "Экзотическое",
     "Other": "Прочее",
@@ -232,7 +232,7 @@
     "Melee Weapons": "Оружие ближнего боя",
     "Launchers": "Пусковые установки",
     "Armour": "Броня",
-    "Flame": "Огнемётное",
+    "Flame": "Огненное",
     "Space Marine": "Космодесантник",
     "Power": "Силовая",
     "Attack Patterns": "Схемы атаки",

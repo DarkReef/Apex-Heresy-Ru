@@ -12,3 +12,11 @@ export function ruleText(value, book, language = 'en', field = '') {
     return text.replace(pattern, hit => field === 'aptitudes' && hit.toLowerCase() === 'psyker'
         ? 'Псайкерство' : names.get(hit.toLowerCase()));
 }
+
+/** Exact display term lookup; unknown values and other books pass through. */
+export function ruleTerm(value, book = 'ow', language = 'en', field = '') {
+    const text = value == null ? '' : String(value);
+    if (language !== 'ru' || !(book === 'ow' || /\bOnly War\b/i.test(String(book ?? '')))) return text;
+    if (field === 'aptitudes' && text.toLowerCase() === 'psyker') return 'Псайкерство';
+    return names.get(text.toLowerCase()) ?? text;
+}

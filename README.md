@@ -1,5 +1,7 @@
 # Apex Heresy RU
 
+Кандидат 1.5.1: система и расширения разрабатываются отдельно. Модули не входят в архив системы. Реальный многопользовательский QA новой сборки ещё требуется. Контракты расширений: [API](docs/api-v1.md).
+
 Русская локализация форка на основе Babele. Завершён перевод компендиума Only War по русской базовой книге: 498 записей, все текстовые поля и папки, шесть связанных таблиц с 91 результатом. Названия 59 происхождений Only War также сверены с книгой. Переведён весь языковой файл интерфейса; перевод остальных книг ещё продолжается. [Установка, покрытие и работа с переводом](docs/russian-localization.md).
 
 # Apex Heresy
@@ -18,7 +20,7 @@ In Foundry, go to **Configuration → Game Systems → Install System** and past
 URL:
 
 ```
-https://raw.githubusercontent.com/xalatathzx-art/Apex-Heresy/main/system.json
+https://github.com/DarkReef/Apex-Heresy-Ru/releases/latest/download/system.json
 ```
 
 Requires Foundry VTT v14 or later.

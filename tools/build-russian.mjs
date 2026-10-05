@@ -11,7 +11,7 @@ const write = (path, data) => writeFileSync(path, JSON.stringify(data, null, 2) 
 const glossary = json('localization/ru/glossary.json');
 const en = json('lang/en.json');
 if (Object.values(en).some(text => !(text in glossary))) throw new Error('Missing interface translations');
-write('lang/ru.json', {...Object.fromEntries(Object.entries(en).map(([key, value]) => [key, glossary[value]])), 'BIO.NAME': 'Имя'});
+write('lang/ru.json', {...Object.fromEntries(Object.entries(en).map(([key, value]) => [key, glossary[value]])), ...json('localization/ru/interface-overrides.json')});
 const overrides = json('localization/ru/entries.json');
 const packFolders = json('localization/ru/pack-folders.json');
 const coverage = {interface: {translated: Object.keys(en).length, total: Object.keys(en).length}, packs: {}};
