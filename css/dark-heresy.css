@@ -14616,3 +14616,5 @@ body:not(.no-theme) .dark-heresy.app.window-app .voidship .ship-sp input {
   font-variant-numeric: tabular-nums;
   color: var(--dh-ink-muted);
 }
+
+.dark-heresy .dh-special-translation {flex-basis:100%;font-size:12px;line-height:1.45;color:var(--dh-ink-muted,#b8b4aa);white-space:normal;}

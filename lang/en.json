@@ -1803,5 +1803,9 @@
   "VEHICLE.EXTINGUISH_NOT_ON_FIRE": "The vehicle is not on fire.",
   "VEHICLE.EXTINGUISH_OK": "{name} beats the flames out. The vehicle stops burning and is left Fire Damaged (−10 to Operate).",
   "VEHICLE.EXTINGUISH_FAIL": "{name} fails to smother the flames — the vehicle keeps burning.",
-  "VEHICLE.CREW_BURNING": "Crew and passengers suffer −20 to every Test while the vehicle burns."
+  "VEHICLE.CREW_BURNING": "Crew and passengers suffer −20 to every Test while the vehicle burns.",
+  "WEAPON.QUALITY.corrosive": "Corrosive",
+  "WEAPON.QUALITY_HINT.corrosive": "Corrosive damage reduces armour at the struck location.",
+  "WEAPON.QUALITY.toxicUnrated": "Toxic (unrated)",
+  "WEAPON.QUALITY_HINT.toxicUnrated": "Legacy unrated Toxic property; use the numbered property when the rules specify a rating."
 }

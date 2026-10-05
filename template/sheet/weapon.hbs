@@ -139,6 +139,7 @@
                     <label>{{localize "WEAPON.SPECIAL"}}</label>
                     <div class="form-fields">
                         <input name="system.special" type="text" value="{{system.special}}" />
+                        <span class="dh-special-translation">{{ruleText system.special "ow"}}</span>
                         {{#if modified.special}}<span class="weapon-modded" title="{{localize "WEAPON.WITH_MODS"}}">{{modified.special}}</span>{{/if}}
                         <button type="button" class="trait-picker"
                                 data-tooltip="{{localize "WEAPON.QUALITY_PICKER"}}">

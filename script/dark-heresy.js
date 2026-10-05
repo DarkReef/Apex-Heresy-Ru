@@ -7438,22 +7438,22 @@ class DarkHeresyUtil {
             proven: this.extractNumberedTrait(/Proven[^,;()]*?\(\d+\)|Проверенное[^,;()]*?\(\d+\)|Надёжное[^,;()]*?\(\d+\)/gi, traits),
             primitive: this.extractNumberedTrait(/Primitive[^,;()]*?\(\d+\)|Примитивное[^,;()]*?\(\d+\)/gi, traits),
             razorSharp: this.hasNamedTrait(/Razor.?-? *Sharp|Бритвенной остроты|Острое как бритва/gi, traits),
-            skipAttackRoll: this.hasNamedTrait(/Spray|Распыление/gi, traits), // Weapons that skip the attack roll
+            skipAttackRoll: this.hasNamedTrait(/Spray|Распыление|Распыляющее/gi, traits), // Weapons that skip the attack roll
             tearing: this.hasNamedTrait(/Tearing|Разрывающее/gi, traits),
-            storm: this.hasNamedTrait(/Storm|Шторм/gi, traits),
+            storm: this.hasNamedTrait(/Storm|Шторм|Шквальное/gi, traits),
             // Twin-Linked can be either "+10 bonus" or "X1 extra hit"
             // Check for "+10" variant first
-            twinLinkedBonus: this.hasNamedTrait(/Twin.?-? *Linked.*\+10|Спаренные.*\+10/gi, traits),
+            twinLinkedBonus: this.hasNamedTrait(/Twin.?-? *Linked.*\+10|Спаренн(?:ые|ое).*\+10/gi, traits),
             // Check for "X1" variant or default (if just "Twin-Linked" or "Спаренные" without modifier)
             // Only set if NOT twinLinkedBonus (to avoid conflicts)
             twinLinked: (() => {
-                const hasBonus = this.hasNamedTrait(/Twin.?-? *Linked.*\+10|Спаренные.*\+10/gi, traits);
+                const hasBonus = this.hasNamedTrait(/Twin.?-? *Linked.*\+10|Спаренн(?:ые|ое).*\+10/gi, traits);
                 if (hasBonus) return false; // Don't set twinLinked if +10 variant is present
                 // Check for X1 variant explicitly
-                const hasX1 = this.hasNamedTrait(/Twin.?-? *Linked.*[XxХх]1|Спаренные.*[XxХх]1/gi, traits);
+                const hasX1 = this.hasNamedTrait(/Twin.?-? *Linked.*[XxХх]1|Спаренн(?:ые|ое).*[XxХх]1/gi, traits);
                 if (hasX1) return true;
                 // Check for default (just "Twin-Linked" or "Спаренные" without any modifier)
-                return this.hasNamedTrait(/Twin.?-? *Linked(?!.*\+10)(?!.*[XxХх]1)|Спаренные(?!.*\+10)(?!.*[XxХх]1)/gi, traits);
+                return this.hasNamedTrait(/Twin.?-? *Linked(?!.*\+10)(?!.*[XxХх]1)|Спаренн(?:ые|ое)(?!.*\+10)(?!.*[XxХх]1)/gi, traits);
             })(),
             force: this.hasNamedTrait(/Force|Психосиловое|Психосиловой/gi, traits),
             inaccurate: this.hasNamedTrait(/Inaccurate|Неточное/gi, traits),
@@ -7477,7 +7477,7 @@ class DarkHeresyUtil {
             // перегрузка. Не путать с плазменным «Максимальным» выше — там свои
             // числа. Лазсамострелы и хот-шот оружие свойство не получают.
             lasSetting: this.hasNamedTrait(/Las Weapon Setting|Las Setting|Смена режима лазерного оружия|Смена режима/gi, traits),
-            recharge: this.hasNamedTrait(/Recharge|Подзарядка/gi, traits),
+            recharge: this.hasNamedTrait(/Recharge|Подзарядка|Накачка/gi, traits),
             // Мельта удваивает пробитие накоротке (BC, стр. 151).
             melta: this.hasNamedTrait(/Melta(?!gun)|Мельта/gi, traits),
             // Гиростабилизация не даёт цели считаться дальше Дальней дистанции.
@@ -7492,21 +7492,21 @@ class DarkHeresyUtil {
             powerField: this.hasNamedTrait(/Power Field|Силовое поле/gi, traits),
 
             // Расчёт урона.
-            felling: this.extractNumberedTrait(/Felling[^,;()]*?\(\d+\)|Валящее[^,;()]*?\(\d+\)/gi, traits),
+            felling: this.extractNumberedTrait(/Felling[^,;()]*?\(\d+\)|(?:Валящее|Разящее)[^,;()]*?\(\d+\)/gi, traits),
             tainted: this.hasNamedTrait(/Tainted|Осквернённое|Оскверненное/gi, traits),
             sanctified: this.hasNamedTrait(/Sanctified|Освящённое|Освященное/gi, traits),
 
             // Последствия попадания — проверки цели после применения урона.
-            toxic: this.extractNumberedTrait(/Toxic[^,;()]*?\(\d+\)|Токсичное[^,;()]*?\(\d+\)/gi, traits),
+            toxic: this.extractNumberedTrait(/Toxic[^,;()]*?\(\d+\)|(?:Токсичное|Отравленное)[^,;()]*?\(\d+\)/gi, traits),
             // Rogue Trader печатает «Toxic» без числа (стр. 118): там проверка идёт
             // от прошедшего урона, а не от рейтинга. Ключ отдельный — чтобы
             // рейтинговое Токсичное других книг читалось ровно как читалось.
-            toxicUnrated: this.hasNamedTrait(/Toxic(?!\w)(?!\s*\()|Токсичное(?!\s*\()/gi, traits),
+            toxicUnrated: this.hasNamedTrait(/Toxic(?!\w)(?!\s*\()|(?:Токсичное|Отравленное)(?!\s*\()/gi, traits),
             concussive: this.extractNumberedTrait(/Concussive[^,;()]*?\(\d+\)|Оглушающее[^,;()]*?\(\d+\)/gi, traits),
             // Шесть видов оружия в компендиуме несут «Corrosive» в тексте свойств,
             // а словарь этого слова не знал: качество вычёркивалось при разборе и
             // не срабатывало ни разу.
-            corrosive: this.hasNamedTrait(/Corrosive|Едкое|Разъедающее/gi, traits),
+            corrosive: this.hasNamedTrait(/Corrosive|Едкое|Разъедающее|Коррозийное/gi, traits),
             snare: this.extractNumberedTrait(/Snare[^,;()]*?\(-?\d+\)|Опутывающее[^,;()]*?\(-?\d+\)/gi, traits),
             // Калечащее задаётся не только числом: у части психосил книга ставит
             // в скобки кость. Система это свойство только объявляет в карточке,
@@ -7517,7 +7517,7 @@ class DarkHeresyUtil {
             // Площадное: система объявляет радиус в карточке, но сама поле дыма
             // и электромагнитный разряд на сцену не ставит — это работа мастера.
             smoke: this.extractNumberedTrait(/Smoke[^,;()]*?\(\d+\)|Дым[^,;()]*?\(\d+\)/gi, traits),
-            haywire: this.extractNumberedTrait(/Haywire[^,;()]*?\(\d+\)|Помехи[^,;()]*?\(\d+\)/gi, traits),
+            haywire: this.extractNumberedTrait(/Haywire[^,;()]*?\(\d+\)|(?:Помехи|Электромагнитное)[^,;()]*?\(\d+\)/gi, traits),
             blast: this.extractNumberedTrait(/Blast[^,;()]*?\(\d+\)|Взрыв[^,;()]*?\(\d+\)/gi, traits)
         }, overrides);
     }
@@ -12416,7 +12416,7 @@ const DH_WEAPON_TRAITS = [
     { key: "concussive", name: "Concussive", value: "number", default: 1, aliases: ["concussive", "оглушающее"] },
     { key: "crippling", name: "Crippling", value: "text", default: "1", aliases: ["crippling", "калечащее"] },
     { key: "defensive", name: "Defensive", aliases: ["defensive", "защитное"] },
-    { key: "corrosive", name: "Corrosive", aliases: ["corrosive", "едкое", "разъедающее"] },
+    { key: "corrosive", name: "Corrosive", aliases: ["коррозийное", "corrosive", "едкое", "разъедающее"] },
     { key: "devastating", name: "Devastating", value: "number", default: 1, aliases: ["devastating", "опустошительное"] },
     { key: "felling", name: "Felling", value: "number", default: 1, aliases: ["felling", "валящее", "разящее"] },
     { key: "flame", name: "Flame", aliases: ["flame", "пламя", "огненное", "зажигательное"] },
@@ -12424,7 +12424,7 @@ const DH_WEAPON_TRAITS = [
     { key: "force", name: "Force", aliases: ["force", "психосиловое", "психосиловой"] },
     { key: "gyroStabilised", name: "Gyro-Stabilised", aliases: ["gyro-stabilised", "gyro-stabilized", "gyro stabilised", "гиростабилизированное"] },
     { key: "hallucinogenic", name: "Hallucinogenic", value: "number", default: 1, aliases: ["hallucinogenic", "галлюциногенное"] },
-    { key: "haywire", name: "Haywire", value: "number", default: 1, aliases: ["haywire", "помехи", "эми"] },
+    { key: "haywire", name: "Haywire", value: "number", default: 1, aliases: ["электромагнитное", "haywire", "помехи", "эми"] },
     { key: "inaccurate", name: "Inaccurate", aliases: ["inaccurate", "неточное"] },
     { key: "lasSetting", name: "Las Weapon Setting", aliases: ["las weapon setting", "las setting", "смена режима лазерного оружия", "смена режима"] },
     { key: "maximal", name: "Maximal", aliases: ["maximal", "максимальный", "максимальное"] },
@@ -12434,7 +12434,7 @@ const DH_WEAPON_TRAITS = [
     { key: "primitive", name: "Primitive", value: "number", default: 7, aliases: ["primitive", "примитивное"] },
     { key: "proven", name: "Proven", value: "number", default: 3, aliases: ["proven", "проверенное"] },
     { key: "razorSharp", name: "Razor Sharp", aliases: ["razor sharp", "razor-sharp", "бритвенно-острое", "бритвенной остроты", "острое как бритва"] },
-    { key: "recharge", name: "Recharge", aliases: ["recharge", "подзарядка"] },
+    { key: "recharge", name: "Recharge", aliases: ["накачка", "recharge", "подзарядка"] },
     { key: "reliable", name: "Reliable", aliases: ["reliable", "надёжное", "надежное"] },
     { key: "sanctified", name: "Sanctified", aliases: ["sanctified", "освящённое", "освященное"] },
     { key: "scatter", name: "Scatter", aliases: ["scatter", "разброс", "разлёт", "разлет"] },
@@ -12442,12 +12442,12 @@ const DH_WEAPON_TRAITS = [
     { key: "smoke", name: "Smoke", value: "number", default: 5, aliases: ["smoke", "дым", "дымовое"] },
     { key: "snare", name: "Snare", value: "number", default: 1, aliases: ["snare", "опутывающее", "обездвиживающее"] },
     { key: "spray", name: "Spray", aliases: ["spray", "распыление", "распыляющее"] },
-    { key: "storm", name: "Storm", aliases: ["storm", "шторм", "штормовое"] },
+    { key: "storm", name: "Storm", aliases: ["шквальное", "storm", "шторм", "штормовое"] },
     { key: "tainted", name: "Tainted", aliases: ["tainted", "осквернённое", "оскверненное"] },
     { key: "tearing", name: "Tearing", aliases: ["tearing", "разрывающее", "разрывное"] },
-    { key: "toxic", name: "Toxic", value: "number", default: 1, aliases: ["toxic", "токсичное"] },
-    { key: "twinLinked", name: "Twin-Linked", aliases: ["twin-linked", "twin linked", "twinlinked", "спаренные", "сдвоенное"] },
-    { key: "twinLinkedBonus", name: "Twin-Linked (+10)", aliases: ["twin-linked (+10)", "twin linked (+10)", "спаренные (+10)"] },
+    { key: "toxic", name: "Toxic", value: "number", default: 1, aliases: ["отравленное", "toxic", "токсичное"] },
+    { key: "twinLinked", name: "Twin-Linked", aliases: ["спаренное", "twin-linked", "twin linked", "twinlinked", "спаренные", "сдвоенное"] },
+    { key: "twinLinkedBonus", name: "Twin-Linked (+10)", aliases: ["спаренное (+10)", "twin-linked (+10)", "twin linked (+10)", "спаренные (+10)"] },
     { key: "unbalanced", name: "Unbalanced", aliases: ["unbalanced", "несбалансированное"] },
     { key: "unreliable", name: "Unreliable", aliases: ["unreliable", "ненадёжное", "ненадежное"] },
     { key: "unwieldy", name: "Unwieldy", aliases: ["unwieldy", "громоздкое"] },
