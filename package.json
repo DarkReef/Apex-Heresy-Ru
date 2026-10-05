@@ -6,7 +6,7 @@
     "localization:build": "node tools/build-russian.mjs",
     "localization:test": "node --test tests/localization-ru.test.mjs tests/localization-only-war.test.mjs",
     "modules:build": "node tools/build-foundry-modules.mjs",
-    "modules:test": "node --test tests/party-*.test.mjs tests/foundry-modules.test.mjs"
+    "modules:test": "node --test tests/party-*.test.mjs tests/foundry-modules.test.mjs tests/smart-assessment.test.mjs"
   },
   "devDependencies": {
     "classic-level": "3.0.0"

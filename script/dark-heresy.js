@@ -3975,6 +3975,8 @@ async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = 
  * @param {object} rollData
  */
 async function _computeCombatTarget(rollData) {
+    // Modules may preserve a saved test target for a Fate reroll.
+    if (Hooks.call("darkHeresy.preComputeRollTarget", rollData) === false) return;
 
     let attackType = 0;
     if (rollData.attackType) {
@@ -4094,6 +4096,8 @@ function _getHordeAttackBonus(rollData) {
  * @param {object} rollData
  */
 async function _computeCommonTarget(rollData) {
+    // Modules may preserve a saved test target for a Fate reroll.
+    if (Hooks.call("darkHeresy.preComputeRollTarget", rollData) === false) return;
     const difficultyMod = Number(rollData?.difficulty?.value) || 0;
     const actor = _actorFromRollData(rollData);
     const actorConditionMod = _getActorConditionModifier(actor, rollData);
@@ -5799,7 +5803,7 @@ async function _sendSingleRollToChat(rollData) {
     }
 
     ChatMessage.applyRollMode?.(chatData, chatData.rollMode);
-    ChatMessage.create(chatData);
+    return await ChatMessage.create(chatData);
 }
 /**
  * Post rolled damage to chat.
@@ -17736,6 +17740,7 @@ Hooks.once("init", async function() {
             preparePsychicPowerRoll
         },
         tests: {
+            fateSnapshotVersion: 1,
             commonRoll,
             combatRoll,
             // Урон — отдельный шаг: по карточке его запускает кнопка. Чтобы

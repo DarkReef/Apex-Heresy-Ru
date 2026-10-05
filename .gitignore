@@ -39,3 +39,5 @@ sheet-*.png
 
 # Packaged standalone modules
 dist/foundry-modules/
+
+dist/foundry-system/

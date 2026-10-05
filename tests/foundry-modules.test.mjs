@@ -8,7 +8,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const json=path=>JSON.parse(readFileSync(path,'utf8'));
 function files(directory) {return readdirSync(directory).flatMap(name=>{const path=join(directory,name);return statSync(path).isDirectory()?files(path):[path];});}
 test('each module is a self-contained installable package with its own name and dependencies',()=>{
-    for(const id of ['riftan-charbar','itempileffg']) {
+    for(const id of ['riftan-charbar','itempileffg','riftan-smart-assessment']) {
         const directory=join(root,'modules',id),manifest=json(join(directory,'module.json'));
         assert.equal(manifest.id,id);assert.equal(manifest.version,'0.1.0');assert.equal(manifest.compatibility.minimum,'14');
         assert.match(manifest.manifest,new RegExp(`/modules/${id}/module.json$`));
@@ -21,7 +21,7 @@ test('each module is a self-contained installable package with its own name and 
                 assert.ok(statSync(resolve(dirname(path),specifier)).isFile());
             }
         }
-        if(id==='riftan-charbar') assert.deepEqual(manifest.relationships.requires??[],[]);
+        if(id!=='itempileffg') assert.deepEqual(manifest.relationships.requires??[],[]);
         else assert.deepEqual(manifest.relationships.requires.map(item=>item.id),['item-piles','lib-wrapper','socketlib']);
     }
 });

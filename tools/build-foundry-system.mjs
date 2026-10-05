@@ -1,0 +1,11 @@
+import {readFileSync,existsSync,mkdirSync,rmSync,copyFileSync} from 'node:fs';
+import {resolve,dirname,join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {execFileSync} from 'node:child_process';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),out=join(root,'dist','foundry-system');
+const manifest=JSON.parse(readFileSync(join(root,'system.json'),'utf8'));
+const paths=['system.json','template.json','LICENSE','README.md','script','template','css','lang','packs','assets','logo','localization','icons','fonts','sounds'].filter(path=>existsSync(join(root,path)));
+for(const path of [...manifest.esmodules,...manifest.styles,...manifest.languages.map(lang=>lang.path),...manifest.packs.map(pack=>pack.path)]) if(!existsSync(join(root,path)))throw new Error('Missing system asset '+path);
+mkdirSync(out,{recursive:true});const archive=join(out,'apex-heresy-ru.zip');rmSync(archive,{force:true});
+execFileSync('zip',['-qr',archive,...paths,'-x','*/LOCK','*/LOG','*/LOG.old'],{cwd:root});copyFileSync(join(root,'system.json'),join(out,'system.json'));
+console.log(`Apex Heresy Ru ${manifest.version}: ${archive}`);

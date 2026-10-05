@@ -49,3 +49,8 @@ await game.darkHeresy.api.useItem({actorUuid: actor.uuid, itemId: weapon.id, dia
 Структурированные свойства проверены автоматическими тестами парсера, API, моделей, подготовки модификаций и редактора. На Foundry 14.365 проверены кнопка в листе, рендер DialogV2, фильтр, точечный патч сохранения и сохранение окна при потере прав. Персистентность редактора была подменена записью патча в память; реальные игровые предметы этим тестом не обновлялись. На временном Actor проверены значения в данных атаки и после reset; валидатор поля отвергает неправильный тип.
 
 При возобновлении браузерной проверки вкладка перешла в GMTEST, мир сообщает worldSchemaVersion=14. Время обновления этой версии данной проверкой не установлено; испытания миграции с исходной старой схемы на изолированной копии всё ещё требуются.
+
+
+### Saved Fate targets (RU fork 1.5.1)
+
+`game.darkHeresy.tests.fateSnapshotVersion === 1` advertises the `darkHeresy.preComputeRollTarget` hook. It receives the mutable saved roll context before common/combat target computation. Returning `false` skips target recalculation; a module must supply the saved `target.final`. Riftan Smart Assessment uses this only during its validated, GM-authoritative Fate transaction. Ordinary checks keep the native calculations. Single-roll chat creation is awaited so failures propagate to callers.

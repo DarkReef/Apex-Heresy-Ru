@@ -1,0 +1,19 @@
+.rsa-fate-success {border:2px solid #c8a447!important;box-shadow:inset 0 0 8px #c8a44755,0 0 5px #c8a44744;}
+.rsa-fate-failure {border:2px solid #b51232!important;box-shadow:inset 0 0 8px #b5123255,0 0 5px #b5123244;}
+.rsa-fate-footer {margin-top:.6rem;padding-top:.5rem;border-top:1px solid currentColor;}
+.rsa-fate-success .rsa-fate-footer>strong {color:#97711f;}
+.rsa-fate-failure .rsa-fate-footer>strong {color:#b51232;}
+.rsa-fate-footer p {font-size:.85em;}
+.rsa-fate-footer blockquote {font-style:italic;margin:.5rem 0;padding:.25rem .5rem;}
+.rsa-replaced .message-content>:not(.rsa-replacement) {opacity:.65;}
+.rsa-replacement {font-size:.85em;margin-top:.4rem;}
+.rsa-field-helper {min-width:220px;margin-top:.25rem;}
+.rsa-field-helper input {width:100%;}
+.rsa-field-results {max-height:180px;overflow:auto;}
+.rsa-field-choice {display:block;width:100%;height:auto;text-align:left;white-space:normal;font-size:.8em;line-height:1.3;padding:.4rem;}
+.rsa-field-hint {display:block;white-space:normal;font-size:.8em;}
+input[data-rsa-state="valid"] {border-color:#32844a;}
+input[data-rsa-state="warning"] {border-color:#b18b25;}
+input[data-rsa-state="invalid"] {border-color:#b51232;}
+.rsa-field-hint[data-rsa-state="invalid"] {color:#b51232;}
+.rsa-field-hint[data-rsa-state="warning"] {color:#97711f;}

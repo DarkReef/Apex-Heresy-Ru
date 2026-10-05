@@ -1,0 +1,52 @@
+{
+  "id": "riftan-smart-assessment",
+  "title": "Riftan Smart Assessment",
+  "description": "Active Effect field assistance and Fate rerolls for Apex Heresy.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "DarkReef"
+    },
+    {
+      "name": "Apex"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "style.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dark-heresy",
+        "type": "system",
+        "compatibility": {
+          "minimum": "1.5.1"
+        }
+      }
+    ]
+  },
+  "url": "https://github.com/DarkReef/Apex-Heresy-Ru",
+  "manifest": "https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/riftan-smart-assessment/module.json",
+  "download": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/download/riftan-smart-assessment-v0.1.0/riftan-smart-assessment.zip",
+  "license": "LICENSE",
+  "readme": "https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/riftan-smart-assessment/README.md"
+}

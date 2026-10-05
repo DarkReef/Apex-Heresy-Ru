@@ -5,7 +5,7 @@ import {execFileSync} from 'node:child_process';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = join(root,'dist','foundry-modules');
 mkdirSync(output,{recursive:true});
-for (const id of ['riftan-charbar','itempileffg']) {
+for (const id of ['riftan-charbar','itempileffg','riftan-smart-assessment']) {
     const directory=join(root,'modules',id), manifest=JSON.parse(readFileSync(join(directory,'module.json'),'utf8'));
     if (manifest.id!==id || !/^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/.test(manifest.version)) throw new Error('Unexpected package identity');
     for (const path of [...manifest.esmodules,...manifest.styles,...manifest.languages.map(lang=>lang.path),'LICENSE','README.md']) {

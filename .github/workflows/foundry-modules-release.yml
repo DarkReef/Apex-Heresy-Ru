@@ -4,6 +4,9 @@ on:
     branches: [codex/foundry-modules]
     paths:
       - modules/**
+      - script/**
+      - system.json
+      - tools/build-foundry-system.mjs
       - tools/build-foundry-modules.mjs
       - .github/workflows/foundry-modules-release.yml
   workflow_dispatch:
@@ -24,12 +27,13 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm test
       - run: npm run modules:build
+      - run: node tools/build-foundry-system.mjs
       - name: Publish separate module releases
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          for MODULE in riftan-charbar itempileffg; do
+          for MODULE in riftan-charbar itempileffg riftan-smart-assessment; do
             VERSION=$(node -p "JSON.parse(require('fs').readFileSync('modules/$MODULE/module.json')).version")
             TITLE=$(node -p "JSON.parse(require('fs').readFileSync('modules/$MODULE/module.json')).title")
             TAG="$MODULE-v$VERSION"
@@ -41,3 +45,11 @@ jobs:
               --target "$GITHUB_SHA" --title "$TITLE $VERSION" --prerelease \
               --notes-file "modules/$MODULE/RELEASE.md"
           done
+
+          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('system.json')).version")
+          TAG="apex-heresy-ru-v$VERSION"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" "dist/foundry-system/apex-heresy-ru.zip" "dist/foundry-system/system.json" \
+              --target "$GITHUB_SHA" --title "Apex Heresy Ru $VERSION" --prerelease \
+              --notes "RU fork with independent modules and saved-target hook for Riftan Smart Assessment."
+          fi
