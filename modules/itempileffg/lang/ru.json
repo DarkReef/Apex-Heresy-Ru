@@ -14,7 +14,7 @@
   "ITEMPILEFFG.UNKNOWN_ITEM": "Предмет недоступен",
   "ITEMPILEFFG.INVALID_QUANTITY": "Количество должно быть целым; контейнер должен быть в одном экземпляре",
   "ITEMPILEFFG.CAPACITY": "Вместимость в кг (0 — без ограничения)",
-  "ITEMPILEFFG.PRICE": "Стоимость за единицу, кредиты",
+  "ITEMPILEFFG.PRICE": "Стоимость за единицу",
   "ITEMPILEFFG.QUANTITY": "Количество",
   "ITEMPILEFFG.CONTAINER": "Предмет является контейнером",
   "ITEMPILEFFG.SAVE": "Сохранить",
@@ -48,5 +48,8 @@
   "ITEMPILEFFG.CYCLE": "Нельзя вложить контейнер в себя или свой дочерний контейнер",
   "ITEMPILEFFG.CAPACITY_ERROR": "Превышена вместимость контейнера",
   "ITEMPILEFFG.INVALID_MONEY": "Введите конечную неотрицательную сумму",
-  "ITEMPILEFFG.SINGLE_CONTAINER": "Выберите контейнер в одном экземпляре"
+  "ITEMPILEFFG.SINGLE_CONTAINER": "Выберите контейнер в одном экземпляре",
+  "ITEMPILEFFG.CURRENCYNAME": "Название валюты",
+  "ITEMPILEFFG.CURRENCYICON": "Значок валюты (путь к изображению)",
+  "ITEMPILEFFG.CURRENCY_LOOT": "Валюта на карту"
 }

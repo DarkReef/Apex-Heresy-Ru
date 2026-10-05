@@ -154,11 +154,18 @@ Hooks.on('renderChatMessageHTML',(message,html)=>{
     const body=html.querySelector('.message-content');if(!body)return;
     body.querySelectorAll('.rsa-fate-footer,.rsa-replacement').forEach(el=>el.remove());
     if (!message.isContentVisible) return;
-    const fate=message.getFlag(SCOPE,'fate');
+    const storedFate=message.getFlag(SCOPE,'fate');
+    const data=rollData(message);
+    const fate=storedFate ?? (data?.flags?.isReRoll && !data?.flags?.isDamageRoll ?
+        {success:!!data.flags.isSuccess,phraseIndex:[...String(message.id)].reduce((n,c)=>n+c.charCodeAt(0),0)%10} : null);
     if (fate) {
-        html.classList.add(fate.success?'rsa-fate-success':'rsa-fate-failure');
+        const state=fate.success?'rsa-fate-success':'rsa-fate-failure';
+        html.classList.add(state);
+        for (const card of body.querySelectorAll('.dh-card,.roll-card-background')) {
+            card.classList.remove('rsa-fate-success','rsa-fate-failure');card.classList.add(state);
+        }
         const footer=document.createElement('section');footer.className='rsa-fate-footer';
-        footer.innerHTML=`<strong>${esc(t('FATE_ROLL'))} · ${esc(t(fate.success?'SUCCESS':'FAILURE'))}</strong><p>${esc(game.i18n.format('RSA.HISTORY',fate))}</p><blockquote>${esc(t((fate.success?'SUCCESS_':'FAILURE_')+fate.phraseIndex))}</blockquote>`;
+        footer.innerHTML=`<strong>${esc(t('FATE_ROLL'))} · ${esc(t(fate.success?'SUCCESS':'FAILURE'))}</strong><p>${storedFate ? esc(game.i18n.format('RSA.HISTORY',fate)) : ''}</p><blockquote>${esc(t((fate.success?'SUCCESS_':'FAILURE_')+fate.phraseIndex))}</blockquote>`;
         const source=game.messages.get(fate.sourceId);
         if (source?.isContentVisible) footer.append(historyLink(source.id,t('ORIGINAL')));
         body.append(footer);

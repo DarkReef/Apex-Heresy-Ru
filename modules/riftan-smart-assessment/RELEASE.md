@@ -10,3 +10,6 @@
 Установка: https://raw.githubusercontent.com/DarkReef/Apex-Heresy-Ru/codex/foundry-modules/modules/riftan-smart-assessment/module.json
 
 Живая проверка в многопользовательском Foundry ещё требуется.
+
+
+0.1.2: явная рамка внутренней карточки переброса Fate; поддержано оформление старых системных перебросов без выдуманной истории расходов.

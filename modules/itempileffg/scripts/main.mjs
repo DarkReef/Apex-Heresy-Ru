@@ -1,3 +1,4 @@
+import {currencyConfig,syncCurrency,createCurrencyLoot} from './currency.mjs';
 import {extendSchemas} from './schema.mjs';
 import {PHYSICAL_TYPES, descendants, contentsMass, itemMass, movePatch, validateMoney} from './inventory.mjs';
 import {registerItemPiles, guardContainerTrade} from './item-piles.mjs';
@@ -66,7 +67,7 @@ function bind(app, handler) {
 async function editItem(actor, item) {
     const inventory = item.system.inventory ?? {};
     return foundry.applications.api.DialogV2.prompt({window:{title:item.name}, content:`<div class="dh-party-form">
-        <label>${esc(t('PRICE'))}<input name="price" type="number" min="0" step="0.01" value="${Number(item.system.price) || 0}"></label>
+        <label>${esc(t('PRICE'))} (${esc(currencyConfig().name)})<input name="price" type="number" min="0" step="0.01" value="${Number(item.system.price) || 0}"></label>
         <label>${esc(t('QUANTITY'))}<input name="quantity" type="number" min="0" step="1" value="${Number(item.system.quantity ?? 1)}"></label>
         <label><input name="container" type="checkbox" ${inventory.isContainer ? 'checked' : ''}>${esc(t('CONTAINER'))}</label>
         <label>${esc(t('CAPACITY'))}<input name="capacity" type="number" min="0" step="0.1" value="${Number(inventory.capacity) || 0}"></label></div>`,
@@ -96,11 +97,11 @@ function createApplications() {
                 }
             };
             walk('',0); for (const item of items) if (!seen.has(item.id)) {rows.push({item,depth:0}); seen.add(item.id); walk(item.id,1);}
-            return `<div class="dh-party-content"><div class="dh-party-toolbar"><strong>${esc(t('CREDITS'))}: ${Number(actor.system.economy?.credits) || 0}</strong>
-                ${game.user.isGM ? `<button data-action="wallet">${esc(t('EDIT_WALLET'))}</button>` : ''}<button data-action="bag">${esc(t('NEW_BAG'))}</button></div>
+            return `<div class="dh-party-content"><div class="dh-party-toolbar"><strong>${esc(currencyConfig().name)}: ${Number(actor.system.economy?.credits) || 0}</strong>
+                ${game.user.isGM ? `<button data-action="wallet">${esc(t('EDIT_WALLET'))}</button>` : ''}${game.user.isGM ? `<button data-action="currency-loot">${esc(t('CURRENCY_LOOT'))}</button>` : ''}<button data-action="bag">${esc(t('NEW_BAG'))}</button></div>
                 <p>${esc(t('TOTAL_WEIGHT'))}: ${items.reduce((sum,item) => sum + itemMass(item),0).toFixed(2)} kg</p>
                 ${rows.map(({item,depth}) => `<div class="dh-inventory-row" draggable="true" data-item="${esc(item.id)}" style="padding-left:${Math.min(depth,10)*16}px">
-                    <img src="${esc(item.img)}" alt=""><span>${esc(item.name)} ×${Number(item.system.quantity ?? 1)}<br><small>${Number(item.system.price)||0} cr · ${itemMass(item).toFixed(2)} kg${item.system.inventory?.isContainer ? ` · ${esc(t('CONTENTS'))}: ${contentsMass(items,item.id).toFixed(2)} / ${Number(item.system.inventory.capacity)||'∞'} kg` : ''}</small></span>
+                    <img src="${esc(item.img)}" alt=""><span>${esc(item.name)} ×${Number(item.system.quantity ?? 1)}<br><small>${Number(item.system.price)||0} ${esc(currencyConfig().name)} · ${itemMass(item).toFixed(2)} kg${item.system.inventory?.isContainer ? ` · ${esc(t('CONTENTS'))}: ${contentsMass(items,item.id).toFixed(2)} / ${Number(item.system.inventory.capacity)||'∞'} kg` : ''}</small></span>
                     <select aria-label="${esc(t('MOVE'))}" data-container="${esc(item.id)}"><option value="">${esc(t('ROOT'))}</option>${containers.filter(c => c.id !== item.id && !descendants(items,item.id).some(child => child.id===c.id)).map(c => `<option value="${esc(c.id)}" ${item.system.inventory?.containerId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>
                     <button data-action="edit">${esc(t('EDIT'))}</button><button data-action="item-sheet">${esc(t('SHEET'))}</button></div>`).join('')}</div>`;
         }
@@ -114,6 +115,12 @@ function createApplications() {
                     if (!game.user.isGM) throw new Error(t('GM_ONLY'));
                     await foundry.applications.api.DialogV2.prompt({window:{title:t('EDIT_WALLET')},content:`<input name="credits" type="number" min="0" step="0.01" value="${Number(this.actor.system.economy?.credits)||0}">`,
                         ok:{callback:(_event, button) => this.actor.update({'system.economy.credits':validateMoney(button.form.elements.credits.value)})}});
+                }
+                if (action === 'currency-loot') {
+                    const token=canvas.tokens.controlled[0];
+                    if (!token) throw new Error(t('SELECT_TOKEN'));
+                    await foundry.applications.api.DialogV2.prompt({window:{title:t('CURRENCY_LOOT')},content:'<input name="amount" type="number" min="0.01" step="0.01" value="1">',
+                        ok:{callback:(_event,button)=>createCurrencyLoot({amount:button.form.elements.amount.value,position:{x:token.document.x,y:token.document.y}})}});
                 }
                 if (action === 'bag') {
                     owned(this.actor);
@@ -144,6 +151,9 @@ export async function makeMerchant() {
 }
 
 Hooks.once('init', () => {
+    for (const [key,type,initial] of [['currencyName',String,'Троны'],['currencyIcon',String,'icons/svg/coins.svg']])
+        game.settings.register(SCOPE,key,{name:`ITEMPILEFFG.${key.toUpperCase()}`,scope:'world',config:true,type,default:initial,
+            onChange:()=>void syncCurrency().catch(error=>ui.notifications.error(error.message))});
     game.settings.register(SCOPE, 'economyAdapterVersion', {scope:'world',config:false,type:Number,default:0});
 });
 Hooks.once('setup', () => {
@@ -161,7 +171,8 @@ Hooks.once('ready', () => {
     const missing = ['item-piles','lib-wrapper','socketlib'].filter(id => !game.modules.get(id)?.active);
     if (missing.length) ui.notifications.error(`${t('INSTALL_ITEM_PILES')}: ${missing.join(', ')}`, {permanent:true});
     createApplications();
-    const api = {version:1, openInventory, moveItem, configureItem, createMerchantFromSelected:makeMerchant, repairEconomy:() => repairEconomy(true)};
+    void syncCurrency().catch(error=>ui.notifications.error(error.message));
+    const api = {version:1, openInventory, moveItem, configureItem, createMerchantFromSelected:makeMerchant, repairEconomy:() => repairEconomy(true),createCurrencyLoot};
     game.itempileffg = api; game.modules.get(SCOPE).api = api;
     for (const hook of ['updateActor','createItem','updateItem','deleteItem']) Hooks.on(hook, () => {
         for (const app of inventoryWindows) if (app.rendered) app.render(true);
@@ -202,8 +213,7 @@ export async function repairEconomy(force = false) {
     return true;
 }
 function integrationConfigForWallet() {
-    return [{type:'attribute',name:'ITEMPILEFFG.CREDITS',img:'icons/svg/coins.svg',abbreviation:'{#} cr',
-        data:{path:'system.economy.credits'},primary:true,exchangeRate:1}];
+    return [currencyConfig()];
 }
 Hooks.once('item-piles-ready', () => void repairEconomy().catch(error => ui.notifications.error(errorText(error))));
 Hooks.once('ready', () => void repairEconomy().catch(error => ui.notifications.error(errorText(error))));
@@ -218,7 +228,7 @@ export function enhanceItemSheet(app, html) {
     if (!root || root.querySelector('[name="system.price"]')) return;
     const anchor = root.querySelector('.sheet-header') ?? root.querySelector('form') ?? root;
     const row = document.createElement('div'); row.className = 'itempileffg-price-field';
-    const label = document.createElement('label'); label.textContent = t('PRICE');
+    const label = document.createElement('label'); label.textContent = `${t('PRICE')} (${currencyConfig().name})`;
     const input = document.createElement('input'); input.type = 'number'; input.name = 'system.price';
     input.min = '0'; input.step = '0.01'; input.value = String(item.system.price ?? 0);
     input.disabled = !item.isOwner || app.isEditable === false;
