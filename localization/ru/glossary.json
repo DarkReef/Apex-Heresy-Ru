@@ -161,7 +161,7 @@
   "Modifier": "Модификатор",
   "Modifiers": "Модификаторы",
   "Flexible — cannot be parried": "Гибкое — нельзя парировать",
-  "Clear Stat": "Сбросить характеристику",
+  "Clear Stat": "Базовое значение",
   "Range": "Дистанция",
   "no Point Blank bonus in melee": "В ближнем бою нет бонуса за стрельбу в упор",
   "Engaged in melee with the target": "В ближнем бою с целью",
@@ -632,7 +632,7 @@
   "Hallucinogenic": "Галлюциногенное",
   "Haywire": "Электромагнитное",
   "Inaccurate": "Неточное",
-  "Las Weapon Setting": "Режим лазерного оружия",
+  "Las Weapon Setting": "Смена режима лазерного оружия",
   "Maximal": "Максимальный режим",
   "Melta": "Мельта",
   "Overheats": "Перегревающееся",
@@ -939,7 +939,7 @@
   "Crippled: taking more than a Half Action inflicts {damage} Rending Damage, not reduced by armour or Toughness. Lasts until the end of the encounter or until healed of all Damage.": "Калечащее: действие дольше половинного наносит {damage} режущего урона без снижения бронёй и Выносливостью. До конца сцены или полного исцеления.",
   "Smoke: a screen {radius} metres across for 1d10+10 Rounds.": "Дым: завеса диаметром {radius} м на 1d10+10 раундов.",
   "Haywire: a {radius} metre field — roll 1d100 on Table 5-2, the strength lessens one step each Round.": "Электромагнитное поле: {radius} м, бросок 1d100 по таблице 5–2. Сила снижается на ступень каждый раунд.",
-  "Las Setting": "Режим лазерного оружия",
+  "Las Setting": "Смена режима лазерного оружия",
   "Overcharge (+1 Dmg, x2 ammo)": "Усиленный заряд (+1 урон, ×2 боеприпасы)",
   "Maximal (+2 Dmg, +2 Pen, x4 ammo)": "Максимальный (+2 урон, +2 ББ, ×4 боеприпасы)",
   "+10 range, +1d10 Damage, +2 Penetration, Blast improved by +2.": "+10 к дальности, +1d10 урона, +2 к бронебойности, +2 к взрыву.",
@@ -1890,5 +1890,8 @@
   "Critical Effects (BC): Impact - Leg": "Критические эффекты (BC): удар — нога",
   "Critical Effects (BC): Explosive - Arm": "Критические эффекты (BC): взрыв — рука",
   "Critical Effects (BC): Rending - Head": "Критические эффекты (BC): разрыв — голова",
-  "Critical Effects (BC): Explosive - Head": "Критические эффекты (BC): взрыв — голова"
+  "Critical Effects (BC): Explosive - Head": "Критические эффекты (BC): взрыв — голова",
+  "Corrosive damage reduces armour at the struck location.": "Коррозийный урон уменьшает броню в поражённой части тела.",
+  "Toxic (unrated)": "Отравленное (без рейтинга)",
+  "Legacy unrated Toxic property; use the numbered property when the rules specify a rating.": "Свойство старых правил без рейтинга; если правила задают рейтинг, используйте числовое свойство."
 }

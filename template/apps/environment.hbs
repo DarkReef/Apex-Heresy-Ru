@@ -1,8 +1,8 @@
 <div class="wh-env">
   <div class="wh-env-topbar">
-    <div class="wh-env-scene"><span class="wh-env-scene-lbl">SCENE</span> <span class="wh-env-scene-name">{{sceneName}}</span></div>
+    <div class="wh-env-scene"><span class="wh-env-scene-lbl">{{localize 'UI.SCENE'}}</span> <span class="wh-env-scene-name">{{sceneName}}</span></div>
     {{#if isGM}}
-      <button type="button" class="wh-env-reset" data-act="reset" title="Reset this scene to normal">↺ Reset</button>
+      <button type="button" class="wh-env-reset" data-act="reset" title="{{localize 'UI.RESET_THIS_SCENE_TO_NORMAL'}}">{{localize 'UI.RESET'}}</button>
     {{/if}}
   </div>
 
@@ -16,8 +16,8 @@
       {{/each}}
       {{#if isGM}}
       <label class="wh-env-note-field">
-        <span>Note to players</span>
-        <textarea name="note" rows="2" placeholder="Shown on the widget…">{{note}}</textarea>
+        <span>{{localize 'UI.NOTE_TO_PLAYERS'}}</span>
+        <textarea name="note" rows="2" placeholder="{{localize 'UI.SHOWN_ON_THE_WIDGET'}}">{{note}}</textarea>
       </label>
       {{/if}}
     </nav>
@@ -40,13 +40,13 @@
       {{/each}}
       {{#if isGM}}
       <label class="wh-env-custom">
-        <input type="text" name="weatherText" value="{{weatherCustom}}" placeholder="Custom conditions — overrides the choice"/>
+        <input type="text" name="weatherText" value="{{weatherCustom}}" placeholder="{{localize 'UI.CUSTOM_CONDITIONS_OVERRIDES_THE_CHOICE'}}"/>
       </label>
       {{/if}}
       {{/if}}
 
       {{#if isTemp}}
-      <h3 class="wh-env-h">🌡 Temperature
+      <h3 class="wh-env-h">🌡 {{localize 'UI.TEMPERATURE'}}
         <span class="wh-env-h-val" style="color:{{env.temp.tone}}">{{env.temp.value}}°C</span>
       </h3>
       {{#if isGM}}
@@ -60,19 +60,19 @@
       {{/if}}
 
       {{#if isGravity}}
-      <h3 class="wh-env-h">🪐 Gravity
+      <h3 class="wh-env-h">🪐 {{localize 'UI.GRAVITY'}}
         <span class="wh-env-h-val" style="color:{{env.gravity.tone}}">{{#if (eq env.gravity.kind "zero")}}0G{{else}}{{env.gravity.value}}G{{/if}}</span>
       </h3>
       {{#if isGM}}
       <div class="wh-env-grav-ctl">
         {{#each gravPresets as |p|}}<button type="button" class="{{#if p.selected}}sel{{/if}}" data-grav="{{p.g}}">{{p.g}}G</button>{{/each}}
-        <label>Exact <input type="number" name="gravity" value="{{env.gravity.value}}" min="0" step="0.1"/></label>
+        <label>{{localize 'UI.EXACT'}} <input type="number" name="gravity" value="{{env.gravity.value}}" min="0" step="0.1"/></label>
       </div>
       {{/if}}
       {{/if}}
 
       {{#if isRad}}
-      <h3 class="wh-env-h">☢ Radiation
+      <h3 class="wh-env-h">☢ {{localize 'UI.RADIATION'}}
         <span class="wh-env-h-val" style="color:{{env.rad.tone}}">{{env.rad.text}} {{env.rad.unit}}</span>
       </h3>
       {{!-- Доза вводится числом в выбранных единицах; хранится всегда в мкЗв/ч. --}}

@@ -53,3 +53,11 @@ test('installed modifications derive overrides without rewriting the stored weap
     assert.equal(weapon.system.traitOverrides.scatter,false);assert.equal(weapon.system.traitOverrides.toxic,4);
     assert.deepEqual(source.traitOverrides,{scatter:true,toxic:2});
 });
+
+test('canonical Russian OW traits trigger the same mechanics as English',()=>{
+ const util=loadSystem().get('DarkHeresyUtil');
+ const en=util.extractWeaponTraits('Spray, Storm, Recharge, Corrosive, Felling (2), Toxic (3), Haywire (4), Twin-Linked');
+ const ru=util.extractWeaponTraits('Распыляющее, Шквальное, Накачка, Коррозийное, Разящее (2), Отравленное (3), Электромагнитное (4), Спаренное');
+ for(const key of ['skipAttackRoll','storm','recharge','corrosive','felling','toxic','haywire','twinLinked'])assert.equal(ru[key],en[key],key);
+ for(const term of ['Накачка','Шквальное','Коррозийное','Отравленное (3)','Электромагнитное (4)','Спаренное'])assert.ok(loadSystem().get('_matchSpecialEntry')(term).trait,term);
+});

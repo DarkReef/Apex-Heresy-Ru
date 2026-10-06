@@ -3,7 +3,7 @@ const numbered = new Set(['rfFace','devastating','proven','primitive','felling',
 const boolean = ['accurate','razorSharp','skipAttackRoll','tearing','storm','twinLinkedBonus','toxicUnrated',
     'twinLinked','force','inaccurate','unwieldy','reliable','unreliable','unbalanced','overheating',
     'shock','warpWeapon','scatter','maximal','lasSetting','recharge','melta','gyroStabilised','flame',
-    'balanced','defensive','flexible','powerField','tainted','sanctified'];
+    'corrosive','balanced','defensive','flexible','powerField','tainted','sanctified'];
 
 export const WEAPON_TRAIT_TYPES = Object.freeze(Object.fromEntries([
     ...boolean.map(key=>[key,'boolean']), ...[...numbered].map(key=>[key,'number']), ['crippling','string']
