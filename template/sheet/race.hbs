@@ -32,7 +32,7 @@
                                 <select class="skill-advance" name="system.startingSkills.{{key}}.advance" data-dtype="Number">
                                     {{selectOptions (config "advanceStagesSkills") selected=skill.advance localize=true}}
                                 </select>
-                                <a class="skill-delete" title="Remove"><i class="fas fa-times"></i></a>
+                                <a class="skill-delete" title="{{localize 'UI.REMOVE'}}"><i class="fas fa-times"></i></a>
                             </div>
                         {{/each}}
                     </div>
@@ -45,7 +45,7 @@
                         {{#each system.startingTalents as |talent|}}
                             <div class="item-entry flex row" data-item-id="{{#if talent.id}}{{talent.id}}{{else}}{{talent}}{{/if}}" style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 3px;">
                                 <div class="item-name">{{#if talent.name}}{{talent.name}}{{else}}{{talent}}{{/if}}</div>
-                                <a class="item-delete" title="Remove"><i class="fas fa-times"></i></a>
+                                <a class="item-delete" title="{{localize 'UI.REMOVE'}}"><i class="fas fa-times"></i></a>
                             </div>
                         {{/each}}
                     </div>
@@ -58,7 +58,7 @@
                         {{#each system.startingTraits as |trait|}}
                             <div class="item-entry flex row" data-item-id="{{#if trait.id}}{{trait.id}}{{else}}{{trait}}{{/if}}" style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 3px;">
                                 <div class="item-name">{{#if trait.name}}{{trait.name}}{{else}}{{trait}}{{/if}}</div>
-                                <a class="item-delete" title="Remove"><i class="fas fa-times"></i></a>
+                                <a class="item-delete" title="{{localize 'UI.REMOVE'}}"><i class="fas fa-times"></i></a>
                             </div>
                         {{/each}}
                     </div>
@@ -71,7 +71,7 @@
                         {{#each system.startingEquipment as |equip|}}
                             <div class="item-entry flex row" data-item-id="{{#if equip.id}}{{equip.id}}{{else}}{{equip}}{{/if}}" style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 3px;">
                                 <div class="item-name">{{#if equip.name}}{{equip.name}}{{else}}{{equip}}{{/if}}</div>
-                                <a class="item-delete" title="Remove"><i class="fas fa-times"></i></a>
+                                <a class="item-delete" title="{{localize 'UI.REMOVE'}}"><i class="fas fa-times"></i></a>
                             </div>
                         {{/each}}
                     </div>

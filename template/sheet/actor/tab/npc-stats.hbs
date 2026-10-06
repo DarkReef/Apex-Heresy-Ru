@@ -16,7 +16,7 @@
         <div class="item-list">
             <div class="flex header">
                 <b class="name">{{localize "INSANITY.MENTAL_DISORDER"}}</b>
-                <a class="button item-create" title="Add Mental Disorder" data-type="mentalDisorder"><i class="fas fa-plus"></i></a>
+                <a class="button item-create" title="{{localize 'UI.ADD_MENTAL_DISORDER'}}" data-type="mentalDisorder"><i class="fas fa-plus"></i></a>
             </div>
             <div class="items">
                 {{#each items.mentalDisorders as |item|}}
@@ -28,7 +28,7 @@
                             <div class="name">{{item.name}}</div>
                         </div>
                         <div class="button">
-                            <a class="item-control item-delete" title="Delete Mental Disorder"><i class="fas fa-trash"></i></a>
+                            <a class="item-control item-delete" title="{{localize 'UI.DELETE_MENTAL_DISORDER'}}"><i class="fas fa-trash"></i></a>
                         </div>
                     </div>
                 {{/each}}
@@ -69,7 +69,7 @@
         <div class="item-list">
             <div class="flex header">
                 <b class="name">{{localize "CORRUPTION.MALIGNANCY"}}</b>
-                <a class="button item-create" title="Add Malignancy" data-type="malignancy"><i class="fas fa-plus"></i></a>
+                <a class="button item-create" title="{{localize 'UI.ADD_MALIGNANCY'}}" data-type="malignancy"><i class="fas fa-plus"></i></a>
             </div>
             <div class="items">
                 {{#each items.malignancies as |item|}}
@@ -81,7 +81,7 @@
                                 <div class="name">{{item.name}}</div>
                             </div>
                             <div class="button">
-                                <a class="item-control item-delete" title="Delete Malignancy"><i class="fas fa-trash"></i></a>
+                                <a class="item-control item-delete" title="{{localize 'UI.DELETE_MALIGNANCY'}}"><i class="fas fa-trash"></i></a>
                             </div>
                         </div>
                 {{/each}}
@@ -90,7 +90,7 @@
         <div class="item-list">
             <div class="flex header">
                 <b class="name">{{localize "CORRUPTION.MUTATION"}}</b>
-                <a class="button item-create" title="Add Mutation" data-type="mutation"><i class="fas fa-plus"></i></a>
+                <a class="button item-create" title="{{localize 'UI.ADD_MUTATION'}}" data-type="mutation"><i class="fas fa-plus"></i></a>
             </div>
             <div class="items">
                 {{#each items.mutations as |item|}}
@@ -102,7 +102,7 @@
                             <div class="name">{{item.name}}</div>
                         </div>
                         <div class="button">
-                            <a class="item-control item-delete" title="Delete Mutation"><i class="fas fa-trash"></i></a>
+                            <a class="item-control item-delete" title="{{localize 'UI.DELETE_MUTATION'}}"><i class="fas fa-trash"></i></a>
                         </div>
                     </div>
                 {{/each}}
@@ -134,7 +134,7 @@
     <div class="skills border">
         <h1 class="section-head">
             <span>{{localize "TITLE.SKILLS"}}</span>
-            <a class="button skill-create" title="Add Custom Skill" aria-label="Add Custom Skill"><i class="fas fa-plus"></i></a>
+            <a class="button skill-create" title="{{localize 'UI.ADD_CUSTOM_SKILL'}}" aria-label="Add Custom Skill"><i class="fas fa-plus"></i></a>
         </h1>
         <div class="flex row" style="flex-basis: 60%">
             <div class="flex column wrap" style="max-height: 330px;flex-basis: 50%">

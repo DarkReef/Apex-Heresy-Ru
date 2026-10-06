@@ -1,3 +1,4 @@
+import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
 import {ruleText, ruleTerm} from "./localization/rule-text.mjs";
@@ -5980,7 +5981,7 @@ function _promptCalledShotLocation(selected) {
     `;
     return new Promise(resolve => {
         const dialog = dhDialog({
-            title: "Called Shot",
+            title: game.i18n.localize("UI.CALLED_SHOT"),
             content,
             buttons: {
                 select: {
@@ -8090,7 +8091,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
             const next = !current;
             await this.actor.setFlag("dark-heresy", "lightningReflexes", next);
             await updateTitle();
-            ui.notifications.info(`Lightning Reflexes: ${next ? "ON" : "OFF"}`);
+            ui.notifications.info(game.i18n.format("NOTIFICATION.REFLEXES_STATE", {state:game.i18n.localize(next ? "UI.ENABLED" : "UI.DISABLED")}));
         });
     }
 
@@ -8126,7 +8127,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
             const next = !current;
             await this.actor.setFlag("dark-heresy", "spaceMarine", next);
             await updateTitle();
-            ui.notifications.info(`Space Marine: ${next ? "ON" : "OFF"}`);
+            ui.notifications.info(game.i18n.format("NOTIFICATION.MARINE_STATE", {state:game.i18n.localize(next ? "UI.ENABLED" : "UI.DISABLED")}));
         });
     }
 
@@ -9165,7 +9166,7 @@ class BookSheet extends DarkHeresySheet {
     async _onAptitudeCreate(event) {
         event.preventDefault();
         let aptitudeId = Date.now().toString();
-        let aptitude = { id: Date.now().toString(), name: "New Aptitude" };
+        let aptitude = { id: Date.now().toString(), name: game.i18n.localize("UI.NEW_APTITUDE") };
         await this.actor.update({[`system.aptitudes.${aptitudeId}`]: aptitude});
         this._render(true);
     }
@@ -13743,32 +13744,32 @@ class RaceSheet extends DarkHeresyItemSheet {
                 
                 if (!item) {
                     console.warn("RaceSheet: Could not resolve item from drop data", data);
-                    ui.notifications.warn("Could not find the item to add.");
+                    ui.notifications.warn(game.i18n.localize("UI.COULD_NOT_FIND_THE_ITEM_TO_ADD"));
                     return;
                 }
                 
                 // Smart routing: automatically determine target based on item type
                 if (item.type === "talent") {
                     await this._handleItemDrop(item, "startingTalents");
-                    ui.notifications.info(`Added ${item.name} to starting talents.`);
+                    ui.notifications.info(game.i18n.format("NOTIFICATION.STARTING_TALENT_ADDED", {name:item.name}));
                 } else if (item.type === "trait") {
                     await this._handleItemDrop(item, "startingTraits");
-                    ui.notifications.info(`Added ${item.name} to starting traits.`);
+                    ui.notifications.info(game.i18n.format("NOTIFICATION.STARTING_TRAIT_ADDED", {name:item.name}));
                 } else if (["weapon", "gear", "tool", "ammunition", "armour", "forceField", "cybernetic", "drug", "weaponModification"].includes(item.type)) {
                     await this._handleItemDrop(item, "startingEquipment");
-                    ui.notifications.info(`Added ${item.name} to starting equipment.`);
+                    ui.notifications.info(game.i18n.format("NOTIFICATION.STARTING_EQUIPMENT_ADDED", {name:item.name}));
                 } else {
-                    ui.notifications.warn(`${item.name} (${item.type}) cannot be added to race.`);
+                    ui.notifications.warn(game.i18n.format("NOTIFICATION.RACE_ITEM_REJECTED", {name:item.name,type:game.i18n.localize(`TYPES.Item.${item.type}`)}));
                 }
             } else if (data.type === "Skill" || data.type === "skill") {
                 // Handle skill drops (from actor sheet)
                 await this._handleSkillDrop(data);
-                ui.notifications.info("Added skill to starting skills.");
+                ui.notifications.info(game.i18n.localize("UI.ADDED_SKILL_TO_STARTING_SKILLS"));
             } else {
             }
         } catch (err) {
             console.error("RaceSheet: Error handling drop:", err);
-            ui.notifications.error("Error adding item: " + err.message);
+            ui.notifications.error(game.i18n.format("NOTIFICATION.ITEM_ADD_ERROR", {error:err.message}));
         }
     }
 
@@ -13846,7 +13847,7 @@ class RaceSheet extends DarkHeresyItemSheet {
         });
         
         if (exists) {
-            ui.notifications.info(`${item.name} is already in the list.`);
+            ui.notifications.info(game.i18n.format("NOTIFICATION.ITEM_ALREADY_LISTED", {name:item.name}));
             return;
         }
         
@@ -13867,7 +13868,7 @@ class RaceSheet extends DarkHeresyItemSheet {
             this.render(false);
         } catch (err) {
             console.error("RaceSheet: Error updating item", err);
-            ui.notifications.error("Error updating race: " + err.message);
+            ui.notifications.error(game.i18n.format("NOTIFICATION.RACE_UPDATE_ERROR", {error:err.message}));
         }
     }
 }
@@ -14127,7 +14128,7 @@ const migrateWorld = async () => {
     const previous = Number(game.settings.get("dark-heresy", "worldSchemaVersion"));
     if (previous > schemaVersion) throw new Error("World schema is newer than this system; migration refused.");
     if (previous === schemaVersion) return;
-    ui.notifications.info("Upgrading the world, please wait...");
+    ui.notifications.info(game.i18n.localize("UI.UPGRADING_THE_WORLD_PLEASE_WAIT"));
     try {
         for (const actor of game.actors.contents) await migrateActorDocument(actor, previous);
         // Synthetic Actors have independent deltas even when they share a base Actor.
@@ -14145,9 +14146,9 @@ const migrateWorld = async () => {
             await migrateCompendium(pack, previous);
         }
         await game.settings.set("dark-heresy", "worldSchemaVersion", schemaVersion);
-        ui.notifications.info("Upgrade complete!");
+        ui.notifications.info(game.i18n.localize("UI.UPGRADE_COMPLETE"));
     } catch (error) {
-        ui.notifications.error("World upgrade incomplete. The version was not advanced; review the console and retry after fixing the error.");
+        ui.notifications.error(game.i18n.localize("UI.WORLD_UPGRADE_FAILED"));
         throw error;
     }
 };
@@ -14716,7 +14717,7 @@ async function applyAutoDamageToTarget(rollData, message) {
     if (!target || !message) return;
     const gm = game.users.activeGM;
     if (!gm) {
-        ui.notifications.warn("Damage was not applied: no active Gamemaster.");
+        ui.notifications.warn(game.i18n.localize("UI.DAMAGE_WAS_NOT_APPLIED_NO_ACTIVE_GAMEMASTER"));
         return;
     }
     const payload = {sceneId: target.sceneId, tokenId: target.tokenId, messageId: message.id};
@@ -15644,7 +15645,7 @@ async function onManualDamageUndoClick(event) {
 
     const applied = message.getFlag("dark-heresy", "appliedDamage");
     if (!applied) {
-        ui.notifications.warn("No applied damage to revert.");
+        ui.notifications.warn(game.i18n.localize("UI.NO_APPLIED_DAMAGE_TO_REVERT"));
         return;
     }
     const entries = Array.isArray(applied) ? applied : [applied];
@@ -15660,7 +15661,7 @@ async function onManualDamageUndoClick(event) {
             ? [[current.horde, entry.hordeAfter]]
             : [[current.wounds, entry.woundsAfter], [current.critical, entry.criticalAfter]];
         if (expected.some(([actual, after]) => !Number.isFinite(Number(after)) || Number(actual) !== Number(after))) {
-            ui.notifications.warn("Cannot undo this damage: the target changed after the attack.");
+            ui.notifications.warn(game.i18n.localize("UI.DAMAGE_UNDO_CONFLICT"));
             continue;
         }
         if (actor.type === "vehicle") {
@@ -15714,7 +15715,7 @@ async function onManualDamageUndoClick(event) {
     }
 
     if (!revertedAny) {
-        ui.notifications.warn("No applied damage to revert.");
+        ui.notifications.warn(game.i18n.localize("UI.NO_APPLIED_DAMAGE_TO_REVERT"));
         return;
     }
 
@@ -17794,86 +17795,9 @@ Hooks.once("init", async function() {
 
     initializeHandlebars();
 
-    game.settings.register("dark-heresy", "worldSchemaVersion", {
-        name: "World Version",
-        hint: "Used to automatically upgrade worlds data when the system is upgraded.",
-        scope: "world",
-        config: true,
-        default: 0,
-        type: Number
-    });
-    game.settings.register("dark-heresy", "ruleset", {
-        name: "SETTINGS.RULESET",
-        hint: "SETTINGS.RULESET_HINT",
-        scope: "world",
-        config: true,
-        default: "dh2",
-        type: String,
-        choices: { dh2: "RULESET.DH2", bc: "RULESET.BC" }
-    });
-
-    game.settings.register("dark-heresy", "autoCalcXPCosts", {
-        name: "Calculate XP Costs",
-        hint: "If enabled, calculate XP costs automatically.",
-        scope: "world",
-        config: true,
-        default: false,
-        type: Boolean
-    });
-
-    // Diagnostic for the effects that keep vanishing - see the preDeleteActiveEffect
-    // hook. On by default until the cause is found: the bug is intermittent, and a trap
-    // that is off when it happens catches nothing.
-    game.settings.register("dark-heresy", "logEffectDeletions", {
-        name: "Log effect deletions",
-        hint: "Writes who deleted which Active Effect, and the call path, to the console. Diagnostic for effects disappearing on their own.",
-        scope: "world",
-        config: true,
-        default: true,
-        type: Boolean
-    });
-    // Некоторые столы не хотят, чтобы автоматика бросала за игрока: тест силы
-    // воли против огня и бросок кровопотери — это их кости, и особенно
-    // кровопотеря, где шанс погибнуть невелик и цена броска высока.
-    game.settings.register("dark-heresy", "promptPlayerRolls", {
-        name: "Players roll condition tests",
-        hint: "Fire Willpower tests and Blood Loss rolls are handed to the character's owner as a button in chat instead of being rolled automatically.",
-        scope: "world",
-        config: true,
-        default: true,
-        type: Boolean
-    });
-    // Мастер создания ещё не готов к столу, поэтому его вход с листа по
-    // умолчанию скрыт. Настройка, а не вырезанный код: включить обратно можно
-    // не трогая систему, и доделывать его при этом никто не мешает.
-    game.settings.register("dark-heresy", "showCreationWizard", {
-        name: "SETTINGS.SHOW_WIZARD",
-        hint: "SETTINGS.SHOW_WIZARD_HINT",
-        scope: "world",
-        config: true,
-        default: false,
-        type: Boolean
-    });
-    game.settings.register("dark-heresy", "atmosphericEffects", {
-        name: "Atmospheric Effects",
-        hint: "Scanlines, flicker and background textures. Turn off for a calmer, faster sheet at the table.",
-        scope: "client",
-        config: true,
-        default: true,
-        type: Boolean,
-        onChange: value => applyAtmosphereSetting(value)
-    });
+    registerSystemSettings();
 
 });
-
-/**
- * Toggle the body class that gates atmospheric styling (scanlines, flicker, textures).
- * The CSS keys everything decorative off this class so the setting is a single switch.
- * @param {boolean} enabled  Whether atmospheric effects should be shown.
- */
-function applyAtmosphereSetting(enabled) {
-    document.body.classList.toggle("dh-no-atmosphere", !enabled);
-}
 
 Hooks.once("ready", async function() {
     applyAtmosphereSetting(game.settings.get("dark-heresy", "atmosphericEffects"));
@@ -17884,7 +17808,7 @@ Hooks.once("ready", async function() {
         if (data?.type === "autoDamage") {
             applyAutoDamageFromSocket(data.payload).catch(error => {
                 console.error("dark-heresy | Damage operation", error);
-                ui.notifications.error("Damage operation needs review; see its chat message flags. It has not been retried.");
+                ui.notifications.error(game.i18n.localize("UI.DAMAGE_NEEDS_REVIEW"));
             });
         }
         // Игрок без права создавать Акторов просит Ведущего завести ему лист.

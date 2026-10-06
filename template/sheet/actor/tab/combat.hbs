@@ -44,7 +44,7 @@
         <div class="item-list">
             <div class="flex header">
                 <b class="name">{{localize "WOUND.CRITICAL_INJURIES"}}</b>
-                <a class="button item-create" title="Add Critical Injury" data-type="criticalInjury"><i class="fas fa-plus"></i></a>
+                <a class="button item-create" title="{{localize 'UI.ADD_CRITICAL_INJURY'}}" data-type="criticalInjury"><i class="fas fa-plus"></i></a>
             </div>
             <div class="items">
                 {{#each items.criticalInjuries as |item|}}
@@ -56,7 +56,7 @@
                             <div class="name">{{item.name}}</div>
                         </div>
                         <div class="button">
-                            <a class="item-control item-delete" title="Delete Critical Injury"><i class="fas fa-trash"></i></a>
+                            <a class="item-control item-delete" title="{{localize 'UI.DELETE_CRITICAL_INJURY'}}"><i class="fas fa-trash"></i></a>
                         </div>
                     </div>
                 {{/each}}
@@ -76,8 +76,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.head.tempModifier" value="{{system.armour.head.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.head.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.head.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.head.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.head.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
             <div class="part loc-left-arm">
@@ -87,8 +87,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.leftArm.tempModifier" value="{{system.armour.leftArm.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.leftArm.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.leftArm.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.leftArm.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.leftArm.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
             <div class="part loc-body">
@@ -98,8 +98,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.body.tempModifier" value="{{system.armour.body.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.body.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.body.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.body.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.body.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
             <div class="part loc-right-arm">
@@ -109,8 +109,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.rightArm.tempModifier" value="{{system.armour.rightArm.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.rightArm.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.rightArm.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.rightArm.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.rightArm.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
             <div class="part loc-left-leg">
@@ -120,8 +120,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.leftLeg.tempModifier" value="{{system.armour.leftLeg.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.leftLeg.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.leftLeg.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.leftLeg.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.leftLeg.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
             <div class="part loc-right-leg">
@@ -131,8 +131,8 @@
                     <input class="temp-modifier" type="number" name="system.armour.rightLeg.tempModifier" value="{{system.armour.rightLeg.tempModifier}}" data-dtype="Number" placeholder="±" title="{{localize "ARMOUR.TEMP_MODIFIER"}}" />
                 </div>
                 <div class="information">
-                    <input type="number" value="{{system.armour.rightLeg.toughnessBonus}}" data-dtype="Number" title="Toughness Bonus" disabled />
-                    <input type="number" value="{{system.armour.rightLeg.value}}" data-dtype="Number" title="Armour Points" disabled />
+                    <input type="number" value="{{system.armour.rightLeg.toughnessBonus}}" data-dtype="Number" title="{{localize 'UI.TOUGHNESS_BONUS'}}" disabled />
+                    <input type="number" value="{{system.armour.rightLeg.value}}" data-dtype="Number" title="{{localize 'UI.ARMOUR_POINTS'}}" disabled />
                 </div>
             </div>
         </div>

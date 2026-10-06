@@ -15,7 +15,8 @@ test('the Quick Build button is gated on a setting', () => {
 });
 
 test('the setting exists, is world-scoped and starts off', () => {
-    const block = source.slice(source.indexOf('"showCreationWizard"'));
+    const settings = readFileSync(new URL('../script/settings.mjs', import.meta.url), 'utf8');
+    const block = settings.slice(settings.indexOf('"showCreationWizard"'));
     const body = block.slice(0, block.indexOf('});'));
     assert.match(body, /scope: "world"/);
     assert.match(body, /config: true/, 'so a GM can turn it on without editing code');

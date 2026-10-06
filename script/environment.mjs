@@ -1,3 +1,4 @@
+import {environmentText as t} from "./localization/environment-text.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Окружающая Среда — окно ГМа (когитаторный стиль) + экранный виджет.
 //  • Окно: левое меню-категории (Погода/Температура/Гравитация/Радиация),
@@ -7,106 +8,92 @@
 // ════════════════════════════════════════════════════════════════════════
 
 import {
-  WEATHER, WEATHER_GROUPS, RAD_TABLE, RAD_PROTECTION, envView, defaultEnv,
-  RAD_UNITS, RAD_UNIT_ORDER, formatDose,
-  resolveEnvContainer, readEnvForScene, primaryGroupForScene, envSceneHasOverride
+  normalizeEnv, localizeRow, WEATHER, WEATHER_GROUPS, RAD_TABLE, RAD_PROTECTION, envView, defaultEnv,
+  RAD_UNITS, RAD_UNIT_ORDER,
+  resolveEnvContainer, readEnvForScene
 } from "./environment-data.mjs";
 
 // Экранирование пользовательского текста перед вставкой в разметку виджета.
 const esc = v => foundry.utils.escapeHTML(String(v ?? ""));
 
-const { Application } = foundry.appv1.api;
-function currentScene() { return canvas?.scene ?? game.scenes?.current ?? null; }
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+function currentScene() { return globalThis.canvas?.scene ?? game.scenes?.current ?? null; }
 
 const CATS = [
-  { key: "weather", label: "Weather",     icon: "🌤" },
-  { key: "temp",    label: "Temperature", icon: "🌡" },
-  { key: "gravity", label: "Gravity",     icon: "🪐" },
-  { key: "rad",     label: "Radiation",   icon: "☢" }
+  { key: "weather", label: "UI.WEATHER",     icon: "🌤" },
+  { key: "temp",    label: "UI.TEMPERATURE", icon: "🌡" },
+  { key: "gravity", label: "UI.GRAVITY",     icon: "🪐" },
+  { key: "rad",     label: "UI.RADIATION",   icon: "☢" }
 ];
 
-export class EnvironmentApp extends Application {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "wh-environment",
-      classes: ["dark-heresy", "wh-holo", "wh-environment"],
-      title: "Environment",
-      template: "systems/dark-heresy/template/apps/environment.hbs",
-      width: 560, height: 596, resizable: true
-    });
-  }
+export class EnvironmentApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  static DEFAULT_OPTIONS = {
+    id: "wh-environment",
+    classes: ["dark-heresy", "wh-holo", "wh-environment"],
+    window: {title: "UI.ENVIRONMENT", resizable: true},
+    position: {width: 560, height: 596}
+  };
+  static PARTS = {body: {template: "systems/dark-heresy/template/apps/environment.hbs"}};
 
-  constructor(...args) { super(...args); this.state = { cat: "weather", target: null }; }
+  constructor(...args) { super(...args); this.envState = { cat: "weather" }; }
 
-  getData() {
+  async _prepareContext() {
     const isGM  = game.user.isGM;
     const scene = currentScene();
-    const group = scene ? primaryGroupForScene(scene.id) : null;
-    const inGroup = !!group;
-    const hasOverride = envSceneHasOverride(scene);
-    // Групп сцен здесь нет, поэтому область правки всегда одна — сама сцена,
-    // а переключатель «Группа/Сцена» в шаблоне остаётся под {{#if inGroup}}.
-    this.state.target = "scene";
-    const target = this.state.target;
     const shown = readEnvForScene(scene);
     const v = envView(shown);
     return {
       isGM,
-      sceneName: scene?.name || "- no active scene -",
-      inGroup, groupName: group?.name || "", target,
-      isTargetGroup: target === "group", isTargetScene: target === "scene",
-      hasOverride,
-      cat: this.state.cat,
-      cats: CATS.map(c => ({ ...c, active: c.key === this.state.cat })),
-      isWeather: this.state.cat === "weather",
-      isTemp:    this.state.cat === "temp",
-      isGravity: this.state.cat === "gravity",
-      isRad:     this.state.cat === "rad",
+      sceneName: scene?.name || t("UI.NO_ACTIVE_SCENE"),
+      cat: this.envState.cat,
+      cats: CATS.map(c => ({ ...localizeRow(c), active: c.key === this.envState.cat })),
+      isWeather: this.envState.cat === "weather",
+      isTemp:    this.envState.cat === "temp",
+      isGravity: this.envState.cat === "gravity",
+      isRad:     this.envState.cat === "rad",
       env: v,
       weatherGroups: WEATHER_GROUPS.map(g => ({
-        label: g.label,
-        items: WEATHER.filter(w => w.grp === g.grp).map(w => ({ ...w, selected: w.key === v.weather.key && !v.weather.custom }))
+        label: t(g.label),
+        items: WEATHER.filter(w => w.grp === g.grp).map(w => ({ ...localizeRow(w), selected: w.key === v.weather.key && !v.weather.custom }))
       })),
       weatherCustom: v.weather.custom ? v.raw.weatherText : "",
       gravPresets: [0, 0.2, 0.5, 0.8, 1, 1.5, 2, 3].map(g => ({ g, selected: Number(v.raw.gravity) === g })),
       // Поле ввода показывает дозу в выбранной единице, а не в мкЗв/ч.
       radInput: v.rad.text,
       radUnitLabel: v.rad.unit,
-      radUnits: RAD_UNIT_ORDER.map(k => ({ key: k, label: RAD_UNITS[k].label, selected: k === v.rad.unitKey })),
-      radTable: RAD_TABLE,
-      radProtection: RAD_PROTECTION,
+      radUnits: RAD_UNIT_ORDER.map(k => ({ key: k, label: t(RAD_UNITS[k].label), selected: k === v.rad.unitKey })),
+      radTable: RAD_TABLE.map(localizeRow),
+      radProtection: RAD_PROTECTION.map(localizeRow),
       note: v.note
     };
   }
 
-  async _patch(patch) {
+  _patch(patch) {
+    if (!game.user.isGM) return Promise.resolve();
     const scene = currentScene();
-    if (!scene) { ui.notifications?.warn("Environment: no active scene."); return; }
-    const c = resolveEnvContainer(scene, this.state.target);
-    // Первое сохранение override сцены — засеять текущим эффективным окружением.
-    const base = (this.state.target === "scene" && !envSceneHasOverride(scene)) ? readEnvForScene(scene) : c.read();
-    await c.write({ ...base, ...patch });
-    this.render(false);
+    if (!scene) { ui.notifications?.warn(t("UI.ENVIRONMENT_NO_ACTIVE_SCENE")); return Promise.resolve(); }
+    // Serialize writes so a second field edit reads the first edit's committed state.
+    const operation = (this.pendingSave ?? Promise.resolve()).catch(() => {}).then(async () => {
+      const c = resolveEnvContainer(scene);
+      await c.write(normalizeEnv({...c.read(), ...patch}));
+      if (this.rendered) await this.render();
+    });
+    this.pendingSave = operation;
+    operation.catch(error => {
+      console.error("dark-heresy | environment save", error);
+      ui.notifications?.error(t("UI.ENVIRONMENT_SAVE_FAILED"));
+    });
+    return operation;
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
-    const el = html[0] ?? html;
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const el = this.element;
 
     // Категории (левое меню)
-    el.querySelectorAll("[data-cat]").forEach(b => b.addEventListener("click", () => { this.state.cat = b.dataset.cat; this.render(false); }));
+    el.querySelectorAll("[data-cat]").forEach(b => b.addEventListener("click", () => { this.envState.cat = b.dataset.cat; this.render(); }));
 
     if (!game.user.isGM) return;   // редактирование — только ГМ
-
-    // Область правки: Группа / Сцена
-    el.querySelectorAll("[data-target]").forEach(b => b.addEventListener("click", () => { this.state.target = b.dataset.target; this.render(false); }));
-    // Убрать переопределение сцены → вернуться к окружению группы
-    el.querySelector("[data-act=clearOverride]")?.addEventListener("click", async () => {
-      const scene = currentScene(); if (!scene) return;
-      await resolveEnvContainer(scene, "scene").clear?.();
-      this.state.target = "group";
-      this.render(false);
-    });
 
     // Погода
     el.querySelectorAll("[data-weather]").forEach(b => b.addEventListener("click", () => this._patch({ weather: b.dataset.weather, weatherText: "" })));
@@ -143,17 +130,17 @@ export class EnvironmentApp extends Application {
     el.querySelector("[data-act=reset]")?.addEventListener("click", () => this._patch(defaultEnv()));
   }
 
-  async close(options) { _instance = null; return super.close(options); }
+  async close(options) { await this.pendingSave?.catch(() => {}); const result = await super.close(options); if (_instance === this) _instance = null; return result; }
 }
 
 let _instance = null;
 export function openEnvironment() {
-  if (!game.user.isGM) { ui.notifications?.info("The environment is set by the Gamemaster."); return null; }
+  if (!game.user.isGM) { ui.notifications?.info(t("UI.THE_ENVIRONMENT_IS_SET_BY_THE_GAMEMASTER")); return null; }
   if (!_instance) _instance = new EnvironmentApp();
-  _instance.render(true);
+  _instance.render({force: true});
   return _instance;
 }
-export function refreshEnvironment() { if (_instance?.rendered) _instance.render(false); }
+export function refreshEnvironment() { if (_instance?.rendered) _instance.render(); }
 
 // ══════════════════════════ ЭКРАННЫЙ ВИДЖЕТ ════════════════════════════════
 // Постоянная панель в левом-нижнем углу (справа от списка игроков) — для ВСЕХ.
@@ -164,25 +151,25 @@ function _widgetHTML(v) {
     <span class="wh-env-w-k">${esc(v.weather.rowLabel)}</span>
     <span class="wh-env-w-v">${esc(v.weather.label)}</span>
   </div>`);
-  const tSign = v.temp.testSigned ? `T${v.temp.testSigned}` : "";
+  const tSign = v.temp.testSigned ? `${t("UI.TOUGHNESS_SHORT")}${v.temp.testSigned}` : "";
   rows.push(`<div class="wh-env-w-row" style="--c:${v.temp.tone}">
     <span class="wh-env-w-ic">🌡</span>
-    <span class="wh-env-w-k">Temperature</span>
+    <span class="wh-env-w-k">${esc(t("UI.TEMPERATURE"))}</span>
     <span class="wh-env-w-v">${v.temp.value}°C${tSign ? ` <b class="wh-env-w-t">${tSign}</b>` : ""}</span>
   </div>`);
   rows.push(`<div class="wh-env-w-row" style="--c:${v.gravity.tone}">
     <span class="wh-env-w-ic">🪐</span>
-    <span class="wh-env-w-k">Gravity</span>
+    <span class="wh-env-w-k">${esc(t("UI.GRAVITY"))}</span>
     <span class="wh-env-w-v">${v.gravity.kind === "zero" ? "0G" : Number(v.gravity.value).toFixed(1) + "G"}</span>
   </div>`);
   const radCls = v.rad.active ? " danger" : "";
   rows.push(`<div class="wh-env-w-row${radCls}" style="--c:${v.rad.tone}">
     <span class="wh-env-w-ic">☢</span>
-    <span class="wh-env-w-k">Radiation</span>
-    <span class="wh-env-w-v">${v.rad.active ? `${v.rad.text} ${v.rad.unit}` : "normal"}</span>
+    <span class="wh-env-w-k">${esc(t("UI.RADIATION"))}</span>
+    <span class="wh-env-w-v">${v.rad.active ? `${v.rad.text} ${esc(v.rad.unit)}` : t("UI.NORMAL")}</span>
   </div>`);
   const note = v.note ? `<div class="wh-env-w-note">${esc(v.note)}</div>` : "";
-  return `<div class="wh-env-w-head"><span class="wh-env-w-led"></span><span class="wh-env-w-title">ENVIRONMENT</span><span class="wh-env-w-collapse" title="Collapse / expand">▾</span></div>
+  return `<div class="wh-env-w-head"><span class="wh-env-w-led"></span><span class="wh-env-w-title">${esc(t("UI.ENVIRONMENT_HEADING"))}</span><span class="wh-env-w-collapse" title=t("UI.COLLAPSE_EXPAND")>▾</span></div>
     <div class="wh-env-w-body">${rows.join("")}</div>${note}`;
 }
 
@@ -257,7 +244,7 @@ export function refreshEnvWidget() {
       el = document.createElement("div");
       el.id = "wh-env-widget";
       document.body.appendChild(el);
-      if (localStorage.getItem("wh-env-collapsed") === "1") el.classList.add("collapsed");
+      try { if (localStorage.getItem("wh-env-collapsed") === "1") el.classList.add("collapsed"); } catch {}
     }
     el.classList.toggle("gm", game.user.isGM);
     el.innerHTML = _widgetHTML(envView(readEnvForScene(scene)));
