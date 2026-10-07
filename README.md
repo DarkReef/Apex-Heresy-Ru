@@ -1,6 +1,6 @@
 # Apex Heresy RU
 
-Версия 1.5.3: система и расширения разрабатываются отдельно. Модули не входят в архив системы. Реальный многопользовательский QA новой сборки ещё требуется. Контракты расширений: [API](docs/api-v1.md).
+Версия 1.5.4 (ветка разработки): система и расширения разрабатываются отдельно. Модули не входят в архив системы. Реальный многопользовательский QA новой сборки ещё требуется. Контракты расширений: [API](docs/api-v1.md).
 
 Русская локализация форка на основе Babele. Завершён перевод компендиума Only War по русской базовой книге: 498 записей, все текстовые поля и папки, шесть связанных таблиц с 91 результатом. Названия 59 происхождений Only War также сверены с книгой. Переведён весь языковой файл интерфейса; перевод остальных книг ещё продолжается. [Установка, покрытие и работа с переводом](docs/russian-localization.md).
 
@@ -63,3 +63,5 @@ the book, the sheet and what you expected the rule to do is one that can be fixe
 See [LICENSE](LICENSE). Warhammer 40,000 and all associated names are trademarks of Games
 Workshop Limited. This is an unofficial fan project, not endorsed by Games Workshop or by
 Fantasy Flight Games / Cubicle 7.
+
+Отображение оставшихся ран Only War и правила совместимости описаны в [аудите](docs/native-inventory-vitals.md).
