@@ -1,3 +1,4 @@
+import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
 import {characteristicTerm} from "./localization/field-terms.mjs";
 import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
@@ -279,6 +280,13 @@ class DarkHeresyCombat extends Combat {
 }
 
 class DarkHeresyActor extends Actor {
+    async modifyTokenAttribute(attribute,value,isDelta=false,isBar=true) {
+        if (Dh.rulesetFor(this).id !== 'ow' || !isWoundsBar(attribute)) return super.modifyTokenAttribute(attribute,value,isDelta,isBar);
+        const updates=tokenWoundsUpdate(this,value,isDelta);
+        if(Hooks.call('modifyTokenAttribute',{attribute,value,isDelta,isBar},updates,this)===false)return this;
+        return this.update(updates);
+    }
+
 
     /**
      * Типы, которые предлагаются в окне создания Актёра.
@@ -17653,6 +17661,7 @@ Hooks.once("init", async function() {
     CONFIG.specialStatusEffects.DEFEATED = "dead";
     CONFIG.ActiveEffect.documentClass = DarkHeresyActiveEffect;
     CONFIG.Actor.documentClass = DarkHeresyActor;
+    CONFIG.Token.documentClass = woundsTokenDocument(CONFIG.Token.documentClass,actor=>Dh.rulesetFor(actor));
     CONFIG.Item.documentClass = DarkHeresyItem;
     
     // Register default icons for actors
