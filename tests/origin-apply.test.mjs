@@ -108,13 +108,13 @@ test('a speciality the skill does not list is created with a key and its label',
         [{key: 'commonLore', specKey: 'tacticaImperialis', created: true, from: -20, starterWas: false}]);
 });
 
-test('wounds, corruption and insanity add to what is already there', () => {
+test('origin wound grants increase capacity without inflicting damage', () => {
     const wounded = actor();
     wounded.system.wounds.max = 9;
     wounded.system.wounds.value = 9;
     const {update, applied} = planToActorUpdate(wounded, {...emptyPlan(), wounds: 2, corruption: 3, insanity: 1});
     assert.equal(update['system.wounds.max'], 11);
-    assert.equal(update['system.wounds.value'], 11);
+    assert.equal(update['system.wounds.value'], undefined);
     assert.equal(update['system.corruption'], 3);
     assert.equal(update['system.insanity'], 1);
     assert.equal(applied.wounds, 2);
@@ -214,7 +214,7 @@ test('the undo restores exactly the recorded raises and nothing else', () => {
     subject.system.skills.survival.advance = update['system.skills.survival.advance'];
     subject.system.skills.commonLore.specialities.adeptusArbites.advance = 0;
     subject.system.wounds.max = update['system.wounds.max'];
-    subject.system.wounds.value = update['system.wounds.value'];
+    assert.equal(update['system.wounds.value'], undefined);
 
     const back = revertUpdate(subject, applied);
     assert.equal(back['system.characteristics.strength.base'], 30);

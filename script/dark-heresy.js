@@ -1,3 +1,4 @@
+import {characteristicTerm} from "./localization/field-terms.mjs";
 import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
@@ -12,7 +13,7 @@ import { collapseRepeatedText } from "./data/repeated-text.mjs";
 import { OVERHEAT_THRESHOLD, overheatArm, overheatSelfDamage } from "./combat/overheat.mjs";
 import { fieldProtects } from "./combat/force-field.mjs";
 import { corrosiveBite } from "./combat/corrosive.mjs";
-import { woundsAfterDamage, woundsAfterHealing } from "./combat/vitals.mjs";
+import { remainingWounds, remainingWoundsPatch, woundsAfterDamage, woundsAfterHealing } from "./combat/vitals.mjs";
 import { applyMeleeEngagement } from "./combat/range-rules.mjs";
 import { FATE_ABILITIES, FATE_INITIATIVE_ROLL, fateHealing, fateOwnerId } from "./combat/fate.mjs";
 import { COUNTER_ATTACK_FLAG, canCounterAttack } from "./combat/counter-attack.mjs";
@@ -788,6 +789,10 @@ class DarkHeresyActor extends Actor {
         const wounds = this.system.wounds ?? {};
         // wounds.value counts damage taken, so the bar fills as the character is hurt.
         wounds.spentPercent = pct(wounds.value, wounds.max);
+        wounds.showRemaining = Dh.rulesetFor(this).id === 'ow';
+        wounds.remaining = remainingWounds(wounds);
+        // Source value prevents repeatedly baking active effects into saved wounds.
+        wounds.sourceRemaining = remainingWounds(this._source?.system?.wounds ?? wounds);
         wounds.criticalPercent = pct(wounds.critical, wounds.max);
 
         // How full the carry is, so the gear tab can show a load gauge.
@@ -889,6 +894,7 @@ class DarkHeresyActor extends Actor {
             // У Rogue Trader это Влиятельность: там её место занимает Profit
             // Factor, и он не характеристика, а ресурс династии (стр. 398).
             characteristic.absent = absentCharacteristics.includes(characteristicKey);
+            if(Dh.rulesetFor(this).id === 'ow') characteristic.label = characteristicTerm(this,characteristicKey,{localize:key=>game.i18n.localize(key),language:game.i18n.lang,ruleset:'ow'}).label;
             characteristic.isLeft = false;
             characteristic.isRight = false;
             characteristic.advanceCharacteristic = this._getAdvanceCharacteristic(characteristic.advance);
@@ -1174,7 +1180,7 @@ class DarkHeresyActor extends Actor {
         for (let item of this.items) {
 
             if (item.weight) {
-                encumbrance = encumbrance + (item.quantity ? item.weightSum : item.weight);
+                encumbrance += Number(item.weight) * Number(item.system.quantity ?? 1);
             }
         }
         this._computeEncumbrance(encumbrance);
@@ -7925,6 +7931,16 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
      * the duplicate carries data-actor-field and writes straight to the actor.
      * @param {Event} event
      */
+    async _onRemainingWoundsChange(event) {
+        event.preventDefault();event.stopPropagation();
+        if(!this.actor.isOwner)return;
+        const input=event.currentTarget;
+        try {
+            if(input.value.trim()==='')throw new Error('Invalid remaining wounds');
+            await this.actor.update(remainingWoundsPatch(input.value,this.actor._source.system.wounds.max));
+        } catch(error) {ui.notifications.error(game.i18n.localize('WOUND.INVALID_REMAINING'));input.value=remainingWounds(this.actor._source.system.wounds);}
+    }
+
     async _onActorFieldChange(event) {
         event.preventDefault();
         const input = event.currentTarget;
@@ -8043,6 +8059,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         html.find(".grapple-test").click(async ev => await this._onGrappleTest(ev));
         html.find(".roll-psychic-power").click(async ev => await this._prepareRollPsychicPower(ev));
         html.find(".roll-psychic-damage").click(async ev => await this._preparePsychicDamage(ev));
+        html.find("[data-wounds-remaining]").change(async ev => await this._onRemainingWoundsChange(ev));
         html.find("[data-actor-field]").change(async ev => await this._onActorFieldChange(ev));
         html.find(".clear-jam").click(async ev => await this._onClearJam(ev));
         html.find(".gear-create").click(async ev => await this._onGearCreate(ev));
@@ -17690,6 +17707,7 @@ Hooks.once("init", async function() {
     game.darkHeresy = {
         api: createDarkHeresyAPI(),
         localization: Object.freeze({
+            characteristicTerm: (actor,key) => characteristicTerm(actor,key,{localize:k=>game.i18n.localize(k),language:game.i18n.lang,ruleset:Dh.rulesetFor(actor).id}),
             ruleTerm: (value, book = "ow", field = "") => ruleTerm(value, book, game.i18n.lang, field),
             ruleText: (value, book = "ow", field = "") => ruleText(value, book, game.i18n.lang, field)
         }),
@@ -19453,7 +19471,7 @@ Hooks.once("ready", function() {
                         if (maxWounds <= 0) return 0;
                         
                         // Calculate remaining health as fraction
-                        const remainingHealth = Math.max(0, maxWounds - currentWounds);
+                        const remainingHealth = Math.max(0, remainingWounds(wounds));
                         return Math.min(remainingHealth / maxWounds, 1);
                     } catch (err) {
                         console.error("Dark Heresy Health Estimate: Error calculating fraction", err);

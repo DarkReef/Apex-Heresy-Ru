@@ -1978,5 +1978,8 @@
   "NOTIFICATION.ITEM_ADD_ERROR": "Error adding item: {error}",
   "NOTIFICATION.RACE_UPDATE_ERROR": "Error updating race: {error}",
   "NOTIFICATION.ITEM_ALREADY_LISTED": "{name} is already in the list.",
-  "UI.TOUGHNESS_SHORT": "T"
+  "UI.TOUGHNESS_SHORT": "T",
+  "WOUND.REMAINING": "Remaining Wounds",
+  "WOUND.INVALID_REMAINING": "Enter remaining Wounds no greater than the maximum. Negative values are allowed.",
+  "WOUND.EFFECTIVE": "With active effects"
 }

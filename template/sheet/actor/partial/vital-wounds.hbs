@@ -1,11 +1,11 @@
 {{!-- Полоса показателя: сначала видно состояние, потом цифры. --}}
                 <div class="vital vital-wounds{{#if system.wounds.critical}} is-critical{{/if}}">
                     <span class="vital-label">{{localize "TITLE.WOUNDS"}}</span>
-                    <div class="vital-bar" role="img"
-                         aria-label="{{system.wounds.value}} / {{system.wounds.max}}">
+                    <div class="vital-bar" role="group"
+                         aria-label="{{#if system.wounds.showRemaining}}{{system.wounds.remaining}}{{else}}{{system.wounds.value}}{{/if}} / {{system.wounds.max}}">
                         <div class="vital-fill" style="width: {{system.wounds.spentPercent}}%"></div>
                         <span class="vital-read">
-                            <input name="system.wounds.value" type="number" value="{{system.wounds.value}}" data-dtype="Number" />
+                            {{#if system.wounds.showRemaining}}<input data-wounds-remaining type="number" value="{{system.wounds.sourceRemaining}}" data-dtype="Number" aria-label="{{localize 'WOUND.REMAINING'}}" title="{{localize 'WOUND.REMAINING'}}: {{system.wounds.remaining}}" />{{#unless (eq system.wounds.sourceRemaining system.wounds.remaining)}}<small class="wounds-effective" title="{{localize 'WOUND.EFFECTIVE'}}">{{system.wounds.remaining}}</small>{{/unless}}{{else}}<input name="system.wounds.value" type="number" value="{{system.wounds.value}}" data-dtype="Number" />{{/if}}
                             <span class="vital-sep">/</span>
                             <input name="system.wounds.max" type="number" value="{{system.wounds.max}}" data-dtype="Number" />
                         </span>

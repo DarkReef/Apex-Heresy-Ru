@@ -7,13 +7,13 @@
               value is exact and the state is legible at a glance. --}}
         <div class="vital-meter{{#if system.wounds.critical}} is-critical{{/if}}">
             <div class="meter-track" role="img"
-                 aria-label="{{system.wounds.value}} / {{system.wounds.max}} {{localize "TITLE.WOUNDS"}}">
+                 aria-label="{{#if system.wounds.showRemaining}}{{system.wounds.remaining}}{{else}}{{system.wounds.value}}{{/if}} / {{system.wounds.max}} {{localize "TITLE.WOUNDS"}}">
                 <div class="meter-fill" style="width: {{system.wounds.spentPercent}}%"></div>
             </div>
             <div class="meter-fields">
                 <label class="meter-field">
-                    <span>{{localize "WOUND.CURRENT"}}</span>
-                    <input data-actor-field="system.wounds.value" type="number" value="{{system.wounds.value}}" data-dtype="Number" />
+                    <span>{{#if system.wounds.showRemaining}}{{localize "WOUND.REMAINING"}}{{else}}{{localize "WOUND.CURRENT"}}{{/if}}</span>
+                    {{#if system.wounds.showRemaining}}<input data-wounds-remaining type="number" value="{{system.wounds.sourceRemaining}}" data-dtype="Number" aria-label="{{localize 'WOUND.REMAINING'}}" title="{{localize 'WOUND.REMAINING'}}: {{system.wounds.remaining}}" />{{#unless (eq system.wounds.sourceRemaining system.wounds.remaining)}}<small class="wounds-effective" title="{{localize 'WOUND.EFFECTIVE'}}">{{system.wounds.remaining}}</small>{{/unless}}{{else}}<input data-actor-field="system.wounds.value" type="number" value="{{system.wounds.value}}" data-dtype="Number" />{{/if}}
                 </label>
                 <span class="meter-sep">/</span>
                 <label class="meter-field is-max">

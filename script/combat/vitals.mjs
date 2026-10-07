@@ -15,6 +15,15 @@
  * @param {{wounds: number, critical: number, max: number, amount: number}} state
  * @returns {{wounds: number, critical: number}}
  */
+export function remainingWounds({value=0,critical=0,max=0}={}) {
+    return (Number(max)||0)-(Number(value)||0)-(Number(critical)||0);
+}
+/** UI conversion only: stored value remains damage taken, critical remains overflow. */
+export function remainingWoundsPatch(value,max) {
+    const remaining=Number(value),limit=Number(max);
+    if(!Number.isFinite(remaining)||!Number.isFinite(limit)||limit<0||remaining>limit)throw new Error('Invalid remaining wounds');
+    return {'system.wounds.value':Math.min(limit,limit-remaining),'system.wounds.critical':Math.max(0,-remaining)};
+}
 export function woundsAfterDamage({wounds, critical, max, amount}) {
     let left = Math.max(Number(wounds) || 0, 0);
     let crit = Math.max(Number(critical) || 0, 0);

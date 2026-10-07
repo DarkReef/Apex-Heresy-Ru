@@ -72,7 +72,7 @@
                                     <span class="marker-static"><i class="fas fa-square"></i></span>
                                 {{/if}}
                             </div>
-                            <div class="name item-edit">{{item.name}}</div>
+                            <div class="name item-edit">{{#if item.img}}<img class="gear-icon" src="{{item.img}}" alt="" width="24" height="24" loading="lazy">{{/if}}{{item.name}}</div>
                             <div class="summary">{{item.gearSummary}}</div>
                             <div class="weight">{{item.weight}}</div>
                             <div class="state">

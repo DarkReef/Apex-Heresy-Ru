@@ -1,3 +1,4 @@
+import {characteristicTerm} from "../localization/field-terms.mjs";
 import {ruleName, matchesRuleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
 //  Мастер создания персонажа.
@@ -1182,7 +1183,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         const choice = home?.characteristicChoices?.[0] ?? null;
         const {system, problems} = await this._composedRegiment();
         const spent = regimentCost(this._builder, catalogue);
-        const label = key => game.i18n.localize(`CHARACTERISTIC.${key.replace(/([A-Z])/g, "_$1").toUpperCase()}`);
+        const label = key => characteristicTerm(this.actor,key,{localize:k=>game.i18n.localize(k),language:game.i18n.lang,ruleset:this.ruleset}).label;
 
         return {
             ...base,
@@ -1373,9 +1374,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
                 return {
                     key,
                     // Black Crusade зовёт Влияние Тёмной славой, как и лист еретика.
-                    label: game.i18n.localize(ownFormula
-                        ? "CHARACTERISTIC.INFAMY"
-                        : `CHARACTERISTIC.${key.replace(/([A-Z])/g, "_$1").toUpperCase()}`),
+                    label: ownFormula ? game.i18n.localize("CHARACTERISTIC.INFAMY") : characteristicTerm(this.actor,key,{localize:k=>game.i18n.localize(k),language:game.i18n.lang,ruleset:this.ruleset}).label,
                     modifier,
                     rolledOnly: !!ownFormula,
                     // Кости у строки есть, когда книга их требует: при закупке очков
@@ -1479,7 +1478,10 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         let granted = 0;
         for (const item of actor.items)
             if (item.type === "origin") granted += item.getFlag(GRANT_FLAG_SCOPE, "applied")?.wounds ?? 0;
-        update["system.wounds.max"] = update["system.wounds.value"] = wounds.total + granted;
+        update["system.wounds.max"] = wounds.total + granted;
+        // Generated Wounds are capacity; new characters start with no damage.
+        update["system.wounds.value"] = 0;
+        update["system.wounds.critical"] = 0;
         update["system.fate.max"] = update["system.fate.value"] = fateTotal;
 
         await actor.update(update);
@@ -1723,7 +1725,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         });
 
         const snapshot = this._shopSnapshot();
-        const label = key => game.i18n.localize(`CHARACTERISTIC.${key.replace(/([A-Z])/g, "_$1").toUpperCase()}`);
+        const label = key => characteristicTerm(this.actor,key,{localize:k=>game.i18n.localize(k),language:game.i18n.lang,ruleset:this.ruleset}).label;
         const levelLabel = level => level ? game.i18n.localize(`WIZARD.LEVEL.${level.toUpperCase()}`) : "";
         // «Свой», «союзный», «враждебный» — то, чем Black Crusade заменяет склонности.
         const relationLabel = relation => relation

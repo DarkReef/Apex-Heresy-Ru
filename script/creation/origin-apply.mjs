@@ -251,7 +251,6 @@ export function planToActorUpdate(actor, plan, {characteristicMode = "flat", dup
 
     if (plan.wounds) {
         update["system.wounds.max"] = (actor.system.wounds?.max ?? 0) + plan.wounds;
-        update["system.wounds.value"] = (actor.system.wounds?.value ?? 0) + plan.wounds;
         applied.wounds = plan.wounds;
     }
     for (const key of ["corruption", "insanity"]) {
@@ -397,7 +396,6 @@ export function revertUpdate(actor, applied = {}) {
 
     if (applied.wounds) {
         update["system.wounds.max"] = Math.max(0, (actor.system.wounds?.max ?? 0) - applied.wounds);
-        update["system.wounds.value"] = Math.max(0, (actor.system.wounds?.value ?? 0) - applied.wounds);
     }
     for (const key of ["corruption", "insanity"])
         if (applied[key]) update[`system.${key}`] = Math.max(0, (actor.system[key] ?? 0) - applied[key]);
