@@ -3155,6 +3155,7 @@ function createDarkHeresyAPI() {
     return Object.freeze({
         version: 1,
         weaponTraitTypes: WEAPON_TRAIT_TYPES,
+        supportsRollMessageFlags: true,
         async setItemTraits({actorUuid, itemId, traits = {}} = {}) {
             const actor = await actorFor(actorUuid);
             const item = actor.items.get(itemId);
@@ -3168,13 +3169,14 @@ function createDarkHeresyAPI() {
             if (Object.keys(patch).length) await item.update(patch);
             return {actorUuid:actor.uuid, itemId, traits:{...traits}};
         },
-        async rollTest({actorUuid, characteristic, skill, modifier = 0, dialog = false} = {}) {
+        async rollTest({actorUuid, characteristic, skill, modifier = 0, dialog = false, messageFlags = {}} = {}) {
             const actor = await actorFor(actorUuid);
             if (!Number.isFinite(Number(modifier))) throw new Error("Modifier must be finite");
             if (characteristic ? !actor.characteristics?.[characteristic] : !actor.skills?.[skill]) throw new Error("Unknown test");
             const data = characteristic ? DarkHeresyUtil.createCharacteristicRollData(actor, characteristic)
                 : DarkHeresyUtil.createSkillRollData(actor, skill);
             data.target.modifier += Number(modifier);
+            data.messageFlags = foundry.utils.deepClone(messageFlags);
             if (dialog) { await prepareCommonRoll(data); return {status:"dialog", context:data}; }
             return commonRoll(data);
         },
@@ -5818,6 +5820,10 @@ async function _sendSingleRollToChat(rollData) {
     }
 
     ChatMessage.applyRollMode?.(chatData, chatData.rollMode);
+    // Optional caller metadata; never replace the system's own roll record.
+    for (const [scope,flags] of Object.entries(rollData.messageFlags ?? {})) {
+        if (scope !== 'dark-heresy' && scope !== 'core') chatData.flags[scope] = flags;
+    }
     return await ChatMessage.create(chatData);
 }
 /**
