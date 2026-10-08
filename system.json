@@ -18,7 +18,8 @@
     "script/dark-heresy.js"
   ],
   "styles": [
-    "css/dark-heresy.css"
+    "css/dark-heresy.css",
+    "css/action-reference.css"
   ],
   "packs": [
     {

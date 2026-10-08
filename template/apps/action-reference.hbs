@@ -1,0 +1,33 @@
+<section class="apex-reference-body">
+  <header class="apex-reference-heading">
+    <strong>APEX HERESY <span>БОЕВАЯ ПАМЯТКА</span></strong>
+    <small>Открыть / закрыть: {{shortcut}}</small>
+  </header>
+  <div class="apex-reference-filters">
+    <label>Книга<select name="book">{{#each books}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label>Действие<select name="cost"><option value="">Все типы</option>{{#each costs}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label class="apex-reference-search">Поиск<input name="query" type="search" value="{{query}}" placeholder="Название, эффект, условие…" autocomplete="off"></label>
+  </div>
+  {{#if supported}}
+  <p class="apex-reference-budget">Ход: <b>1 полное</b> или <b>2 разных полудействия</b>; обычно <b>1 реакция за раунд</b>, вне своего хода. Не более одного действия каждого подтипа «Атака» и «Концентрация» за ход. Свободные действия ограничивает ведущий.</p>
+  <div class="apex-reference-scroll" tabindex="0" aria-label="Таблица боевых действий Only War">
+    <table>
+      <caption>Only War · базовые боевые действия</caption>
+      <thead><tr><th scope="col">Действие / подтип</th><th scope="col">Время</th><th scope="col">Эффект</th><th scope="col">Условия</th></tr></thead>
+      <tbody>{{#each rows}}
+        <tr data-action-id="{{id}}">
+          <th scope="row">{{name}}<small>{{tags}} · PDF {{page}}</small></th>
+          <td class="apex-reference-cost">{{costLabel}}{{#if dispute}}<b class="apex-reference-dispute">† Расхождение</b>{{/if}}</td>
+          <td>{{effect}}</td>
+          <td>{{conditions}}{{#if dispute}}<p class="apex-reference-dispute">† {{dispute}}</p>{{/if}}</td>
+        </tr>
+      {{/each}}</tbody>
+    </table>
+    <p data-empty hidden>Ничего не найдено. Измените поиск или тип действия.</p>
+  </div>
+  {{else}}
+  <p class="apex-reference-unavailable">Для выбранной книги справка ещё не сверена с первоисточником. Действия Only War скрыты: их стоимость и эффекты нельзя автоматически переносить в DH2, BC, RT или DW. Выберите Only War для просмотра её правил.</p>
+  <p data-empty hidden></p>
+  {{/if}}
+  <footer><span data-count aria-live="polite"></span><span>OW Rus 1.05 · PDF 237–244. Полудействие = «частичное» в книге. ББ/ДБ — ближний/дальний бой; БЛ/БС/БВ — бонусы Ловкости/Силы/Выносливости; СУ — ступени успеха. Длительное действие занимает несколько ходов. † Спорную длительность выбирает ведущий.</span></footer>
+</section>

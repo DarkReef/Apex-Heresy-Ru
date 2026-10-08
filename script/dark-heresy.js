@@ -1,4 +1,5 @@
 import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
+import {registerCombatActionReference, toggleCombatActionReference} from "./combat/action-reference.mjs";
 import {characteristicTerm} from "./localization/field-terms.mjs";
 import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
@@ -17643,6 +17644,7 @@ function updateTokenHordeLabel(token) {
 }
 
 Hooks.once("init", async function() {
+    registerCombatActionReference();
     // Load template.json for accessing skill specialities
     let templateData = {};
     try {
@@ -17737,6 +17739,7 @@ Hooks.once("init", async function() {
         CharacterWizard: CharacterWizard,
         // Окно окружения — макросом и из панели сцены.
         openEnvironment: openEnvironment,
+        toggleCombatActionReference,
         // Падение — разовое событие, а не состояние: вешать его на фишку нечем,
         // и высоту знает только стол. Поэтому оно открыто макросом:
         // game.darkHeresy.applyFallingDamage(actor, 12)
