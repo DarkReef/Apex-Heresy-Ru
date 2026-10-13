@@ -1,3 +1,6 @@
+import {ruleName,matchesRuleName} from '../../script/localization/rule-name.mjs';
+import {planOWDamage, owHitProtection, owCharacteristicBonus} from '../../script/combat/ow-damage.mjs';
+import {createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled} from '../../script/combat/damage-api.mjs';
 import {characteristicTerm} from "../../script/localization/field-terms.mjs";
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -36,7 +39,7 @@ export function loadSystem(overrides = {}) {
     const listeners = new Map();
     class Document {}
     const context = vm.createContext({
-        characteristicTerm, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,
+        characteristicTerm, ruleName, matchesRuleName, planOWDamage, owHitProtection, owCharacteristicBonus, createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,
         applyTraitOverrides, editTraitOverrides, validateTraitOverrides, WEAPON_TRAIT_TYPES, traitOverridesFromRows, traitOverridePatch,
         patronOf, targetSizeModifier, sizeToHitModifier, armourSizeModifier, describeTargetSize,
         renownRankFor, dwTraumaModifier, dwInsanityStep, PURITY_THRESHOLD, purityBroken, cohesionPool, FOCUS_AUTO_FAIL,

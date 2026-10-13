@@ -1,3 +1,4 @@
+import {damageFixture} from './helpers/ow-damage-fixture.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -85,16 +86,16 @@ test('no field means no protection, and no crash', () => {
 
 // ── Reaching the damage path ──────────────────────────────────────────────
 
-test('the field is consulted before armour and Toughness', () => {
-    // It negates an attack rather than reducing it, so it cannot sit behind the
-    // armour subtraction. The check must come before the damage entries are built.
-    const source = readFileSync(new URL('../script/dark-heresy.js', import.meta.url), 'utf8');
-    const fn = source.slice(source.indexOf('async function applyAutoDamageFromSocket'));
-    const body = fn.slice(0, fn.indexOf('\n}'));
-    const interceptAt = body.indexOf('_forceFieldIntercept');
-    const damagesAt = body.indexOf('_damageEntriesFromRoll');
-    assert.ok(interceptAt > -1, 'the field is consulted at all');
-    assert.ok(interceptAt < damagesAt, 'and before the damage is assembled');
+test('native field intercept is inside the repeat guard and prevents wounds', async () => {
+    const f=damageFixture({field:true,fieldRolls:[30]});
+    f.system.context.Roll=globalThis.Roll;
+    f.system.context.ChatMessage=globalThis.ChatMessage;
+    const apply=f.system.get('applyAutoDamageFromSocket');
+    const input={sceneId:'scene',tokenId:'enemy',messageId:'damage'};
+    await Promise.all([apply(input),apply(input)]);
+    assert.equal(f.rolls(),1);
+    assert.equal(f.writes(),0);
+    assert.equal(f.source.getFlag('dark-heresy','appliedDamage').blocked,true);
 });
 
 test('a blocked attack applies no damage and says so', () => {

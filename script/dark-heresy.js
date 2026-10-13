@@ -1,4 +1,6 @@
 import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
+import {planOWDamage, owHitProtection, owCharacteristicBonus} from './combat/ow-damage.mjs';
+import {createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled} from './combat/damage-api.mjs';
 import {characteristicTerm} from "./localization/field-terms.mjs";
 import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
@@ -893,11 +895,12 @@ class DarkHeresyActor extends Actor {
             // прибавляют число, Deathwatch УДВАИВАЕТ бонус — «Unnatural Strength (x2)»
             // (стр. 136). Множитель поэтому живёт отдельным полем: прибавку он не
             // отменяет, и при росте характеристики удвоение не отстаёт.
-            const multiplier = Number(characteristic.unnaturalMultiplier) || 1;
-            const unnatural = Number(characteristic.unnatural) || 0;
-            characteristic.bonus = Math.floor(characteristic.total / 10) * multiplier + unnatural;
-            characteristic.displayTotal = characteristic.total + tempModifier;
-            characteristic.displayBonus = Math.floor(characteristic.displayTotal / 10) * multiplier + unnatural;
+            const isOW = Dh.rulesetFor(this).id === 'ow';
+            const multiplier = isOW ? 1 : (Number(characteristic.unnaturalMultiplier) || 1);
+            const unnatural = isOW ? _owUnnatural(this, characteristicKey) : (Number(characteristic.unnatural) || 0);
+            characteristic.bonus = isOW ? owCharacteristicBonus(characteristic.total,unnatural) : Math.floor(characteristic.total / 10) * multiplier + unnatural;
+            characteristic.displayTotal = isOW ? Math.max(characteristic.total + tempModifier,0) : characteristic.total + tempModifier;
+            characteristic.displayBonus = isOW ? owCharacteristicBonus(characteristic.displayTotal,unnatural) : Math.floor(characteristic.displayTotal / 10) * multiplier + unnatural;
             // Характеристику, которой в книге нет, лист не показывает вовсе.
             // У Rogue Trader это Влиятельность: там её место занимает Profit
             // Factor, и он не характеристика, а ресурс династии (стр. 398).
@@ -1816,6 +1819,8 @@ class DarkHeresyActor extends Actor {
      * @returns {{damageTaken: object[], wounds: number, criticalWounds: number}}
      */
     previewDamage(damages) {
+        if (Dh.rulesetFor(this).id === 'ow' && !Number(this.horde) && this.type !== 'vehicle')
+            return planOWDamage(this._owDamageDefense(), damages);
         if (this.type === "vehicle") return this._previewVehicleDamage(damages);
 
         // У орды нет ни ран, ни критов — только величина, поэтому разбирать урон
@@ -2017,6 +2022,8 @@ class DarkHeresyActor extends Actor {
     }
 
     async applyDamage(damages) {
+        if (Dh.rulesetFor(this).id === 'ow' && !Number(this.horde) && this.type !== 'vehicle')
+            return this._applyOWDamage(damages);
         if (this.type === "vehicle") return this._applyVehicleDamage(damages);
         // Use getter to get horde value from token if available
         const currentHorde = Number(this.horde) || 0;
@@ -2367,6 +2374,10 @@ class DarkHeresyActor extends Actor {
      * @returns {number}
      */
     _getEffectiveArmour(damage) {
+        if (Dh.rulesetFor(this).id === 'ow' && this.type !== 'vehicle') {
+            const p = owHitProtection(this._owDamageDefense(), damage);
+            return p.armourAfterPen + p.toughnessForHit + p.daemonic;
+        }
         const traits = damage?.weaponTraits || {};
         const penetration = Number(damage?.penetration) || 0;
         // Пробитие снимает очки брони, но не тело под ней (DH2, стр. 227). На листе
@@ -2400,6 +2411,49 @@ class DarkHeresyActor extends Actor {
             "ARMOUR.BODY": "body", "ARMOUR.LEFT_LEG": "leftLeg", "ARMOUR.RIGHT_LEG": "rightLeg"
         }[location];
         return Math.max(Number(this.armour?.[part]?.toughnessBonus) || 0, 0);
+    }
+
+    _owDamageDefense() {
+        const c = this.system.characteristics.toughness;
+        const effective = Math.max(Number(c.total) + Number(c.tempModifier || 0),0);
+        const armour = Object.fromEntries(Object.entries(this.armour).map(([key,p]) =>
+            [key, Math.max(Number(p.total) - Number(p.toughnessBonus || 0), 0)]));
+        const review = [];
+        const names = this.items.filter(i => ['trait','talent','specialAbility'].includes(i.type)).map(ruleName);
+        const daemon = names.find(n => /^Daemonic\s*\(/i.test(n));
+        const daemonic = daemon ? Number(/\((\d+)\)/.exec(daemon)?.[1]) || 0 : 0;
+        if (names.some(n => /incorporeal|phase|stuff of nightmares|демон|бестелес|фазов/i.test(n)))
+            review.push('Unverified protective trait: manual resolution required');
+        if (names.some(n => /^Daemonic/i.test(n)) && !daemonic) review.push('Daemonic rating missing');
+        if (names.some(n => /^(Machine|Natural Armour|Природная броня)/i.test(n) && !/\(\d+\)/.test(n))) review.push('Unrated armour trait requires manual resolution');
+        if (names.some(n => /^Unnatural (?:Characteristic )?Toughness/i.test(n) && !/\(\+?\d+\)/.test(n)) && !_owUnnatural(this,'toughness')) review.push('Unnatural Toughness rating missing');
+        const changes = Array.from(this.allApplicableEffects()).filter(e => e.active).flatMap(e => e.changes ?? []);
+        if (changes.some(e => ['system.wounds.value','system.wounds.critical'].includes(e.key)))
+            review.push('Active Effect overrides wound counters: manual resolution required');
+        if (changes.some(e => ['total','displayTotal','bonus','displayBonus'].some(key=>e.key===`system.characteristics.toughness.${key}`)))
+            review.push('Derived Toughness AE requires review; use base/advance/tempModifier/unnatural for OW');
+        return {armour,effectiveToughness:effective,unnaturalToughness:_owUnnatural(this,'toughness'),
+            unnaturalMultiplier:Number(c.unnaturalMultiplier)||1,daemonic,
+            trueGrit:this.items.some(i => matchesRuleName(i,'True Grit') || matchesRuleName(i,'Каменная кожа')),
+            warpArmourConfirmed:false,review,wounds:{value:this.wounds.value,max:this.wounds.max,critical:this.wounds.critical},
+            characteristic:{base:c.base,advance:c.advance,total:c.total,tempModifier:c.tempModifier,unnatural:c.unnatural,
+                displayTotal:c.displayTotal,bonus:c.bonus,displayBonus:c.displayBonus},
+            sourceWounds:foundry.utils.deepClone(this._source?.system?.wounds ?? this.wounds)};
+    }
+
+    async _applyOWDamage(damages) {
+        if (Number(this.system.characteristics.toughness.unnaturalMultiplier)>1)
+            throw Error('unsupported: OW Unnatural Toughness must use +X, not an old multiplier');
+        const plan = this.previewDamage(damages);
+        const source = this._source?.system?.wounds ?? this.wounds;
+        const updates = {'system.wounds.value':Number(source.value) + plan.wounds - plan.before.value,
+            'system.wounds.critical':Number(source.critical) + plan.criticalWounds - plan.before.critical};
+        if (Hooks.call('modifyTokenAttribute',{attribute:'wounds.value',value:this.wounds.value,isDelta:false,isBar:true},updates) === false) return this;
+        await this.update(updates);
+        // OW has location/type critical tables, never the old generic 2×TB death rule.
+        await this._showCritMessage(plan.damageTaken,this.name,plan.wounds,plan.criticalWounds);
+        await _resolveOnHitWeaponEffects(this,damages);
+        return this;
     }
 
     _getArmourTotal(location) {
@@ -3200,9 +3254,16 @@ function createDarkHeresyAPI() {
             else await actor.removeCondition(condition);
             return {actorUuid:actor.uuid, condition, active:!!actor.hasCondition(condition)};
         },
-        async applyDamage({messageId} = {}) {
+        damage: createFoundryDamageAPI({queue:_queueDocumentOperation,rulesetFor:actor=>Dh.rulesetFor(actor),attackerFromRoll:_actorFromRollData}),
+        async applyDamage({messageId, tokenUuid, actorUuid} = {}) {
             const message = game.messages.get(messageId);
             if (!message || (!message.isOwner && !game.user?.isGM)) throw new Error("No permission to apply this roll");
+            if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(message.getRollData())).id === 'ow') {
+                const targets = message.getRollData().targets ?? [];
+                if (!tokenUuid && targets.length === 1) tokenUuid = game.scenes.get(targets[0].sceneId)?.tokens.get(targets[0].tokenId)?.uuid;
+                if (!tokenUuid) return {status:'target-required'};
+                return game.darkHeresy.api.damage.request({messageId,tokenUuid,actorUuid});
+            }
             return applyAutoDamageToTarget(message.getRollData(), message);
         }
     });
@@ -4562,6 +4623,21 @@ async function _resolveOnHitWeaponEffects(actor, damages) {
     }
 }
 
+function _owUnnatural(actor, key) {
+    const value = Math.max(Number(actor.system?.characteristics?.[key]?.unnatural) || 0, 0);
+    const effectOwnsField = Array.from(actor.allApplicableEffects?.() ?? []).some(e=>e.active &&
+        e.changes?.some(change=>change.key===`system.characteristics.${key}.unnatural`));
+    if (value > 0 || effectOwnsField) return value;
+    const term = {toughness:'Toughness',strength:'Strength',agility:'Agility',willpower:'Willpower',weaponSkill:'Weapon Skill',ballisticSkill:'Ballistic Skill'}[key];
+    const ratings = (actor.items ?? []).filter?.(i => i.type === 'trait').map(i => {
+        const explicit = i.flags?.['dark-heresy']?.unnatural;
+        if (explicit?.characteristic === key) return Number(explicit.value) || 0;
+        const match = /^Unnatural (?:Characteristic )?([^()]+)\s*\(\+?(\d+)\)/i.exec(ruleName(i));
+        return term && match?.[1].trim().toLowerCase() === term.toLowerCase() ? Number(match[2]) : 0;
+    }) ?? [];
+    return Math.max(0,...ratings);
+}
+
 function _getUnnaturalDosBonus(rollData) {
     let actorId = rollData?.ownerId;
     let characteristicKey = rollData?.characteristicKey;
@@ -4574,8 +4650,9 @@ function _getUnnaturalDosBonus(rollData) {
         }
     }
 
-    if (!actorId || !characteristicKey) return 0;
-    const actor = game.actors.get(actorId);
+    const actorRef = rollData?.flags?.isEvasion ? rollData.evasions[rollData.evasions.selected] : rollData;
+    if ((!actorId && !actorRef?.actorUuid && !actorRef?.tokenId) || !characteristicKey) return 0;
+    const actor = _actorFromRollData(actorRef);
     const characteristic = actor?.system?.characteristics?.[characteristicKey];
     // Deathwatch записывает неестественность множителем, а не прибавкой, поэтому
     // поле unnatural у брата пустое. Книга даёт множитель к ступеням успеха только
@@ -4586,7 +4663,7 @@ function _getUnnaturalDosBonus(rollData) {
         const multiplier = Number(characteristic?.unnaturalMultiplier) || 1;
         if (multiplier > 1) return multiplier;
     }
-    const unnatural = Number(characteristic?.unnatural) || 0;
+    const unnatural = Dh.rulesetFor(actor).id === 'ow' ? _owUnnatural(actor, characteristicKey) : Number(characteristic?.unnatural) || 0;
     // Half the Unnatural value in bonus degrees (DH2 p. 140), and p. 23 rounds
     // every division up, so Unnatural (3) is worth two degrees rather than one.
     return halfRoundedUp(unnatural);
@@ -7219,6 +7296,15 @@ class DarkHeresyUtil {
         };
         
         rollData.weapon = foundry.utils.mergeObject(rollData.weapon, {
+            damageProfileVersion: 1,
+            weaponUuid: weaponItem.uuid,
+            ammunitionUuid: loadedAmmo?.uuid ?? null,
+            specialText: specialWithAmmo,
+            unresolvedTraits: String(specialWithAmmo ?? '').split(/[,;]/).map(v=>v.trim()).filter(v => {
+                if (!v) return false;
+                const parsed = this.extractWeaponTraits(v), empty = this.extractWeaponTraits('');
+                return !Object.entries(parsed).some(([key,value])=>value !== empty[key]);
+            }),
             isMelee: isMelee,
             isRange: !isMelee,
             ammoName: loadedAmmo?.name || "",
@@ -14592,6 +14678,11 @@ const addChatMessageContextOptions = function(application, options) {
  * @returns {Promise}
  */
 function applyChatCardDamage(roll, multiplier) {
+    const source = game.messages.get(roll.closest?.('.message')?.dataset?.messageId);
+    if (source && ((damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(source.getRollData())).id === 'ow') || _damageHasClaim(source))) {
+        Hooks.callAll('darkHeresy.damageConfirmationRequired',{messageId:source.id});
+        return {status:'pending'};
+    }
     // Get the damage data, get them as arrays in case of multiple hits
     const amount = roll.querySelectorAll(".damage-total");
     const location = roll.querySelectorAll(".damage-location");
@@ -14631,6 +14722,16 @@ function _queueDocumentOperation(key, task) {
     const cleanup = () => { if (_dhOperationQueues.get(key) === current) _dhOperationQueues.delete(key); };
     current.then(cleanup, cleanup);
     return current;
+}
+
+function _damageHasClaim(message, actor) {
+    const seen = new Set();
+    while (message && !seen.has(message.id)) {
+        seen.add(message.id);
+        if (message.getFlag('dark-heresy','damageClaim') || actor?.getFlag?.('dark-heresy','damageAttackReceipts')?.[message.id] || actor?.getFlag?.('dark-heresy','damageMessageReceipts')?.[message.id]) return true;
+        message = game.messages.get(message.getRollData()?.sourceMessageId);
+    }
+    return false;
 }
 
 function _damageEntriesFromRoll(rollData) {
@@ -14738,6 +14839,10 @@ async function _announceForceField(actor, intercept) {
 }
 
 async function applyAutoDamageToTarget(rollData, message) {
+    if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(rollData)).id === 'ow') {
+        Hooks.callAll('darkHeresy.damageConfirmationRequired', {messageId:message?.id});
+        return {status:'pending',messageId:message?.id};
+    }
     const target = rollData?.targets?.[0];
     if (!target || !message) return;
     const gm = game.users.activeGM;
@@ -14756,6 +14861,7 @@ async function applyAutoDamageToTarget(rollData, message) {
 async function applyAutoDamageFromSocket(payload) {
     if (game.user !== game.users.activeGM || !game.user?.isGM) return;
     if (!payload?.sceneId || !payload.tokenId || !payload.messageId) return;
+    if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(game.messages.get(payload.messageId)?.getRollData())).id === 'ow') return {status:'pending',messageId:payload.messageId};
     const message = game.messages.get(payload.messageId);
     const rollData = message?.getRollData?.();
     // A socket request names a recorded operation, never supplies its damage or destination.
@@ -14765,6 +14871,16 @@ async function applyAutoDamageFromSocket(payload) {
     const actor = targetToken?.actor;
     if (!actor) return;
 
+    const damages = _damageEntriesFromRoll(rollData);
+    if (!damages.length || damages.some(d => !Number.isFinite(d.amount) || d.amount < 0
+        || !Number.isFinite(d.penetration) || d.penetration < 0)) return;
+    return _queueDocumentOperation(actor.uuid, async () => {
+        const operation = message.getFlag("dark-heresy", "damageOperation");
+        if (operation || message.getFlag("dark-heresy", "appliedDamage")) return operation;
+        // Persist intent before changing an Actor. Interrupted/partial execution is never replayed blindly.
+        const requestId = message.id + ":" + payload.sceneId + ":" + payload.tokenId;
+        if (_damageHasClaim(message, actor)) return {status:'needs-review'};
+        await message.setFlag('dark-heresy','damageOperation',{requestId,status:'processing'});
     // Силовое поле отводит атаку целиком, поэтому спрашивается раньше брони и
     // Стойкости. Десять полей в компендиуме несли рейтинг от 25 до 80, и не
     // читал его никто: Розарий, который должен гасить половину, гасил ноль.
@@ -14775,14 +14891,7 @@ async function applyAutoDamageFromSocket(payload) {
         return;
     }
 
-    const damages = _damageEntriesFromRoll(rollData);
-    if (!damages.length || damages.some(d => !Number.isFinite(d.amount) || d.amount < 0
-        || !Number.isFinite(d.penetration) || d.penetration < 0)) return;
-    return _queueDocumentOperation(actor.uuid, async () => {
-        const operation = message.getFlag("dark-heresy", "damageOperation");
-        if (operation || message.getFlag("dark-heresy", "appliedDamage")) return operation;
-        // Persist intent before changing an Actor. Interrupted/partial execution is never replayed blindly.
-        const requestId = message.id + ":" + payload.sceneId + ":" + payload.tokenId;
+
         const before = _damageSnapshot(actor);
         const preview = actor.previewDamage(damages);
         await message.setFlag("dark-heresy", "damageOperation", {requestId, status: "processing", before});
@@ -17643,6 +17752,7 @@ function updateTokenHordeLabel(token) {
 }
 
 Hooks.once("init", async function() {
+    registerDamageSettings();
     // Load template.json for accessing skill specialities
     let templateData = {};
     try {
