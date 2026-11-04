@@ -1,6 +1,8 @@
 # Apex Heresy RU
 
-Версия 1.5.4 (ветка разработки): система и расширения разрабатываются отдельно. Модули не входят в архив системы. Реальный многопользовательский QA новой сборки ещё требуется. Контракты расширений: [API](docs/api-v1.md).
+Версия 1.6.0: собственный ID пакета **`apex-heresy-ru`** устраняет переход обновлений на Vendare Dark Heresy 2E. Система и расширения разрабатываются отдельно. Модули не входят в архив системы. Контракты расширений: [API](docs/api-v1.md).
+
+Для существующего мира на версии 1.5.x нужна отдельная установка системы и перенос привязки мира: [инструкция с резервной копией](docs/package-identity-migration.md). Обновление пакета с прежним ID `dark-heresy` не выполняет этот перенос.
 
 Русская локализация форка на основе Babele. Завершён перевод компендиума Only War по русской базовой книге: 498 записей, все текстовые поля и папки, шесть связанных таблиц с 91 результатом. Названия 59 происхождений Only War также сверены с книгой. Переведён весь языковой файл интерфейса; перевод остальных книг ещё продолжается. [Установка, покрытие и работа с переводом](docs/russian-localization.md).
 
@@ -55,7 +57,7 @@ rulebooks to play.
 
 ## Reporting a problem
 
-Open an issue at <https://github.com/xalatathzx-art/Apex-Heresy/issues>. A report that names
+Open an issue at <https://github.com/DarkReef/Apex-Heresy-Ru/issues>. A report that names
 the book, the sheet and what you expected the rule to do is one that can be fixed.
 
 ## Licence

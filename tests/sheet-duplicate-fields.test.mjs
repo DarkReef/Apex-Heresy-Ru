@@ -5,7 +5,7 @@ import {loadSystem} from './helpers/system.mjs';
 import {collapseRepeatedText} from '../script/data/repeated-text.mjs';
 
 const ROOT = new URL('../', import.meta.url);
-const read = path => readFileSync(new URL(path.replace('systems/dark-heresy/', ''), ROOT), 'utf8');
+const read = path => readFileSync(new URL(path.replace('systems/apex-heresy-ru/', ''), ROOT), 'utf8');
 
 /** A template with every partial it names by path folded in. */
 function expanded(path, seen = new Set()) {
@@ -17,7 +17,7 @@ function expanded(path, seen = new Set()) {
 
 /** Everything one book's character sheet puts into its single form. */
 function formOf(sheet) {
-    const base = 'systems/dark-heresy/template/sheet/actor/';
+    const base = 'systems/apex-heresy-ru/template/sheet/actor/';
     return forBook([expanded(`${base}character.hbs`), expanded(sheet.bioPartial),
         ...sheet.vitals.map(key => expanded(`${base}partial/vital-${key}.hbs`)),
         ...sheet.tabList.map(tab => expanded(`${base}${tab.partial}`))].join('\n'), sheet.ruleset);

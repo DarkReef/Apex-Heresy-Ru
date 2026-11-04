@@ -41,9 +41,9 @@ test('once per turn means once', () => {
 test('the offer reaches the evasion card and is spent when taken', () => {
     const source = readFileSync(new URL('../script/dark-heresy.js', import.meta.url), 'utf8');
     assert.match(source, /canCounterAttack/, 'the rule decides');
-    assert.match(source, /getFlag\?\.\("dark-heresy", COUNTER_ATTACK_FLAG\)/,
+    assert.match(source, /getLegacyFlag\(actor, COUNTER_ATTACK_FLAG\)/,
         'and the once-per-turn mark is read');
-    assert.match(source, /setFlag\("dark-heresy", COUNTER_ATTACK_FLAG, true\)/,
+    assert.match(source, /setLegacyFlag\(actor, COUNTER_ATTACK_FLAG, true\)/,
         'and set when the riposte is taken');
     const card = readFileSync(new URL('../template/chat/evasion.hbs', import.meta.url), 'utf8');
     assert.match(card, /counter-attack/, 'the card offers it');
@@ -51,6 +51,6 @@ test('the offer reaches the evasion card and is spent when taken', () => {
 
 test('the mark is cleared when the turn comes round again', () => {
     const source = readFileSync(new URL('../script/dark-heresy.js', import.meta.url), 'utf8');
-    assert.match(source, /unsetFlag\("dark-heresy", COUNTER_ATTACK_FLAG\)/,
+    assert.match(source, /unsetLegacyFlag\(actor, COUNTER_ATTACK_FLAG\)/,
         'otherwise one riposte would last the whole fight');
 });

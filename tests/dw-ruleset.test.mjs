@@ -30,7 +30,7 @@ test('he has no Influence, and no aptitudes at all (pp. 26, 58)', () => {
     assert.deepEqual(characteristicKeysFor('dw'), CHARACTERISTIC_KEYS.filter(key => key !== 'influence'));
     assert.equal(RULESET_DEFS.dw.aptitudes, false);
     assert.equal(RULESET_DEFS.dw.advanceLists, true, 'every advance is a line with its own price');
-    assert.equal(contentPacksFor('dw')[0], 'dark-heresy.deathwatch');
+    assert.equal(contentPacksFor('dw')[0], 'apex-heresy-ru.deathwatch');
 });
 
 test('wounds are 18+1d5 and Fate comes from Table 1-2 (p. 28)', () => {

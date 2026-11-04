@@ -76,7 +76,7 @@ test('Unnatural Willpower adds its multiplier to the Psy Rating (p. 186)', () =>
 test("a Battle-Brother does not bleed at all (Larraman's Organ, p. 36)", () => {
     assert.match(source, /function suffersBloodLoss\(actor\)/);
     assert.match(source, /if \(!rules\?\.spaceMarineImmune\) return true;/);
-    assert.match(source, /return !actor\?\.getFlag\?\.\("dark-heresy", "spaceMarine"\);/);
+    assert.match(source, /return !getLegacyFlag\(actor, "spaceMarine"\);/);
     // The per-round effect does not fire, and the condition is taken off him.
     assert.match(source, /if \(!suffersBloodLoss\(actor\)\) \{\r?\n\s+await actor\.removeCondition\?\.\("bleeding"\);/);
 });

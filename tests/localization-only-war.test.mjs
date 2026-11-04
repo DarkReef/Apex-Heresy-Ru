@@ -8,7 +8,7 @@ import {ruleName} from '../script/localization/rule-name.mjs';
 import {ruleText} from '../script/localization/rule-text.mjs';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
-const catalog = read('../localization/ru/dark-heresy.only-war.json');
+const catalog = read('../localization/ru/apex-heresy-ru.only-war.json');
 const sources = read('../localization/ru/only-war-sources.json');
 const visible = text => text.replace(/<[^>]*>/g, ' ').replace(/\b[IVX]+\b/g, '');
 
@@ -64,7 +64,7 @@ test('Only War names match the supplied Russian book, including contextual varia
         'Power Field (Personal)': 'Силовое поле (личное)',
         'Power Field (Vehicle/Emplacement)': 'Силовое поле (для техники/укреплений)'
     })) assert.equal(name(en), ru, en);
-    const origins = read('../localization/ru/dark-heresy.origins.json').entries;
+    const origins = read('../localization/ru/apex-heresy-ru.origins.json').entries;
     assert.equal(origins.XhiDR3yuPLdlaSAP.name, '18-й катачанский полк «Нетопыри»');
     assert.equal(origins.FHuz8XgQvUHc6wVj.name, 'Упрямец');
 });
@@ -117,7 +117,7 @@ test('display translation handles requirements and properties without changing r
 test('all six Only War tables translate their 91 results and preserve inline roll formulas', async () => {
     const ids = ['5dQOWsruUbGsqlfJ', 'A3DmCw6azKiF5WUz', 'fS5OOWE7c3vjaUqG',
         'fpUBLAE7dXL4YbPf', 'gjm6DH8kCYo7U7Pf', 'o4ASNLJs7OJ0Xb8U'];
-    const tables = read('../localization/ru/dark-heresy.bc-tables.json');
+    const tables = read('../localization/ru/apex-heresy-ru.bc-tables.json');
     const temporary = mkdtempSync(join(tmpdir(), 'apex-ow-tables-'));
     const copy = join(temporary, 'db');
     cpSync(new URL('../packs/bc-tables', import.meta.url), copy, {recursive: true});

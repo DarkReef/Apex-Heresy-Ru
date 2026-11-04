@@ -1,4 +1,8 @@
+import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from "./package-identity.mjs";
+import {migratePackageReferences} from "./package-reference-migration.mjs";
 import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
+import {planOWDamage, owHitProtection, owCharacteristicBonus} from './combat/ow-damage.mjs';
+import {createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled} from './combat/damage-api.mjs';
 import {characteristicTerm} from "./localization/field-terms.mjs";
 import {registerSystemSettings, applyAtmosphereSetting} from "./settings.mjs";
 import "./localization/babele.mjs";
@@ -166,7 +170,7 @@ class DarkHeresyCombat extends Combat {
 
             for (const combatant of combatantsToRoll) {
                 const actor = combatant?.actor;
-                if (actor?.getFlag("dark-heresy", "lightningReflexes")) {
+                if (getLegacyFlag(actor, "lightningReflexes")) {
                     withLightningReflexes.push(combatant);
                 } else {
                     withoutLightningReflexes.push(combatant);
@@ -230,10 +234,10 @@ class DarkHeresyCombat extends Combat {
         return _queueDocumentOperation(actor.uuid, async () => {
             const key = phase + "-" + combatant.id;
             const eventId = context.round + ":" + context.turn;
-            const events = {...this.getFlag("dark-heresy", "turnEvents")};
+            const events = {...getLegacyFlag(this, "turnEvents")};
             if (events[key]?.eventId === eventId) return;
             events[key] = {eventId, status:"processing"};
-            await this.setFlag("dark-heresy", "turnEvents", events);
+            await setLegacyFlag(this, "turnEvents", events);
             try {
                 await task(actor);
                 events[key].status = "complete";
@@ -242,7 +246,7 @@ class DarkHeresyCombat extends Combat {
                 events[key].error = String(error.message || error);
                 throw error;
             } finally {
-                await this.setFlag("dark-heresy", "turnEvents", events);
+                await setLegacyFlag(this, "turnEvents", events);
             }
         });
     }
@@ -253,8 +257,8 @@ class DarkHeresyCombat extends Combat {
             // Ответный удар даётся раз за ход (стр. 126). Право возвращается с
             // началом собственного хода — иначе одно парирование в первом раунде
             // израсходовало бы талант на весь бой.
-            if (actor.getFlag?.("dark-heresy", COUNTER_ATTACK_FLAG)) {
-                await actor.unsetFlag("dark-heresy", COUNTER_ATTACK_FLAG);
+            if (getLegacyFlag(actor, COUNTER_ATTACK_FLAG)) {
+                await unsetLegacyFlag(actor, COUNTER_ATTACK_FLAG);
             }
             if (actor.hasCondition("dead")) return;
             for (const [condition, apply] of [["fire", _applyFireEffect], ["bleeding", _applyBleedingEffect],
@@ -470,12 +474,12 @@ class DarkHeresyActor extends Actor {
 
         // Подспорья этого хода. «Помочь духу машины» (стр. 216) даёт прибавку до
         // конца хода — она живёт в отметке хода и снимается с его началом.
-        const turnFlag = this.getFlag?.("dark-heresy", "shipTurn");
+        const turnFlag = getLegacyFlag(this, "shipTurn");
         if (turnFlag?.aid?.value && ["manoeuvrability", "detection"].includes(turnFlag.aid.stat)) {
             mods[turnFlag.aid.stat] += Number(turnFlag.aid.value) || 0;
         }
         // Бесшумный ход (стр. 218): Скорость вдвое, манёвры на ступень труднее.
-        sys.silentRunning = !!this.getFlag?.("dark-heresy", "silentRunning");
+        sys.silentRunning = !!getLegacyFlag(this, "silentRunning");
         if (sys.silentRunning) {
             speedFactors.push(0.5);
             notes.push("SHIP.STATE.SILENT_RUNNING");
@@ -699,7 +703,7 @@ class DarkHeresyActor extends Actor {
         // Тактическую Скорость, и −20 за двойную. Правило смотрит именно на
         // прошлый раунд, поэтому берётся пройденное тогда — расстояние система
         // копит сама, молча, по перемещению фишки.
-        const movedLastRound = Number(this.getFlag?.("dark-heresy", "movedLastRound")) || 0;
+        const movedLastRound = Number(getLegacyFlag(this, "movedLastRound")) || 0;
         sys.speed.movedLastRound = movedLastRound;
         sys.speed.firingPenalty = tactical > 0 && movedLastRound > tactical ? -20
             : (movedLastRound > 0 ? -10 : 0);
@@ -893,11 +897,12 @@ class DarkHeresyActor extends Actor {
             // прибавляют число, Deathwatch УДВАИВАЕТ бонус — «Unnatural Strength (x2)»
             // (стр. 136). Множитель поэтому живёт отдельным полем: прибавку он не
             // отменяет, и при росте характеристики удвоение не отстаёт.
-            const multiplier = Number(characteristic.unnaturalMultiplier) || 1;
-            const unnatural = Number(characteristic.unnatural) || 0;
-            characteristic.bonus = Math.floor(characteristic.total / 10) * multiplier + unnatural;
-            characteristic.displayTotal = characteristic.total + tempModifier;
-            characteristic.displayBonus = Math.floor(characteristic.displayTotal / 10) * multiplier + unnatural;
+            const isOW = Dh.rulesetFor(this).id === 'ow';
+            const multiplier = isOW ? 1 : (Number(characteristic.unnaturalMultiplier) || 1);
+            const unnatural = isOW ? _owUnnatural(this, characteristicKey) : (Number(characteristic.unnatural) || 0);
+            characteristic.bonus = isOW ? owCharacteristicBonus(characteristic.total,unnatural) : Math.floor(characteristic.total / 10) * multiplier + unnatural;
+            characteristic.displayTotal = isOW ? Math.max(characteristic.total + tempModifier,0) : characteristic.total + tempModifier;
+            characteristic.displayBonus = isOW ? owCharacteristicBonus(characteristic.displayTotal,unnatural) : Math.floor(characteristic.displayTotal / 10) * multiplier + unnatural;
             // Характеристику, которой в книге нет, лист не показывает вовсе.
             // У Rogue Trader это Влиятельность: там её место занимает Profit
             // Factor, и он не характеристика, а ресурс династии (стр. 398).
@@ -1437,7 +1442,7 @@ class DarkHeresyActor extends Actor {
      */
     _starterRanks(key, entry) {
         if (!entry.starter) return 0;
-        const granted = this.getFlag("dark-heresy", "starterRanks")?.[key];
+        const granted = getLegacyFlag(this, "starterRanks")?.[key];
         return Math.max(Number(granted) || 1, 1);
     }
 
@@ -1816,6 +1821,8 @@ class DarkHeresyActor extends Actor {
      * @returns {{damageTaken: object[], wounds: number, criticalWounds: number}}
      */
     previewDamage(damages) {
+        if (Dh.rulesetFor(this).id === 'ow' && !Number(this.horde) && this.type !== 'vehicle')
+            return planOWDamage(this._owDamageDefense(), damages);
         if (this.type === "vehicle") return this._previewVehicleDamage(damages);
 
         // У орды нет ни ран, ни критов — только величина, поэтому разбирать урон
@@ -2017,6 +2024,8 @@ class DarkHeresyActor extends Actor {
     }
 
     async applyDamage(damages) {
+        if (Dh.rulesetFor(this).id === 'ow' && !Number(this.horde) && this.type !== 'vehicle')
+            return this._applyOWDamage(damages);
         if (this.type === "vehicle") return this._applyVehicleDamage(damages);
         // Use getter to get horde value from token if available
         const currentHorde = Number(this.horde) || 0;
@@ -2367,6 +2376,10 @@ class DarkHeresyActor extends Actor {
      * @returns {number}
      */
     _getEffectiveArmour(damage) {
+        if (Dh.rulesetFor(this).id === 'ow' && this.type !== 'vehicle') {
+            const p = owHitProtection(this._owDamageDefense(), damage);
+            return p.armourAfterPen + p.toughnessForHit + p.daemonic;
+        }
         const traits = damage?.weaponTraits || {};
         const penetration = Number(damage?.penetration) || 0;
         // Пробитие снимает очки брони, но не тело под ней (DH2, стр. 227). На листе
@@ -2400,6 +2413,49 @@ class DarkHeresyActor extends Actor {
             "ARMOUR.BODY": "body", "ARMOUR.LEFT_LEG": "leftLeg", "ARMOUR.RIGHT_LEG": "rightLeg"
         }[location];
         return Math.max(Number(this.armour?.[part]?.toughnessBonus) || 0, 0);
+    }
+
+    _owDamageDefense() {
+        const c = this.system.characteristics.toughness;
+        const effective = Math.max(Number(c.total) + Number(c.tempModifier || 0),0);
+        const armour = Object.fromEntries(Object.entries(this.armour).map(([key,p]) =>
+            [key, Math.max(Number(p.total) - Number(p.toughnessBonus || 0), 0)]));
+        const review = [];
+        const names = this.items.filter(i => ['trait','talent','specialAbility'].includes(i.type)).map(ruleName);
+        const daemon = names.find(n => /^Daemonic\s*\(/i.test(n));
+        const daemonic = daemon ? Number(/\((\d+)\)/.exec(daemon)?.[1]) || 0 : 0;
+        if (names.some(n => /incorporeal|phase|stuff of nightmares|демон|бестелес|фазов/i.test(n)))
+            review.push('Unverified protective trait: manual resolution required');
+        if (names.some(n => /^Daemonic/i.test(n)) && !daemonic) review.push('Daemonic rating missing');
+        if (names.some(n => /^(Machine|Natural Armour|Природная броня)/i.test(n) && !/\(\d+\)/.test(n))) review.push('Unrated armour trait requires manual resolution');
+        if (names.some(n => /^Unnatural (?:Characteristic )?Toughness/i.test(n) && !/\(\+?\d+\)/.test(n)) && !_owUnnatural(this,'toughness')) review.push('Unnatural Toughness rating missing');
+        const changes = Array.from(this.allApplicableEffects()).filter(e => e.active).flatMap(e => e.changes ?? []);
+        if (changes.some(e => ['system.wounds.value','system.wounds.critical'].includes(e.key)))
+            review.push('Active Effect overrides wound counters: manual resolution required');
+        if (changes.some(e => ['total','displayTotal','bonus','displayBonus'].some(key=>e.key===`system.characteristics.toughness.${key}`)))
+            review.push('Derived Toughness AE requires review; use base/advance/tempModifier/unnatural for OW');
+        return {armour,effectiveToughness:effective,unnaturalToughness:_owUnnatural(this,'toughness'),
+            unnaturalMultiplier:Number(c.unnaturalMultiplier)||1,daemonic,
+            trueGrit:this.items.some(i => matchesRuleName(i,'True Grit') || matchesRuleName(i,'Каменная кожа')),
+            warpArmourConfirmed:false,review,wounds:{value:this.wounds.value,max:this.wounds.max,critical:this.wounds.critical},
+            characteristic:{base:c.base,advance:c.advance,total:c.total,tempModifier:c.tempModifier,unnatural:c.unnatural,
+                displayTotal:c.displayTotal,bonus:c.bonus,displayBonus:c.displayBonus},
+            sourceWounds:foundry.utils.deepClone(this._source?.system?.wounds ?? this.wounds)};
+    }
+
+    async _applyOWDamage(damages) {
+        if (Number(this.system.characteristics.toughness.unnaturalMultiplier)>1)
+            throw Error('unsupported: OW Unnatural Toughness must use +X, not an old multiplier');
+        const plan = this.previewDamage(damages);
+        const source = this._source?.system?.wounds ?? this.wounds;
+        const updates = {'system.wounds.value':Number(source.value) + plan.wounds - plan.before.value,
+            'system.wounds.critical':Number(source.critical) + plan.criticalWounds - plan.before.critical};
+        if (Hooks.call('modifyTokenAttribute',{attribute:'wounds.value',value:this.wounds.value,isDelta:false,isBar:true},updates) === false) return this;
+        await this.update(updates);
+        // OW has location/type critical tables, never the old generic 2×TB death rule.
+        await this._showCritMessage(plan.damageTaken,this.name,plan.wounds,plan.criticalWounds);
+        await _resolveOnHitWeaponEffects(this,damages);
+        return this;
     }
 
     _getArmourTotal(location) {
@@ -2436,7 +2492,7 @@ class DarkHeresyActor extends Actor {
     async _showCritMessage(rolls, target, totalWounds, totalCritWounds) {
         if (rolls.length === 0) return;
         if (this._suppressCritChat) return;
-        const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/critical.hbs", {
+        const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/critical.hbs", {
             rolls,
             target,
             totalWounds,
@@ -2541,7 +2597,7 @@ class DarkHeresyItem extends Item {
     async sendToChat() {
         // Use the item itself instead of creating a new instance
         const item = this;
-        const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/item.hbs", {item, data: item.system});
+        const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/item.hbs", {item, data: item.system});
         const chatData = {
             user: game.user.id,
             rollMode: game.settings.get("core", "rollMode"),
@@ -2945,7 +3001,7 @@ class DarkHeresyItem extends Item {
      * that caused it, so the sheet had no way to show it and no way to clear it.
      * @returns {boolean}
      */
-    get jammed() { return !!this.getFlag("dark-heresy", "jammed"); }
+    get jammed() { return !!getLegacyFlag(this, "jammed"); }
 
     /** Melee weapons have no range or rate of fire to report. @returns {boolean} */
     get isMeleeWeapon() { return this.class === "melee"; }
@@ -3200,9 +3256,16 @@ function createDarkHeresyAPI() {
             else await actor.removeCondition(condition);
             return {actorUuid:actor.uuid, condition, active:!!actor.hasCondition(condition)};
         },
-        async applyDamage({messageId} = {}) {
+        damage: createFoundryDamageAPI({queue:_queueDocumentOperation,rulesetFor:actor=>Dh.rulesetFor(actor),attackerFromRoll:_actorFromRollData}),
+        async applyDamage({messageId, tokenUuid, actorUuid} = {}) {
             const message = game.messages.get(messageId);
             if (!message || (!message.isOwner && !game.user?.isGM)) throw new Error("No permission to apply this roll");
+            if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(message.getRollData())).id === 'ow') {
+                const targets = message.getRollData().targets ?? [];
+                if (!tokenUuid && targets.length === 1) tokenUuid = game.scenes.get(targets[0].sceneId)?.tokens.get(targets[0].tokenId)?.uuid;
+                if (!tokenUuid) return {status:'target-required'};
+                return game.darkHeresy.api.damage.request({messageId,tokenUuid,actorUuid});
+            }
             return applyAutoDamageToTarget(message.getRollData(), message);
         }
     });
@@ -3259,7 +3322,7 @@ function _offerCounterAttack(rollData) {
         selected: rollData.evasions?.selected,
         success: !!rollData.flags?.isSuccess,
         talents,
-        usedThisTurn: !!actor.getFlag?.("dark-heresy", COUNTER_ATTACK_FLAG)
+        usedThisTurn: !!getLegacyFlag(actor, COUNTER_ATTACK_FLAG)
     });
     if (rollData.counterAttackOffered) {
         rollData.counterAttackActorId = actor.id;
@@ -3279,11 +3342,11 @@ async function onCounterAttackClick(event) {
     const button = event.currentTarget;
     const actor = await _getActorFromOwnerId(button.dataset.actorId, button.dataset.tokenId || null);
     if (!actor) return;
-    if (actor.getFlag("dark-heresy", COUNTER_ATTACK_FLAG)) return;
+    if (getLegacyFlag(actor, COUNTER_ATTACK_FLAG)) return;
 
     button.disabled = true;
     _resolvePendingCard(button);
-    await actor.setFlag("dark-heresy", COUNTER_ATTACK_FLAG, true);
+    await setLegacyFlag(actor, COUNTER_ATTACK_FLAG, true);
 
     const weapon = actor.items.find(item => item.type === "weapon"
         && item.system?.equipped === true && item.system?.class === "melee");
@@ -4268,7 +4331,7 @@ async function _rollTarget(rollData) {
                     ? game.actors.get(rollData.vehicle.actorId)
                     : _actorFromRollData(rollData);
                 const jammedWeapon = owner?.items?.get(rollData.itemId);
-                if (jammedWeapon) await jammedWeapon.setFlag("dark-heresy", "jammed", true);
+                if (jammedWeapon) await setLegacyFlag(jammedWeapon, "jammed", true);
             } else if (rollData.flags?.isReRoll) {
                 // Переброс повторяет тот же выстрел, а не делает новый. Если он
                 // осечки не дал, её не было: снимаем и отметку на оружии, иначе
@@ -4279,7 +4342,7 @@ async function _rollTarget(rollData) {
                     ? game.actors.get(rollData.vehicle.actorId)
                     : _actorFromRollData(rollData);
                 const rolledWeapon = owner?.items?.get(rollData.itemId);
-                if (rolledWeapon) await rolledWeapon.unsetFlag("dark-heresy", "jammed");
+                if (rolledWeapon) await unsetLegacyFlag(rolledWeapon, "jammed");
             }
         }
     }
@@ -4479,7 +4542,7 @@ async function _resolveOnHitWeaponEffects(actor, damages) {
     const toxicPresent = Number.isInteger(traits.toxic) || (toxicPerDamage && !!traits.toxicUnrated);
     if (damageDealt && Number.isInteger(traits.toxic)
         && toxicRules.timing === "endOfTurn") {
-        await actor.setFlag("dark-heresy", "toxic", {
+        await setLegacyFlag(actor, "toxic", {
             value: traits.toxic,
             type: damages[0].type,
             location: damages[0].location
@@ -4562,6 +4625,21 @@ async function _resolveOnHitWeaponEffects(actor, damages) {
     }
 }
 
+function _owUnnatural(actor, key) {
+    const value = Math.max(Number(actor.system?.characteristics?.[key]?.unnatural) || 0, 0);
+    const effectOwnsField = Array.from(actor.allApplicableEffects?.() ?? []).some(e=>e.active &&
+        e.changes?.some(change=>change.key===`system.characteristics.${key}.unnatural`));
+    if (value > 0 || effectOwnsField) return value;
+    const term = {toughness:'Toughness',strength:'Strength',agility:'Agility',willpower:'Willpower',weaponSkill:'Weapon Skill',ballisticSkill:'Ballistic Skill'}[key];
+    const ratings = (actor.items ?? []).filter?.(i => i.type === 'trait').map(i => {
+        const explicit = i.flags?.['dark-heresy']?.unnatural;
+        if (explicit?.characteristic === key) return Number(explicit.value) || 0;
+        const match = /^Unnatural (?:Characteristic )?([^()]+)\s*\(\+?(\d+)\)/i.exec(ruleName(i));
+        return term && match?.[1].trim().toLowerCase() === term.toLowerCase() ? Number(match[2]) : 0;
+    }) ?? [];
+    return Math.max(0,...ratings);
+}
+
 function _getUnnaturalDosBonus(rollData) {
     let actorId = rollData?.ownerId;
     let characteristicKey = rollData?.characteristicKey;
@@ -4574,8 +4652,9 @@ function _getUnnaturalDosBonus(rollData) {
         }
     }
 
-    if (!actorId || !characteristicKey) return 0;
-    const actor = game.actors.get(actorId);
+    const actorRef = rollData?.flags?.isEvasion ? rollData.evasions[rollData.evasions.selected] : rollData;
+    if ((!actorId && !actorRef?.actorUuid && !actorRef?.tokenId) || !characteristicKey) return 0;
+    const actor = _actorFromRollData(actorRef);
     const characteristic = actor?.system?.characteristics?.[characteristicKey];
     // Deathwatch записывает неестественность множителем, а не прибавкой, поэтому
     // поле unnatural у брата пустое. Книга даёт множитель к ступеням успеха только
@@ -4586,7 +4665,7 @@ function _getUnnaturalDosBonus(rollData) {
         const multiplier = Number(characteristic?.unnaturalMultiplier) || 1;
         if (multiplier > 1) return multiplier;
     }
-    const unnatural = Number(characteristic?.unnatural) || 0;
+    const unnatural = Dh.rulesetFor(actor).id === 'ow' ? _owUnnatural(actor, characteristicKey) : Number(characteristic?.unnatural) || 0;
     // Half the Unnatural value in bonus degrees (DH2 p. 140), and p. 23 rounds
     // every division up, so Unnatural (3) is worth two degrees rather than one.
     return halfRoundedUp(unnatural);
@@ -5401,15 +5480,15 @@ async function _checkAndMarkRecharge(rollData) {
     const weapon = actor?.items?.get(rollData.itemId);
     if (!weapon) return true;
 
-    const state = weapon.getFlag("dark-heresy", "rechargeState");
-    const firedOn = Number(state?.round ?? weapon.getFlag("dark-heresy", "rechargeFiredRound")) || 0;
-    const firedCombat = state?.combatId ?? weapon.getFlag("dark-heresy", "rechargeCombatId");
+    const state = getLegacyFlag(weapon, "rechargeState");
+    const firedOn = Number(state?.round ?? getLegacyFlag(weapon, "rechargeFiredRound")) || 0;
+    const firedCombat = state?.combatId ?? getLegacyFlag(weapon, "rechargeCombatId");
     if (firedOn > 0 && (!firedCombat || firedCombat === game.combat.id) && round <= firedOn + 1) {
         ui.notifications.warn(game.i18n.format("WEAPON.RECHARGE_WAIT", { weapon: weapon.name }));
         return false;
     }
 
-    await weapon.setFlag("dark-heresy", "rechargeState", {combatId:game.combat.id, round});
+    await setLegacyFlag(weapon, "rechargeState", {combatId:game.combat.id, round});
     return true;
 }
 
@@ -5805,9 +5884,9 @@ async function _sendSingleRollToChat(rollData) {
 
     let html;
     if (rollData.flags.isEvasion) {
-            html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/evasion.hbs", rollData);
+            html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/evasion.hbs", rollData);
     } else {
-        html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/roll.hbs", rollData);
+        html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/roll.hbs", rollData);
     }
     chatData.content = html;
 
@@ -5855,7 +5934,7 @@ async function sendDamageToChat(rollData) {
     chatData.rolls = rollData.damages.flatMap(r => r.damageRoll);
 
     rollData.rfLabel = _righteousFuryLabel(rollData);
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/damage.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/damage.hbs", rollData);
     chatData.content = html;
 
     if (["gmroll", "blindroll"].includes(chatData.rollMode)) {
@@ -5878,7 +5957,7 @@ async function prepareCommonRoll(rollData) {
     } else if (rollData.difficulty === undefined || rollData.difficulty === null) {
         rollData.difficulty = 0;
     }
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/dialog/common-roll.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/dialog/common-roll.hbs", rollData);
     let dialog = dhDialog({
         title: game.i18n.localize(rollData.name),
         content: html,
@@ -6289,7 +6368,7 @@ async function prepareCombatRoll(rollData, actorRef) {
     }
 
 
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/dialog/combat-roll.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/dialog/combat-roll.hbs", rollData);
     let dialog = dhDialog({
             title: rollData.name,
             content: html,
@@ -6835,7 +6914,7 @@ async function preparePsychicPowerRoll(rollData) {
         currentPsychicPowerDialog = null;
     }
     
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/dialog/psychic-power-roll.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/dialog/psychic-power-roll.hbs", rollData);
     let dialog = dhDialog({
         title: rollData.name,
         content: html,
@@ -7219,6 +7298,15 @@ class DarkHeresyUtil {
         };
         
         rollData.weapon = foundry.utils.mergeObject(rollData.weapon, {
+            damageProfileVersion: 1,
+            weaponUuid: weaponItem.uuid,
+            ammunitionUuid: loadedAmmo?.uuid ?? null,
+            specialText: specialWithAmmo,
+            unresolvedTraits: String(specialWithAmmo ?? '').split(/[,;]/).map(v=>v.trim()).filter(v => {
+                if (!v) return false;
+                const parsed = this.extractWeaponTraits(v), empty = this.extractWeaponTraits('');
+                return !Object.entries(parsed).some(([key,value])=>value !== empty[key]);
+            }),
             isMelee: isMelee,
             isRange: !isMelee,
             ammoName: loadedAmmo?.name || "",
@@ -7985,7 +8073,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
             : resolveJamClear(test);
         if (!outcome.cleared) return;
 
-        await weapon.unsetFlag("dark-heresy", "jammed");
+        await unsetLegacyFlag(weapon, "jammed");
 
         // «Any ammo in it is lost»: магазин опустошается, и стрелять оружие
         // сможет только после перезарядки.
@@ -8101,7 +8189,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         }
 
         const updateTitle = async () => {
-            const enabled = !!this.actor.getFlag("dark-heresy", "lightningReflexes");
+            const enabled = !!getLegacyFlag(this.actor, "lightningReflexes");
             const state = `Lightning Reflexes: ${enabled ? "ON" : "OFF"}`;
             label.attr("title", state);
             label.find(".dh-lr-toggle")
@@ -8112,9 +8200,9 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         label.find(".dh-lr-toggle").off("click.dhLightningReflexes").on("click.dhLightningReflexes", async ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            const current = !!this.actor.getFlag("dark-heresy", "lightningReflexes");
+            const current = !!getLegacyFlag(this.actor, "lightningReflexes");
             const next = !current;
-            await this.actor.setFlag("dark-heresy", "lightningReflexes", next);
+            await setLegacyFlag(this.actor, "lightningReflexes", next);
             await updateTitle();
             ui.notifications.info(game.i18n.format("NOTIFICATION.REFLEXES_STATE", {state:game.i18n.localize(next ? "UI.ENABLED" : "UI.DISABLED")}));
         });
@@ -8136,7 +8224,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         }
 
         const updateTitle = async () => {
-            const enabled = !!this.actor.getFlag("dark-heresy", "spaceMarine");
+            const enabled = !!getLegacyFlag(this.actor, "spaceMarine");
             label.attr("title", `Space Marine: ${enabled ? "ON" : "OFF"}`);
             const state = `Space Marine: ${enabled ? "ON" : "OFF"}`;
             label.find(".dh-sm-toggle")
@@ -8148,9 +8236,9 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         label.find(".dh-sm-toggle").off("click.dhSpaceMarine").on("click.dhSpaceMarine", async ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            const current = !!this.actor.getFlag("dark-heresy", "spaceMarine");
+            const current = !!getLegacyFlag(this.actor, "spaceMarine");
             const next = !current;
-            await this.actor.setFlag("dark-heresy", "spaceMarine", next);
+            await setLegacyFlag(this.actor, "spaceMarine", next);
             await updateTitle();
             ui.notifications.info(game.i18n.format("NOTIFICATION.MARINE_STATE", {state:game.i18n.localize(next ? "UI.ENABLED" : "UI.DISABLED")}));
         });
@@ -8259,7 +8347,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     get template() {
         if (!game.user.isGM && this.actor.limited) {
-            return "systems/dark-heresy/template/sheet/actor/limited-sheet.hbs";
+            return "systems/apex-heresy-ru/template/sheet/actor/limited-sheet.hbs";
         } else {
             return this.options.template;
         }
@@ -9093,7 +9181,7 @@ class BookSheet extends DarkHeresySheet {
     static ruleset = "dh2";
 
     /** Путь к партиалу анкеты: чем книга описывает происхождение персонажа. */
-    static bioPartial = "systems/dark-heresy/template/sheet/actor/partial/bio-dark-heresy.hbs";
+    static bioPartial = "systems/apex-heresy-ru/template/sheet/actor/partial/bio-dark-heresy.hbs";
 
     /** Полосы показателей в шапке, слева направо. */
     static vitals = ["wounds", "fate", "fatigue"];
@@ -9116,7 +9204,7 @@ class BookSheet extends DarkHeresySheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "actor"],
-            template: "systems/dark-heresy/template/sheet/actor/character.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/actor/character.hbs",
             // Opens at exactly its design size, so the scale is 1.0. Drag it from here
             // and everything scales with it; nothing rearranges. See _applySheetScale.
             width: DarkHeresySheet.DESIGN_WIDTH + DarkHeresySheet.CONTENT_PADDING
@@ -9172,10 +9260,10 @@ class BookSheet extends DarkHeresySheet {
         // Ключ книги — чтобы шаблон мог показать то, что печатает только она.
         data.ruleset = parts.ruleset;
         data.vitalPartials = parts.vitals.map(key => ({
-            partial: `systems/dark-heresy/template/sheet/actor/partial/vital-${key}.hbs`
+            partial: `systems/apex-heresy-ru/template/sheet/actor/partial/vital-${key}.hbs`
         }));
         data.sheetTabs = parts.tabList.map(tab => ({
-            ...tab, partial: `systems/dark-heresy/template/sheet/actor/${tab.partial}`
+            ...tab, partial: `systems/apex-heresy-ru/template/sheet/actor/${tab.partial}`
         }));
         return data;
     }
@@ -9220,7 +9308,7 @@ class BookSheet extends DarkHeresySheet {
 class BlackCrusadeSheet extends BookSheet {
 
     static ruleset = "bc";
-    static bioPartial = "systems/dark-heresy/template/sheet/actor/partial/bio-black-crusade.hbs";
+    static bioPartial = "systems/apex-heresy-ru/template/sheet/actor/partial/bio-black-crusade.hbs";
     // Судьбы у еретика нет: на её месте очки Тёмной славы, и потолок им не вводят.
     static vitals = ["wounds", "infamy", "fatigue"];
     // Присяга — своя вкладка: покровитель решает цену каждого улучшения, а счёт
@@ -9380,7 +9468,7 @@ class DarkHeresy2Sheet extends BookSheet {
 class OnlyWarSheet extends BookSheet {
 
     static ruleset = "ow";
-    static bioPartial = "systems/dark-heresy/template/sheet/actor/partial/bio-only-war.hbs";
+    static bioPartial = "systems/apex-heresy-ru/template/sheet/actor/partial/bio-only-war.hbs";
     // Отряд — своя вкладка: у гвардейца рядом Comrade, и это не снаряжение.
     static tabList = BookSheet.tabList.toSpliced(5, 0,
         {id: "squad", label: "TAB.SQUAD", partial: "tab/squad.hbs"});
@@ -9401,7 +9489,7 @@ class OnlyWarSheet extends BookSheet {
 class RogueTraderSheet extends BookSheet {
 
     static ruleset = "rt";
-    static bioPartial = "systems/dark-heresy/template/sheet/actor/partial/bio-rogue-trader.hbs";
+    static bioPartial = "systems/apex-heresy-ru/template/sheet/actor/partial/bio-rogue-trader.hbs";
     // Три полосы держатся вместе, Profit Factor стоит последним: он не полоса, а
     // три поля, и между полосами он рвал ряд надвое.
     static vitals = ["wounds", "fate", "fatigue", "profit-factor"];
@@ -9438,7 +9526,7 @@ class RogueTraderSheet extends BookSheet {
 class DeathwatchSheet extends BookSheet {
 
     static ruleset = "dw";
-    static bioPartial = "systems/dark-heresy/template/sheet/actor/partial/bio-deathwatch.hbs";
+    static bioPartial = "systems/apex-heresy-ru/template/sheet/actor/partial/bio-deathwatch.hbs";
     // Караул — своя вкладка, сразу за способностями: режимы и Единство читаются
     // в бою, а не между делом.
     static tabList = BookSheet.tabList.toSpliced(3, 0,
@@ -9815,7 +9903,7 @@ class NpcSheet extends DarkHeresySheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "actor"],
-            template: "systems/dark-heresy/template/sheet/actor/npc.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/actor/npc.hbs",
             width: DarkHeresySheet.DESIGN_WIDTH + DarkHeresySheet.CONTENT_PADDING
                 + DarkHeresySheet.SCROLLBAR_ALLOWANCE,
             height: 900,
@@ -9869,7 +9957,7 @@ class VehicleSheet extends DarkHeresySheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "actor", "vehicle"],
-            template: "systems/dark-heresy/template/sheet/actor/vehicle.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/actor/vehicle.hbs",
             width: DarkHeresySheet.DESIGN_WIDTH + DarkHeresySheet.CONTENT_PADDING
                 + DarkHeresySheet.SCROLLBAR_ALLOWANCE,
             height: 820,
@@ -10233,8 +10321,7 @@ class VehicleSheet extends DarkHeresySheet {
         // Разгон машина знает сама: это пройденное ею в этом раунде. Спрашиваем
         // только затем, чтобы стол мог поправить — фишку двигают и мышкой мимо.
         const vehicleToken = _getVehicleToken(this.actor);
-        const tracked = Number(canvas.scene?.tokens?.get(vehicleToken?.id)
-            ?.getFlag("dark-heresy", "movedThisRound")) || 0;
+        const tracked = Number(getLegacyFlag(canvas.scene?.tokens?.get(vehicleToken?.id), "movedThisRound")) || 0;
         const runUp = await _promptRamRunUp(Math.round(tracked));
         if (runUp === null) return;
 
@@ -10560,13 +10647,13 @@ async function _consumeVoidShields(target, attackerId, hits) {
     }
 
     const round = _shipCombatRound(target);
-    const state = target.getFlag("dark-heresy", "voidShields");
+    const state = getLegacyFlag(target, "voidShields");
     const absorbed = (state && state.round === round) ? { ...(state.absorbed ?? {}) } : {};
     const already = Number(absorbed[attackerId]) || 0;
 
     const cancelled = Math.min(Math.max(0, strength - already), hits);
     absorbed[attackerId] = already + cancelled;
-    await target.setFlag("dark-heresy", "voidShields", { round, absorbed });
+    await setLegacyFlag(target, "voidShields", { round, absorbed });
 
     return {
         cancelled,
@@ -10602,7 +10689,7 @@ async function _lookupShipCritical(value) {
  * @returns {Promise<{value: number, name: string, text: string}|null>}
  */
 async function _lookupTableRow(tableName, value) {
-    const pack = game.packs.get("dark-heresy.bc-tables");
+    const pack = game.packs.get("apex-heresy-ru.bc-tables");
     if (!pack) return null;
     const index = await pack.getIndex();
     const entry = index.find(e => matchesRuleName(e, tableName));
@@ -10656,9 +10743,9 @@ async function rollShipAttack({
     // Всё, что манёвры и расширенные действия этого хода повесили на корабли,
     // подхватывается само: вводить это второй раз в диалоге — значит однажды
     // забыть или посчитать дважды.
-    const ownTurn = foundry.utils.duplicate(ship.getFlag("dark-heresy", "shipTurn") ?? {});
-    const ownEvasion = Number(ship.getFlag("dark-heresy", "evasion")?.value) || 0;
-    const targetEvasion = Number(target?.getFlag("dark-heresy", "evasion")?.value) || 0;
+    const ownTurn = foundry.utils.duplicate(getLegacyFlag(ship, "shipTurn") ?? {});
+    const ownEvasion = Number(getLegacyFlag(ship, "evasion")?.value) || 0;
+    const targetEvasion = Number(getLegacyFlag(target, "evasion")?.value) || 0;
     add("SHIP.ACTION.COME_TO_NEW_HEADING", Number(ownTurn.bsPenalty) || 0);
     // Уклоняющийся корабль и сам стреляет хуже (стр. 215).
     add("SHIP.MOD.OWN_EVASION", -ownEvasion);
@@ -10682,7 +10769,7 @@ async function rollShipAttack({
     if (lockOnBonus && !lockOn) ownTurn.lockOn = 0;
     if (backsBonus) ownTurn.backs = (Number(ownTurn.backs) || 0) - 1;
     ownTurn.shot = true;
-    await ship.setFlag("dark-heresy", "shipTurn", ownTurn);
+    await setLegacyFlag(ship, "shipTurn", ownTurn);
 
     const success = result <= finalTarget;
     const degrees = success ? _shipDegrees(finalTarget, result) : 0;
@@ -10703,7 +10790,7 @@ async function rollShipAttack({
         critical: null, notes: []
     };
     if (ownTurn.noFire) out.notes.push("SHIP.NOTE.NO_FIRE_DISENGAGE");
-    if (ship.getFlag("dark-heresy", "boarding")) out.notes.push("SHIP.NOTE.BOARDED_NO_FIRE");
+    if (getLegacyFlag(ship, "boarding")) out.notes.push("SHIP.NOTE.BOARDED_NO_FIRE");
 
     if (!success) {
         if (post) await _postShipAttackCard(out);
@@ -10937,7 +11024,7 @@ async function _postShipSalvoCard(data) {
     await _enrichShipCritical(view.critical);
     view.canApply = !!(data.targetId && data.hullDamage > 0);
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/chat/ship-salvo.hbs", view);
+        "systems/apex-heresy-ru/template/chat/ship-salvo.hbs", view);
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: game.actors.get(data.shipId) }),
         content
@@ -10977,7 +11064,7 @@ async function _postShipAttackCard(data) {
     view.attackRender = data.attackRender ?? "";
 
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/chat/ship-attack.hbs", view);
+        "systems/apex-heresy-ru/template/chat/ship-attack.hbs", view);
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: game.actors.get(data.shipId) }),
         content
@@ -11010,7 +11097,7 @@ async function applyShipDamage(target, hullDamage) {
 
     // Потери копятся до начала следующего хода пострадавшего: по ним Триаж и
     // «Стоять насмерть!» решают, что ещё можно отыграть назад (стр. 218).
-    const loss = foundry.utils.duplicate(target.getFlag("dark-heresy", "shipLoss") ?? {});
+    const loss = foundry.utils.duplicate(getLegacyFlag(target, "shipLoss") ?? {});
     loss.sinceTurn = {
         crew: num(loss.sinceTurn?.crew) + (was.crew - crew),
         morale: num(loss.sinceTurn?.morale) + (was.morale - morale)
@@ -11075,7 +11162,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
         return _rollMutinySuppression(ship, { performer, defender, skill: choice?.skill, modifier, post });
     }
 
-    const boarding = ship.getFlag("dark-heresy", "boarding");
+    const boarding = getLegacyFlag(ship, "boarding");
     // Сцепленные абордажем корабли не маневрируют и не стреляют (стр. 215).
     if (def.group === "manoeuvre" && boarding) return warn("SHIP.BOARDING.NO_MANOEUVRE");
     if (def.boardedOnly && !boarding) return warn("SHIP.BOARDING.NOT_BOARDED");
@@ -11101,7 +11188,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
     // Турели цели мешают подойти налётчикам: −10 за каждое очко (стр. 220).
     if (key === "hitAndRun") add("SHIP.TURRET_RATING", -10 * num(targetShip?.system?.turretRating));
 
-    const turn = foundry.utils.duplicate(ship.getFlag("dark-heresy", "shipTurn") ?? {});
+    const turn = foundry.utils.duplicate(getLegacyFlag(ship, "shipTurn") ?? {});
     if (def.aidedByBacks && num(turn.backs) > 0) {
         add("SHIP.ACTION.PUT_BACKS_INTO_IT", 5);
         turn.backs = num(turn.backs) - 1;
@@ -11168,7 +11255,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
                 await _clearBoarding(ship);
                 say("SHIP.ACTION_OK.BREAK_FREE");
             } else {
-                await ship.setFlag("dark-heresy", "breakFreePenalty", -20);
+                await setLegacyFlag(ship, "breakFreePenalty", -20);
                 say("SHIP.ACTION_FAIL.BREAK_FREE");
             }
             break;
@@ -11183,11 +11270,11 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
             break;
 
         case "mutinyTest":
-            if (ship.getFlag("dark-heresy", "mutinyPending")) await ship.unsetFlag("dark-heresy", "mutinyPending");
+            if (getLegacyFlag(ship, "mutinyPending")) await unsetLegacyFlag(ship, "mutinyPending");
             if (success) {
                 say("SHIP.ACTION_OK.MUTINY_TEST");
             } else {
-                await ship.setFlag("dark-heresy", "mutiny", true);
+                await setLegacyFlag(ship, "mutiny", true);
                 say("SHIP.ACTION_FAIL.MUTINY_TEST");
                 out.buttons = [{ cls: "ship-mutiny-suppress", label: "SHIP.MUTINY.SUPPRESS" }];
             }
@@ -11216,7 +11303,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
             if (success) {
                 // «Успех и каждая следующая ступень» — по −10 за штуку.
                 const value = 10 + 10 * degrees;
-                await ship.setFlag("dark-heresy", "evasion", { value });
+                await setLegacyFlag(ship, "evasion", { value });
                 say("SHIP.ACTION_OK.EVASIVE", { n: value });
             }
             break;
@@ -11289,7 +11376,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
             if (!success) break;
             // Отыгрывается только урон прошлого хода и не больше 1 + ступени.
             const track = key === "holdFast" ? "morale" : "crew";
-            const loss = foundry.utils.duplicate(ship.getFlag("dark-heresy", "shipLoss") ?? {});
+            const loss = foundry.utils.duplicate(getLegacyFlag(ship, "shipLoss") ?? {});
             const lost = num(loss.prevTurn?.[track]);
             const back = Math.min(1 + degrees, lost);
             if (back <= 0) {
@@ -11324,7 +11411,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
                 // Держится, пока персонаж сплачивает защитников, — не до конца
                 // хода, поэтому отдельной отметкой, а не в отметке хода.
                 const value = 10 + 5 * degrees;
-                await ship.setFlag("dark-heresy", "repelBonus", value);
+                await setLegacyFlag(ship, "repelBonus", value);
                 say("SHIP.ACTION_OK.PREPARE_TO_REPEL", { n: value });
             }
             break;
@@ -11343,7 +11430,7 @@ async function rollShipAction(ship, key, { performer = null, modifier = 0, choic
             : (def.group === "manoeuvre" ? "SHIP.ACTION_FAIL.MANOEUVRE" : "SHIP.ACTION_FAIL.GENERIC"));
     }
 
-    await ship.setFlag("dark-heresy", "shipTurn", turn);
+    await setLegacyFlag(ship, "shipTurn", turn);
     if (post) await _postShipActionCard(out);
     if (after) await after();
     return out;
@@ -11357,7 +11444,7 @@ async function _postShipActionCard(data) {
     const view = foundry.utils.duplicate(data);
     await _enrichShipCritical(view.critical);
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/chat/ship-action.hbs", view);
+        "systems/apex-heresy-ru/template/chat/ship-action.hbs", view);
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: game.actors.get(data.shipId) }),
         content
@@ -11377,7 +11464,7 @@ async function _postShipActionCard(data) {
  */
 async function _onShipTurnStart(ship, combatant) {
     const num = v => Number(v) || 0;
-    const loss = ship.getFlag("dark-heresy", "shipLoss") ?? {};
+    const loss = getLegacyFlag(ship, "shipLoss") ?? {};
     await ship.update({
         "flags.dark-heresy.shipTurn": {
             round: _shipCombatRound(ship), manoeuvre: null, shot: false, noFire: false,
@@ -11388,7 +11475,7 @@ async function _onShipTurnStart(ship, combatant) {
             prevTurn: { crew: num(loss.sinceTurn?.crew), morale: num(loss.sinceTurn?.morale) }
         }
     });
-    if (ship.getFlag("dark-heresy", "evasion")) await ship.unsetFlag("dark-heresy", "evasion");
+    if (getLegacyFlag(ship, "evasion")) await unsetLegacyFlag(ship, "evasion");
 
     const finished = [];
     for (const comp of (ship.shipComponents ?? [])) {
@@ -11410,9 +11497,9 @@ async function _onShipTurnStart(ship, combatant) {
     const fireNotes = [];
     const burning = (ship.shipComponents ?? []).filter(c => c.system.onFire);
     for (const comp of burning) {
-        const age = num(comp.getFlag("dark-heresy", "fireAge"));
+        const age = num(getLegacyFlag(comp, "fireAge"));
         if (age < 1) {
-            await comp.setFlag("dark-heresy", "fireAge", age + 1);
+            await setLegacyFlag(comp, "fireAge", age + 1);
             continue;
         }
         const consumed = { "system.onFire": false, "flags.dark-heresy.fireAge": 0, "flags.dark-heresy.burnedOut": true };
@@ -11420,7 +11507,7 @@ async function _onShipTurnStart(ship, combatant) {
         await comp.update(consumed);
 
         const candidates = (ship.shipComponents ?? []).filter(c => c.id !== comp.id && !c.system.onFire
-            && c.system.status !== "destroyed" && !c.getFlag("dark-heresy", "burnedOut"));
+            && c.system.status !== "destroyed" && !getLegacyFlag(c, "burnedOut"));
         if (!candidates.length) {
             // Выгорело всё — корабль превращён в обугленный остов.
             fireNotes.push(game.i18n.format("SHIP.FIRE.BURNED_OUT", { from: comp.name }));
@@ -11486,7 +11573,7 @@ async function shipActionDialog(ship, key) {
 
     const d = Number(def.difficulty) || 0;
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/dialog/ship-action.hbs", {
+        "systems/apex-heresy-ru/template/dialog/ship-action.hbs", {
             hint: def.hint,
             crewRating: Number(ship.system.crewRating) || 0,
             performers,
@@ -11561,7 +11648,7 @@ async function _loseCrewAndMorale(ship, crew, morale) {
         crew: Math.max(0, was.crew - num(crew)),
         morale: Math.max(0, was.morale - num(morale))
     };
-    const loss = foundry.utils.duplicate(ship.getFlag("dark-heresy", "shipLoss") ?? {});
+    const loss = foundry.utils.duplicate(getLegacyFlag(ship, "shipLoss") ?? {});
     loss.sinceTurn = {
         crew: num(loss.sinceTurn?.crew) + (was.crew - now.crew),
         morale: num(loss.sinceTurn?.morale) + (was.morale - now.morale)
@@ -11700,7 +11787,7 @@ async function _renderShipOpposed(view) {
         }
     }
     return foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/chat/ship-opposed.hbs", { ...view, logGroups });
+        "systems/apex-heresy-ru/template/chat/ship-opposed.hbs", { ...view, logGroups });
 }
 
 /**
@@ -11721,9 +11808,9 @@ async function _updateShipOpposedCard(message, view) {
 
 /** Сцепить два корабля абордажем. */
 async function _setBoarding(ship, target) {
-    await ship.setFlag("dark-heresy", "boarding", { with: target.id, boarder: true });
+    await setLegacyFlag(ship, "boarding", { with: target.id, boarder: true });
     try {
-        await target.setFlag("dark-heresy", "boarding", { with: ship.id, boarder: false });
+        await setLegacyFlag(target, "boarding", { with: ship.id, boarder: false });
     } catch (err) {
         ui.notifications.warn(game.i18n.format("SHIP.BOARDING.NO_PERMISSION", { name: target.name }));
     }
@@ -11731,11 +11818,11 @@ async function _setBoarding(ship, target) {
 
 /** Расцепить корабль и того, с кем он был сцеплен. */
 async function _clearBoarding(ship) {
-    const state = ship.getFlag("dark-heresy", "boarding");
-    if (state) await ship.unsetFlag("dark-heresy", "boarding");
+    const state = getLegacyFlag(ship, "boarding");
+    if (state) await unsetLegacyFlag(ship, "boarding");
     const other = game.actors.get(state?.with);
-    if (other?.getFlag("dark-heresy", "boarding")?.with === ship.id) {
-        try { await other.unsetFlag("dark-heresy", "boarding"); } catch (err) { /* чужой корабль — снимет ведущий */ }
+    if (getLegacyFlag(other, "boarding")?.with === ship.id) {
+        try { await unsetLegacyFlag(other, "boarding"); } catch (err) { /* чужой корабль — снимет ведущий */ }
     }
 }
 
@@ -11778,7 +11865,7 @@ async function _resolveRam(ship, target) {
         }
     }
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/chat/ship-ram.hbs", view);
+        "systems/apex-heresy-ru/template/chat/ship-ram.hbs", view);
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: ship }), content });
     return view;
 }
@@ -11796,7 +11883,7 @@ async function _resolveRam(ship, target) {
  */
 async function rollBoardingAction(ship, { performer = null, defender = null, modifier = 0, post = true } = {}) {
     const num = v => Number(v) || 0;
-    const state = ship.getFlag("dark-heresy", "boarding");
+    const state = getLegacyFlag(ship, "boarding");
     const enemy = game.actors.get(state?.with);
     if (!state || !enemy) {
         ui.notifications.warn(game.i18n.localize("SHIP.BOARDING.NOT_BOARDED"));
@@ -11806,14 +11893,14 @@ async function rollBoardingAction(ship, { performer = null, defender = null, mod
     // на двоих (стр. 215). Кнопка боя есть на мостике у обоих кораблей, и без
     // этой отметки абордаж шёл бы дважды за раунд — по разу с каждого борта.
     const roundKey = _shipCombatRound(ship);
-    const enemyState = enemy.getFlag("dark-heresy", "boarding") ?? {};
+    const enemyState = getLegacyFlag(enemy, "boarding") ?? {};
     if (roundKey !== "none" && (state.foughtRound === roundKey || enemyState.foughtRound === roundKey)) {
         ui.notifications.warn(game.i18n.localize("SHIP.BOARDING.ALREADY_FOUGHT"));
         return null;
     }
 
     const sideParts = (me, other) => {
-        const mine = me.getFlag("dark-heresy", "boarding") ?? {};
+        const mine = getLegacyFlag(me, "boarding") ?? {};
         const parts = [];
         const crewDiff = num(me.system.crew?.value) - num(other.system.crew?.value);
         if (crewDiff >= 10) parts.push({ label: "SHIP.BOARDING.CREW_ADVANTAGE", value: 10 * Math.floor(crewDiff / 10) });
@@ -11825,8 +11912,8 @@ async function rollBoardingAction(ship, { performer = null, defender = null, mod
         parts.push({ label: "SHIP.TURRET_RATING", value: 10 * num(me.system.turretRating) });
         parts.push({ label: "SHIP.MOD.COMMAND", value: num(me.system.mods?.command) });
         parts.push({ label: "SHIP.MOD.SHIPBOARD_ACTIONS", value: num(me.system.mods?.shipboardActions) });
-        if (!mine.boarder) parts.push({ label: "SHIP.ACTION.PREPARE_TO_REPEL", value: num(me.getFlag("dark-heresy", "repelBonus")) });
-        parts.push({ label: "SHIP.ACTION.BREAK_FREE", value: num(me.getFlag("dark-heresy", "breakFreePenalty")) });
+        if (!mine.boarder) parts.push({ label: "SHIP.ACTION.PREPARE_TO_REPEL", value: num(getLegacyFlag(me, "repelBonus")) });
+        parts.push({ label: "SHIP.ACTION.BREAK_FREE", value: num(getLegacyFlag(me, "breakFreePenalty")) });
         return parts;
     };
 
@@ -11841,16 +11928,16 @@ async function rollBoardingAction(ship, { performer = null, defender = null, mod
         parts: sideParts(enemy, ship)
     });
     if (roundKey !== "none") {
-        await ship.setFlag("dark-heresy", "boarding", { ...state, foughtRound: roundKey });
+        await setLegacyFlag(ship, "boarding", { ...state, foughtRound: roundKey });
         try {
-            await enemy.setFlag("dark-heresy", "boarding", { ...enemyState, foughtRound: roundKey });
+            await setLegacyFlag(enemy, "boarding", { ...enemyState, foughtRound: roundKey });
         } catch (err) { /* чужой корабль — отметки хватит и на этом */ }
     }
 
     // Штраф за сорванную попытку вырваться действует на один тест.
     for (const side of [ship, enemy]) {
-        if (!side.getFlag("dark-heresy", "breakFreePenalty")) continue;
-        try { await side.unsetFlag("dark-heresy", "breakFreePenalty"); } catch (err) { /* чужой корабль */ }
+        if (!getLegacyFlag(side, "breakFreePenalty")) continue;
+        try { await unsetLegacyFlag(side, "breakFreePenalty"); } catch (err) { /* чужой корабль */ }
     }
 
     const outcome = _shipOpposed(a, b);
@@ -11884,7 +11971,7 @@ async function rollBoardingAction(ship, { performer = null, defender = null, mod
  * @param {"raid"|"sabotage"|"morale"} how
  */
 async function _spendBoardingDegree(message, how) {
-    const view = foundry.utils.duplicate(message.getFlag("dark-heresy", "shipOpposed") ?? {});
+    const view = foundry.utils.duplicate(getLegacyFlag(message, "shipOpposed") ?? {});
     const loser = game.actors.get(view.loserId);
     if (!loser) return ui.notifications.warn(game.i18n.localize("SHIP.CHAT.NO_TARGET"));
     view.log = view.log ?? [];
@@ -11946,7 +12033,7 @@ async function _rollHitAndRunRaid(ship, target, { performer = null, defender = n
             { label: "SHIP.MOD.COMMAND", value: num(target.system.mods?.command) },
             // Отражение налёта — из тех тестов, по которым бьёт таблица Команды.
             { label: "SHIP.MOD.SHIPBOARD_ACTIONS", value: num(target.system.mods?.shipboardActions) },
-            { label: "SHIP.ACTION.PREPARE_TO_REPEL", value: num(target.getFlag("dark-heresy", "repelBonus")) }
+            { label: "SHIP.ACTION.PREPARE_TO_REPEL", value: num(getLegacyFlag(target, "repelBonus")) }
         ]
     });
     const outcome = _shipOpposed(a, b);
@@ -12017,12 +12104,12 @@ async function _rollMutinySuppression(ship, { performer = null, defender = null,
         if (sk === "command") { crew = await _rollTotal("1d5"); morale = await _rollTotal("1d5"); }
         else if (sk === "charm") { morale = await _rollTotal("1d10"); }
         else { crew = 1; morale = await _rollTotal("1d10"); }
-        await ship.unsetFlag("dark-heresy", "mutiny");
+        await unsetLegacyFlag(ship, "mutiny");
         const lost = await _loseCrewAndMorale(ship, crew, morale);
         view.outcomeText = game.i18n.format(`SHIP.MUTINY.ENDS_${sk.toUpperCase()}`, lost);
         view.verdictClass = "is-success";
     } else if (b.isWinner && outcome.margin >= 3) {
-        await ship.setFlag("dark-heresy", "mutiny", "lost");
+        await setLegacyFlag(ship, "mutiny", "lost");
         view.outcomeText = game.i18n.localize("SHIP.MUTINY.LOST");
         view.verdictClass = "is-failure";
     } else {
@@ -12080,7 +12167,7 @@ async function shipAttackDialog(ship, weapon) {
         .sort((a, b) => a.name.localeCompare(b.name));
 
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/dialog/ship-attack.hbs", {
+        "systems/apex-heresy-ru/template/dialog/ship-attack.hbs", {
             targets, gunners,
             crewRating: Number(ship.system.crewRating) || 0,
             strength: weapon.system.strengthEffective ?? weapon.system.strength,
@@ -12141,7 +12228,7 @@ async function shipSalvoDialog(ship) {
         .sort((a, b) => a.name.localeCompare(b.name));
 
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/dialog/ship-attack.hbs", {
+        "systems/apex-heresy-ru/template/dialog/ship-attack.hbs", {
             targets, gunners,
             crewRating: Number(ship.system.crewRating) || 0,
             salvoWeapons: macros.map(w => ({
@@ -12190,7 +12277,7 @@ function _activateShipChatListeners(html, message = null) {
     const root = html instanceof HTMLElement ? html : html?.[0];
     if (!root) return;
     const loc = k => game.i18n.localize(k);
-    const applied = new Set(message?.getFlag?.("dark-heresy", "appliedButtons") ?? []);
+    const applied = new Set(getLegacyFlag(message, "appliedButtons") ?? []);
 
     for (const button of root.querySelectorAll(".ship-damage-apply")) {
         const card = button.closest(".ship-attack-card, .ship-salvo-card, .ship-ram-card, .ship-opposed-card");
@@ -12210,7 +12297,7 @@ function _activateShipChatListeners(html, message = null) {
             btn.textContent = game.i18n.format("SHIP.CHAT.APPLIED",
                 { hull: result.hull, crew: result.crew, morale: result.morale });
             if (message && (game.user.isGM || message.isAuthor)) {
-                await message.setFlag("dark-heresy", "appliedButtons", [...applied, applyKey]);
+                await setLegacyFlag(message, "appliedButtons", [...applied, applyKey]);
             }
         });
     }
@@ -12218,7 +12305,7 @@ function _activateShipChatListeners(html, message = null) {
     for (const button of root.querySelectorAll(".ship-board-raid, .ship-board-sabotage, .ship-board-morale")) {
         button.addEventListener("click", async ev => {
             ev.preventDefault();
-            if (!message?.getFlag?.("dark-heresy", "shipOpposed")) return;
+            if (!getLegacyFlag(message, "shipOpposed")) return;
             if (!(game.user.isGM || message.isAuthor)) return ui.notifications.warn(loc("SHIP.CHAT.NOT_OWNER"));
             const cls = ev.currentTarget.classList;
             ev.currentTarget.disabled = true;
@@ -12242,7 +12329,7 @@ class VoidshipSheet extends DarkHeresySheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "actor", "voidship"],
-            template: "systems/dark-heresy/template/sheet/actor/voidship.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/actor/voidship.hbs",
             width: DarkHeresySheet.DESIGN_WIDTH + DarkHeresySheet.CONTENT_PADDING
                 + DarkHeresySheet.SCROLLBAR_ALLOWANCE,
             height: 860,
@@ -12269,9 +12356,9 @@ class VoidshipSheet extends DarkHeresySheet {
 
         // Мостик: что уже сделано за ход и что сейчас висит на корабле.
         const loc = k => game.i18n.localize(k);
-        const turnFlag = this.actor.getFlag("dark-heresy", "shipTurn") ?? {};
-        const evasionFlag = this.actor.getFlag("dark-heresy", "evasion");
-        const repel = Number(this.actor.getFlag("dark-heresy", "repelBonus")) || 0;
+        const turnFlag = getLegacyFlag(this.actor, "shipTurn") ?? {};
+        const evasionFlag = getLegacyFlag(this.actor, "evasion");
+        const repel = Number(getLegacyFlag(this.actor, "repelBonus")) || 0;
         const chips = [];
         if (evasionFlag?.value) chips.push({ kind: "good", text: `${loc("SHIP.ACTION.EVASIVE")} −${evasionFlag.value}` });
         if (turnFlag.bsPenalty) chips.push({ kind: "crippled", text: `${loc("SHIP.ACTION.COME_TO_NEW_HEADING")} ${turnFlag.bsPenalty}` });
@@ -12280,8 +12367,8 @@ class VoidshipSheet extends DarkHeresySheet {
         if (turnFlag.backs) chips.push({ kind: "good", text: `${loc("SHIP.ACTION.PUT_BACKS_INTO_IT")} ×${turnFlag.backs}` });
         if (repel) chips.push({ kind: "good", text: `${loc("SHIP.ACTION.PREPARE_TO_REPEL")} +${repel}` });
         if (turnFlag.noFire) chips.push({ kind: "crippled", text: loc("SHIP.BRIDGE.NO_FIRE") });
-        const boardingFlag = this.actor.getFlag("dark-heresy", "boarding");
-        const mutinyFlag = this.actor.getFlag("dark-heresy", "mutiny");
+        const boardingFlag = getLegacyFlag(this.actor, "boarding");
+        const mutinyFlag = getLegacyFlag(this.actor, "mutiny");
         const visible = def => (!def.boardedOnly || !!boardingFlag)
             && (!def.unboardedOnly || !boardingFlag)
             && (!def.mutinyOnly || mutinyFlag === true);
@@ -12291,7 +12378,7 @@ class VoidshipSheet extends DarkHeresySheet {
         }
         if (mutinyFlag === true) chips.push({ kind: "crippled", text: loc("SHIP.BRIDGE.MUTINY") });
         if (mutinyFlag === "lost") chips.push({ kind: "crippled", text: loc("SHIP.BRIDGE.MUTINY_LOST") });
-        if (this.actor.getFlag("dark-heresy", "mutinyPending")) chips.push({ kind: "warn", text: loc("SHIP.BRIDGE.MUTINY_PENDING") });
+        if (getLegacyFlag(this.actor, "mutinyPending")) chips.push({ kind: "warn", text: loc("SHIP.BRIDGE.MUTINY_PENDING") });
         const actionList = group => Object.entries(Dh.shipActions)
             .filter(([, def]) => def.group === group && visible(def))
             .map(([key, def]) => {
@@ -12343,8 +12430,8 @@ class VoidshipSheet extends DarkHeresySheet {
         });
         html.find(".ship-silent-running").click(async ev => {
             ev.preventDefault();
-            const on = !!this.actor.getFlag("dark-heresy", "silentRunning");
-            await this.actor.setFlag("dark-heresy", "silentRunning", !on);
+            const on = !!getLegacyFlag(this.actor, "silentRunning");
+            await setLegacyFlag(this.actor, "silentRunning", !on);
         });
         // Вне боевого трекера ход никто не начнёт сам — для этого кнопка.
         html.find(".ship-turn-reset").click(ev => {
@@ -12353,7 +12440,7 @@ class VoidshipSheet extends DarkHeresySheet {
         });
         html.find(".ship-clear-repel").click(async ev => {
             ev.preventDefault();
-            await this.actor.unsetFlag("dark-heresy", "repelBonus");
+            await unsetLegacyFlag(this.actor, "repelBonus");
         });
         // Бедствия компонента — с последствиями для людей, а не просто флажок.
         html.find(".ship-comp-ignite").click(async ev => {
@@ -12589,7 +12676,7 @@ async function openWeaponTraitPicker(item) {
     if (!item) return;
     const data = _buildTraitPickerData(item.system?.special);
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/dialog/weapon-traits.hbs", data);
+        "systems/apex-heresy-ru/template/dialog/weapon-traits.hbs", data);
 
     const dialog = dhDialog({
         title: game.i18n.localize("WEAPON.QUALITY_PICKER"),
@@ -12650,7 +12737,7 @@ async function openStructuredTraitEditor(item) {
             inherited:base === true ? localize("WEAPON.TRAIT_ON") : base === false || base === undefined ? localize("WEAPON.TRAIT_OFF") : base};
     });
     const content = await foundry.applications.handlebars.renderTemplate(
-        "systems/dark-heresy/template/dialog/trait-overrides.hbs", {rows, special,
+        "systems/apex-heresy-ru/template/dialog/trait-overrides.hbs", {rows, special,
             modes:{inherit:"WEAPON.TRAIT_INHERIT",off:"WEAPON.TRAIT_OFF",value:"WEAPON.TRAIT_EXPLICIT"}});
     const dialog = new foundry.applications.api.DialogV2({
         window:{title:`${item.name} — ${localize("WEAPON.TRAIT_EDITOR")}`, resizable:true},
@@ -12864,7 +12951,7 @@ class VehicleWeaponSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "vehicle-weapon"],
-            template: "systems/dark-heresy/template/sheet/vehicle-weapon.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/vehicle-weapon.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -12887,7 +12974,7 @@ class VehicleTraitSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "vehicle-trait"],
-            template: "systems/dark-heresy/template/sheet/vehicle-trait.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/vehicle-trait.hbs",
             width: 560,
             height: 480,
             resizable: true,
@@ -12900,7 +12987,7 @@ class ShipWeaponSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "ship-weapon"],
-            template: "systems/dark-heresy/template/sheet/ship-weapon.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/ship-weapon.hbs",
             width: 560,
             height: 520,
             resizable: true,
@@ -12920,7 +13007,7 @@ class ShipComponentSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "ship-component"],
-            template: "systems/dark-heresy/template/sheet/ship-component.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/ship-component.hbs",
             width: 560,
             height: 540,
             resizable: true,
@@ -12941,7 +13028,7 @@ class WeaponSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "weapon"],
-            template: "systems/dark-heresy/template/sheet/weapon.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/weapon.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13030,7 +13117,7 @@ class AmmunitionSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "ammunition"],
-            template: "systems/dark-heresy/template/sheet/ammunition.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/ammunition.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13079,7 +13166,7 @@ class WeaponModificationSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "weapon-modification"],
-            template: "systems/dark-heresy/template/sheet/weapon-modification.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/weapon-modification.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13136,7 +13223,7 @@ class ArmourSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "armour"],
-            template: "systems/dark-heresy/template/sheet/armour.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/armour.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13165,7 +13252,7 @@ class ForceFieldSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "force-field"],
-            template: "systems/dark-heresy/template/sheet/force-field.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/force-field.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13194,7 +13281,7 @@ class CyberneticSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "cybernetic"],
-            template: "systems/dark-heresy/template/sheet/cybernetic.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/cybernetic.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13223,7 +13310,7 @@ class DrugSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "drug"],
-            template: "systems/dark-heresy/template/sheet/drug.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/drug.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13252,7 +13339,7 @@ class GearSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "gear"],
-            template: "systems/dark-heresy/template/sheet/gear.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/gear.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13281,7 +13368,7 @@ class ToolSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "tool"],
-            template: "systems/dark-heresy/template/sheet/tool.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/tool.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13310,7 +13397,7 @@ class CriticalInjurySheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "critical-injury"],
-            template: "systems/dark-heresy/template/sheet/critical-injury.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/critical-injury.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13339,7 +13426,7 @@ class MalignancySheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "malignancy"],
-            template: "systems/dark-heresy/template/sheet/malignancy.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/malignancy.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13368,7 +13455,7 @@ class MentalDisorderSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "mental-disorder"],
-            template: "systems/dark-heresy/template/sheet/mental-disorder.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/mental-disorder.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13397,7 +13484,7 @@ class MutationSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "mutation"],
-            template: "systems/dark-heresy/template/sheet/mutation.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/mutation.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13426,7 +13513,7 @@ class PsychicPowerSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "psychic-power"],
-            template: "systems/dark-heresy/template/sheet/psychic-power.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/psychic-power.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13455,7 +13542,7 @@ class TalentSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "talent"],
-            template: "systems/dark-heresy/template/sheet/talent.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/talent.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13484,7 +13571,7 @@ class SpecialAbilitySheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "special-ability"],
-            template: "systems/dark-heresy/template/sheet/special-ability.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/special-ability.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13513,7 +13600,7 @@ class TraitSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "trait"],
-            template: "systems/dark-heresy/template/sheet/trait.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/trait.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13542,7 +13629,7 @@ class AptitudeSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "aptitude"],
-            template: "systems/dark-heresy/template/sheet/aptitude.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/aptitude.hbs",
             width: 620,
             height: 560,
             resizable: true,
@@ -13561,7 +13648,7 @@ class OriginSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "origin"],
-            template: "systems/dark-heresy/template/sheet/origin.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/origin.hbs",
             width: 620,
             height: 720,
             resizable: true,
@@ -13592,7 +13679,7 @@ class RaceSheet extends DarkHeresyItemSheet {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             classes: ["dark-heresy", "sheet", "race"],
-            template: "systems/dark-heresy/template/sheet/race.hbs",
+            template: "systems/apex-heresy-ru/template/sheet/race.hbs",
             width: 700,
             height: 800,
             resizable: true,
@@ -13913,100 +14000,100 @@ function preloadHandlebarsTemplates() {
         // Каркас листа персонажа и его сменные части: анкета книги, полосы показателей
         // и вкладки. Партиал, который подставляется по имени из контекста, обязан быть
         // загружен заранее — иначе Handlebars его не найдёт.
-        "systems/dark-heresy/template/sheet/actor/character.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/portrait.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/bio-dark-heresy.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/bio-only-war.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/bio-black-crusade.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/bio-rogue-trader.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/bio-deathwatch.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/vital-wounds.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/vital-fatigue.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/vital-fate.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/vital-infamy.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/vital-profit-factor.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/allegiance.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/squad.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/deathwatch.hbs",
-        "systems/dark-heresy/template/sheet/actor/npc.hbs",
-        "systems/dark-heresy/template/sheet/actor/vehicle.hbs",
-        "systems/dark-heresy/template/sheet/vehicle-weapon.hbs",
-        "systems/dark-heresy/template/sheet/vehicle-trait.hbs",
-        "systems/dark-heresy/template/sheet/actor/voidship.hbs",
-        "systems/dark-heresy/template/sheet/ship-weapon.hbs",
-        "systems/dark-heresy/template/sheet/actor/limited-sheet.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/character.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/portrait.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/bio-dark-heresy.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/bio-only-war.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/bio-black-crusade.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/bio-rogue-trader.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/bio-deathwatch.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/vital-wounds.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/vital-fatigue.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/vital-fate.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/vital-infamy.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/vital-profit-factor.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/allegiance.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/squad.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/deathwatch.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/npc.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/vehicle.hbs",
+        "systems/apex-heresy-ru/template/sheet/vehicle-weapon.hbs",
+        "systems/apex-heresy-ru/template/sheet/vehicle-trait.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/voidship.hbs",
+        "systems/apex-heresy-ru/template/sheet/ship-weapon.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/limited-sheet.hbs",
 
-        "systems/dark-heresy/template/sheet/actor/tab/abilities.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/combat.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/effects.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/gear.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/notes.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/npc-notes.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/npc-stats.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/progression.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/psychic-powers.hbs",
-        "systems/dark-heresy/template/sheet/actor/partial/psychic-powers-list.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/stats.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/vehicle-profile.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/vehicle-weapons.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/vehicle-traits.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/voidship-profile.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/voidship-components.hbs",
-        "systems/dark-heresy/template/sheet/ship-component.hbs",
-        "systems/dark-heresy/template/chat/ship-attack.hbs",
-        "systems/dark-heresy/template/dialog/ship-attack.hbs",
-        "systems/dark-heresy/template/chat/ship-salvo.hbs",
-        "systems/dark-heresy/template/chat/ship-action.hbs",
-        "systems/dark-heresy/template/dialog/ship-action.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/voidship-bridge.hbs",
-        "systems/dark-heresy/template/chat/ship-opposed.hbs",
-        "systems/dark-heresy/template/chat/ship-ram.hbs",
-        "systems/dark-heresy/template/sheet/actor/tab/voidship-weapons.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/abilities.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/combat.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/effects.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/gear.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/notes.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/npc-notes.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/npc-stats.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/progression.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/psychic-powers.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/partial/psychic-powers-list.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/stats.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/vehicle-profile.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/vehicle-weapons.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/vehicle-traits.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/voidship-profile.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/voidship-components.hbs",
+        "systems/apex-heresy-ru/template/sheet/ship-component.hbs",
+        "systems/apex-heresy-ru/template/chat/ship-attack.hbs",
+        "systems/apex-heresy-ru/template/dialog/ship-attack.hbs",
+        "systems/apex-heresy-ru/template/chat/ship-salvo.hbs",
+        "systems/apex-heresy-ru/template/chat/ship-action.hbs",
+        "systems/apex-heresy-ru/template/dialog/ship-action.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/voidship-bridge.hbs",
+        "systems/apex-heresy-ru/template/chat/ship-opposed.hbs",
+        "systems/apex-heresy-ru/template/chat/ship-ram.hbs",
+        "systems/apex-heresy-ru/template/sheet/actor/tab/voidship-weapons.hbs",
 
-        "systems/dark-heresy/template/sheet/mental-disorder.hbs",
-        "systems/dark-heresy/template/sheet/aptitude.hbs",
-        "systems/dark-heresy/template/sheet/malignancy.hbs",
-        "systems/dark-heresy/template/sheet/mutation.hbs",
-        "systems/dark-heresy/template/sheet/talent.hbs",
-        "systems/dark-heresy/template/sheet/trait.hbs",
-        "systems/dark-heresy/template/sheet/special-ability.hbs",
-        "systems/dark-heresy/template/sheet/race.hbs",
-        "systems/dark-heresy/template/sheet/origin.hbs",
-        "systems/dark-heresy/template/apps/character-wizard.hbs",
-        "systems/dark-heresy/template/sheet/psychic-power.hbs",
-        "systems/dark-heresy/template/sheet/critical-injury.hbs",
-        "systems/dark-heresy/template/sheet/weapon.hbs",
-        "systems/dark-heresy/template/sheet/armour.hbs",
-        "systems/dark-heresy/template/sheet/gear.hbs",
-        "systems/dark-heresy/template/sheet/drug.hbs",
-        "systems/dark-heresy/template/sheet/tool.hbs",
-        "systems/dark-heresy/template/sheet/cybernetic.hbs",
-        "systems/dark-heresy/template/sheet/weapon-modification.hbs",
-        "systems/dark-heresy/template/sheet/ammunition.hbs",
-        "systems/dark-heresy/template/sheet/force-field.hbs",
+        "systems/apex-heresy-ru/template/sheet/mental-disorder.hbs",
+        "systems/apex-heresy-ru/template/sheet/aptitude.hbs",
+        "systems/apex-heresy-ru/template/sheet/malignancy.hbs",
+        "systems/apex-heresy-ru/template/sheet/mutation.hbs",
+        "systems/apex-heresy-ru/template/sheet/talent.hbs",
+        "systems/apex-heresy-ru/template/sheet/trait.hbs",
+        "systems/apex-heresy-ru/template/sheet/special-ability.hbs",
+        "systems/apex-heresy-ru/template/sheet/race.hbs",
+        "systems/apex-heresy-ru/template/sheet/origin.hbs",
+        "systems/apex-heresy-ru/template/apps/character-wizard.hbs",
+        "systems/apex-heresy-ru/template/sheet/psychic-power.hbs",
+        "systems/apex-heresy-ru/template/sheet/critical-injury.hbs",
+        "systems/apex-heresy-ru/template/sheet/weapon.hbs",
+        "systems/apex-heresy-ru/template/sheet/armour.hbs",
+        "systems/apex-heresy-ru/template/sheet/gear.hbs",
+        "systems/apex-heresy-ru/template/sheet/drug.hbs",
+        "systems/apex-heresy-ru/template/sheet/tool.hbs",
+        "systems/apex-heresy-ru/template/sheet/cybernetic.hbs",
+        "systems/apex-heresy-ru/template/sheet/weapon-modification.hbs",
+        "systems/apex-heresy-ru/template/sheet/ammunition.hbs",
+        "systems/apex-heresy-ru/template/sheet/force-field.hbs",
 
-        "systems/dark-heresy/template/sheet/item/effects.hbs",
-        "systems/dark-heresy/template/sheet/item/effect-group.hbs",
+        "systems/apex-heresy-ru/template/sheet/item/effects.hbs",
+        "systems/apex-heresy-ru/template/sheet/item/effect-group.hbs",
 
-        "systems/dark-heresy/template/sheet/characteristics/information.hbs",
-        "systems/dark-heresy/template/sheet/characteristics/left.hbs",
-        "systems/dark-heresy/template/sheet/characteristics/name.hbs",
-        "systems/dark-heresy/template/sheet/characteristics/right.hbs",
-        "systems/dark-heresy/template/sheet/characteristics/total.hbs",
+        "systems/apex-heresy-ru/template/sheet/characteristics/information.hbs",
+        "systems/apex-heresy-ru/template/sheet/characteristics/left.hbs",
+        "systems/apex-heresy-ru/template/sheet/characteristics/name.hbs",
+        "systems/apex-heresy-ru/template/sheet/characteristics/right.hbs",
+        "systems/apex-heresy-ru/template/sheet/characteristics/total.hbs",
 
-        "systems/dark-heresy/template/chat/item.hbs",
-        "systems/dark-heresy/template/chat/roll.hbs",
-        "systems/dark-heresy/template/chat/damage.hbs",
-        "systems/dark-heresy/template/chat/damage-mass.hbs",
-        "systems/dark-heresy/template/chat/critical.hbs",
-        "systems/dark-heresy/template/chat/evasion.hbs",
-        "systems/dark-heresy/template/chat/evasion-mass.hbs",
-        "systems/dark-heresy/template/chat/suppression.hbs",
-        "systems/dark-heresy/template/chat/emptyMag.hbs",
+        "systems/apex-heresy-ru/template/chat/item.hbs",
+        "systems/apex-heresy-ru/template/chat/roll.hbs",
+        "systems/apex-heresy-ru/template/chat/damage.hbs",
+        "systems/apex-heresy-ru/template/chat/damage-mass.hbs",
+        "systems/apex-heresy-ru/template/chat/critical.hbs",
+        "systems/apex-heresy-ru/template/chat/evasion.hbs",
+        "systems/apex-heresy-ru/template/chat/evasion-mass.hbs",
+        "systems/apex-heresy-ru/template/chat/suppression.hbs",
+        "systems/apex-heresy-ru/template/chat/emptyMag.hbs",
 
-        "systems/dark-heresy/template/dialog/common-roll.hbs",
-        "systems/dark-heresy/template/dialog/combat-roll.hbs",
-        "systems/dark-heresy/template/dialog/psychic-power-roll.hbs"
+        "systems/apex-heresy-ru/template/dialog/common-roll.hbs",
+        "systems/apex-heresy-ru/template/dialog/combat-roll.hbs",
+        "systems/apex-heresy-ru/template/dialog/psychic-power-roll.hbs"
     ];
     return foundry.applications.handlebars.loadTemplates(templatePaths);
 }
@@ -14187,7 +14274,7 @@ async function migrateActorDocument(actor, version) {
         for (const aptitude of Object.values(oldAptitudes)) {
             const name = ruleName(aptitude).trim();
             if (!name || existing.has(name)) continue;
-            items.push({name, type: "aptitude", img: "systems/dark-heresy/assets/icons/generic.webp"});
+            items.push({name, type: "aptitude", img: "systems/apex-heresy-ru/assets/icons/generic.webp"});
             existing.add(name);
         }
         if (items.length) await actor.createEmbeddedDocuments("Item", items);
@@ -14335,8 +14422,8 @@ const migrateActorData = (actor, worldSchemaVersion) => {
     if (worldSchemaVersion < 11 && actor.type === "vehicle") {
         // У машин появилась своя иконка. Переставляем её только тем, кто до сих
         // пор носит старый общий портрет: выбранный вручную трогать нельзя.
-        if (actor.img === "systems/dark-heresy/assets/tokens/unknown.webp") {
-            update.img = "systems/dark-heresy/assets/icons/vehicle.svg";
+        if (actor.img === "systems/apex-heresy-ru/assets/tokens/unknown.webp") {
+            update.img = "systems/apex-heresy-ru/assets/icons/vehicle.svg";
         }
     }
     if (worldSchemaVersion < 10 && actor.type === "vehicle") {
@@ -14382,8 +14469,8 @@ const migrateActorData = (actor, worldSchemaVersion) => {
         // Actors created before this release baked in a portrait path that never
         // existed: assets/actors/unknown.webp, under a directory the system does not
         // ship. Fixing CONFIG only helps new actors, so repoint the stored value.
-        if (actor.img === "systems/dark-heresy/assets/actors/unknown.webp") {
-            update.img = "systems/dark-heresy/assets/tokens/unknown.webp";
+        if (actor.img === "systems/apex-heresy-ru/assets/actors/unknown.webp") {
+            update.img = "systems/apex-heresy-ru/assets/tokens/unknown.webp";
         }
     }
     const source = actor._source?.system ?? {};
@@ -14592,6 +14679,11 @@ const addChatMessageContextOptions = function(application, options) {
  * @returns {Promise}
  */
 function applyChatCardDamage(roll, multiplier) {
+    const source = game.messages.get(roll.closest?.('.message')?.dataset?.messageId);
+    if (source && ((damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(source.getRollData())).id === 'ow') || _damageHasClaim(source))) {
+        Hooks.callAll('darkHeresy.damageConfirmationRequired',{messageId:source.id});
+        return {status:'pending'};
+    }
     // Get the damage data, get them as arrays in case of multiple hits
     const amount = roll.querySelectorAll(".damage-total");
     const location = roll.querySelectorAll(".damage-location");
@@ -14631,6 +14723,16 @@ function _queueDocumentOperation(key, task) {
     const cleanup = () => { if (_dhOperationQueues.get(key) === current) _dhOperationQueues.delete(key); };
     current.then(cleanup, cleanup);
     return current;
+}
+
+function _damageHasClaim(message, actor) {
+    const seen = new Set();
+    while (message && !seen.has(message.id)) {
+        seen.add(message.id);
+        if (getLegacyFlag(message, 'damageClaim') || getLegacyFlag(actor, 'damageAttackReceipts')?.[message.id] || getLegacyFlag(actor, 'damageMessageReceipts')?.[message.id]) return true;
+        message = game.messages.get(message.getRollData()?.sourceMessageId);
+    }
+    return false;
 }
 
 function _damageEntriesFromRoll(rollData) {
@@ -14704,7 +14806,7 @@ async function _forceFieldIntercept(actor, rollData, targetToken) {
             protectionRating: item.system?.protectionRating,
             overloadChance: item.system?.overloadChance,
             craftsmanship: item.system?.craftsmanship,
-            overloaded: !!item.getFlag?.("dark-heresy", "overloaded")
+            overloaded: !!getLegacyFlag(item, "overloaded")
         },
         roll: roll.total,
         isMelee,
@@ -14712,8 +14814,8 @@ async function _forceFieldIntercept(actor, rollData, targetToken) {
     });
 
     // Выгоревшее поле молчит до починки Очень трудной (−30) проверкой Технологий.
-    if (outcome.overloaded && !item.getFlag?.("dark-heresy", "overloaded")) {
-        await item.setFlag("dark-heresy", "overloaded", true);
+    if (outcome.overloaded && !getLegacyFlag(item, "overloaded")) {
+        await setLegacyFlag(item, "overloaded", true);
     }
     return {...outcome, roll: roll.total, name: item.name};
 }
@@ -14738,6 +14840,10 @@ async function _announceForceField(actor, intercept) {
 }
 
 async function applyAutoDamageToTarget(rollData, message) {
+    if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(rollData)).id === 'ow') {
+        Hooks.callAll('darkHeresy.damageConfirmationRequired', {messageId:message?.id});
+        return {status:'pending',messageId:message?.id};
+    }
     const target = rollData?.targets?.[0];
     if (!target || !message) return;
     const gm = game.users.activeGM;
@@ -14747,7 +14853,7 @@ async function applyAutoDamageToTarget(rollData, message) {
     }
     const payload = {sceneId: target.sceneId, tokenId: target.tokenId, messageId: message.id};
     if (game.user !== gm) {
-        game.socket.emit("system.dark-heresy", {type: "autoDamage", payload});
+        game.socket.emit("system.apex-heresy-ru", {type: "autoDamage", payload});
         return;
     }
     return applyAutoDamageFromSocket(payload);
@@ -14756,6 +14862,7 @@ async function applyAutoDamageToTarget(rollData, message) {
 async function applyAutoDamageFromSocket(payload) {
     if (game.user !== game.users.activeGM || !game.user?.isGM) return;
     if (!payload?.sceneId || !payload.tokenId || !payload.messageId) return;
+    if (damageConfirmationEnabled(game) && Dh.rulesetFor(_actorFromRollData(game.messages.get(payload.messageId)?.getRollData())).id === 'ow') return {status:'pending',messageId:payload.messageId};
     const message = game.messages.get(payload.messageId);
     const rollData = message?.getRollData?.();
     // A socket request names a recorded operation, never supplies its damage or destination.
@@ -14765,27 +14872,30 @@ async function applyAutoDamageFromSocket(payload) {
     const actor = targetToken?.actor;
     if (!actor) return;
 
+    const damages = _damageEntriesFromRoll(rollData);
+    if (!damages.length || damages.some(d => !Number.isFinite(d.amount) || d.amount < 0
+        || !Number.isFinite(d.penetration) || d.penetration < 0)) return;
+    return _queueDocumentOperation(actor.uuid, async () => {
+        const operation = getLegacyFlag(message, "damageOperation");
+        if (operation || getLegacyFlag(message, "appliedDamage")) return operation;
+        // Persist intent before changing an Actor. Interrupted/partial execution is never replayed blindly.
+        const requestId = message.id + ":" + payload.sceneId + ":" + payload.tokenId;
+        if (_damageHasClaim(message, actor)) return {status:'needs-review'};
+        await setLegacyFlag(message, 'damageOperation',{requestId,status:'processing'});
     // Силовое поле отводит атаку целиком, поэтому спрашивается раньше брони и
     // Стойкости. Десять полей в компендиуме несли рейтинг от 25 до 80, и не
     // читал его никто: Розарий, который должен гасить половину, гасил ноль.
     const field = await _forceFieldIntercept(actor, rollData, targetToken?.object);
     if (field?.blocked) {
         await _announceForceField(actor, field);
-        await message.setFlag("dark-heresy", "appliedDamage", {forceField: field.name, blocked: true});
+        await setLegacyFlag(message, "appliedDamage", {forceField: field.name, blocked: true});
         return;
     }
 
-    const damages = _damageEntriesFromRoll(rollData);
-    if (!damages.length || damages.some(d => !Number.isFinite(d.amount) || d.amount < 0
-        || !Number.isFinite(d.penetration) || d.penetration < 0)) return;
-    return _queueDocumentOperation(actor.uuid, async () => {
-        const operation = message.getFlag("dark-heresy", "damageOperation");
-        if (operation || message.getFlag("dark-heresy", "appliedDamage")) return operation;
-        // Persist intent before changing an Actor. Interrupted/partial execution is never replayed blindly.
-        const requestId = message.id + ":" + payload.sceneId + ":" + payload.tokenId;
+
         const before = _damageSnapshot(actor);
         const preview = actor.previewDamage(damages);
-        await message.setFlag("dark-heresy", "damageOperation", {requestId, status: "processing", before});
+        await setLegacyFlag(message, "damageOperation", {requestId, status: "processing", before});
         actor._damageSourceMessageId = message.id;
         actor._suppressCritChat = true;
         try {
@@ -14796,17 +14906,17 @@ async function applyAutoDamageFromSocket(payload) {
                 woundsBefore: before.wounds, woundsAfter: after.wounds,
                 criticalBefore: before.critical, criticalAfter: after.critical,
                 hordeBefore: before.horde, hordeAfter: after.horde};
-            await message.setFlag("dark-heresy", "appliedDamage", applied);
-            await message.setFlag("dark-heresy", "damageOperation", {requestId, status: "applied", before, after});
+            await setLegacyFlag(message, "appliedDamage", applied);
+            await setLegacyFlag(message, "damageOperation", {requestId, status: "applied", before, after});
             _recordAppliedDamage(rollData, preview, before, after);
-            await message.setFlag("dark-heresy", "rollData", rollData);
+            await setLegacyFlag(message, "rollData", rollData);
             rollData.rfLabel = _righteousFuryLabel(rollData);
-            const content = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/damage.hbs", rollData);
+            const content = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/damage.hbs", rollData);
             await message.update({content});
             return applied;
         } catch (error) {
-            const completed = message.getFlag("dark-heresy", "appliedDamage");
-            await message.setFlag("dark-heresy", "damageOperation", {requestId,
+            const completed = getLegacyFlag(message, "appliedDamage");
+            await setLegacyFlag(message, "damageOperation", {requestId,
                 status: completed ? "applied" : "needsReview", before, error: String(error.message || error)});
             throw error;
         } finally {
@@ -15029,7 +15139,7 @@ async function onSuppressionClick(ev) {
         isSuppressionTest: true
     };
 
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/dialog/common-roll.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/dialog/common-roll.hbs", rollData);
     let dialog = dhDialog({
         title: game.i18n.localize("SUPPRESSION.HEADER"),
         content: html,
@@ -15108,7 +15218,7 @@ async function _sendSuppressionToChat(rollData, targetName) {
         rollData.render = await rollData.rollObject.render();
         chatData.rolls = [rollData.rollObject];
 }
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/suppression.hbs", {
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/suppression.hbs", {
         ...rollData,
         targetName: targetName,
         hasFear: !rollData.flags.isSuccess
@@ -15270,7 +15380,7 @@ async function sendMassEvasionToChat(rollData) {
     if (speaker.token) {
         rollData.tokenId = speaker.token;
     }
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/evasion-mass.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/evasion-mass.hbs", rollData);
     chatData.content = html;
     if (["gmroll", "blindroll"].includes(chatData.rollMode)) {
         chatData.whisper = ChatMessage.getWhisperRecipients("GM");
@@ -15313,7 +15423,7 @@ async function sendMassDamageToChat(rollData) {
         .flatMap(entry => entry.damages || [])
         .flatMap(r => r.damageRoll || []);
     rollData.rfLabel = _righteousFuryLabel(rollData);
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/damage-mass.hbs", rollData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/damage-mass.hbs", rollData);
     chatData.content = html;
     if (["gmroll", "blindroll"].includes(chatData.rollMode)) {
         chatData.whisper = ChatMessage.getWhisperRecipients("GM");
@@ -15426,7 +15536,7 @@ async function applyBlastFromMassEvasion(message) {
     if (!blastRollData.multiDamages.length) return;
     const damageMessage = await sendMassDamageToChat(blastRollData);
     if (appliedEntries.length) {
-        await damageMessage.setFlag("dark-heresy", "appliedDamage", appliedEntries);
+        await setLegacyFlag(damageMessage, "appliedDamage", appliedEntries);
     }
 }
 
@@ -15668,7 +15778,7 @@ async function onManualDamageUndoClick(event) {
     });
     if (!confirmed) return;
 
-    const applied = message.getFlag("dark-heresy", "appliedDamage");
+    const applied = getLegacyFlag(message, "appliedDamage");
     if (!applied) {
         ui.notifications.warn(game.i18n.localize("UI.NO_APPLIED_DAMAGE_TO_REVERT"));
         return;
@@ -15744,7 +15854,7 @@ async function onManualDamageUndoClick(event) {
         return;
     }
 
-    await message.setFlag("dark-heresy", "appliedDamage", Array.isArray(applied) ? entries : entries[0]);
+    await setLegacyFlag(message, "appliedDamage", Array.isArray(applied) ? entries : entries[0]);
 
     const rollData = message.getRollData?.();
     const sourceMessageId = rollData?.sourceMessageId;
@@ -15754,12 +15864,12 @@ async function onManualDamageUndoClick(event) {
             const sourceRollData = sourceMessage.getRollData?.();
             if (sourceRollData) {
                 delete sourceRollData.hitsRemaining;
-                await sourceMessage.setFlag("dark-heresy", "rollData", sourceRollData);
+                await setLegacyFlag(sourceMessage, "rollData", sourceRollData);
             }
         }
     }
 
-    await message.setFlag("dark-heresy", "damageReverted", entries.every(entry => entry.reverted));
+    await setLegacyFlag(message, "damageReverted", entries.every(entry => entry.reverted));
 }
 
 
@@ -15945,7 +16055,7 @@ async function syncFatigueState(actor) {
         await actor.addCondition("unconscious", {}, {duration: {value: minutes, units: "minutes"}});
         // Отметка нужна, чтобы при пробуждении откатить усталость до предела
         // (BC, стр. 246). Обморок от крита или иной причины откатывать нечего.
-        await actor.setFlag("dark-heresy", "fatigueCollapse", true);
+        await setLegacyFlag(actor, "fatigueCollapse", true);
         await ChatMessage.create({
             content: `<div class="dark-heresy chat roll"><div class="dh-card is-fail">
                 <div class="dh-card-h"><span class="who">${actor.name}</span>
@@ -15955,11 +16065,11 @@ async function syncFatigueState(actor) {
                     <dt>${game.i18n.localize("COLLAPSE.DURATION")}</dt><dd>${minutes} ${game.i18n.localize("COLLAPSE.MINUTES")}</dd>
                 </dl></div></div></div>`
         });
-    } else if (!over && has && actor.getFlag("dark-heresy", "fatigueCollapse")) {
+    } else if (!over && has && getLegacyFlag(actor, "fatigueCollapse")) {
         // Усталость упала до предела — сознание возвращается.
         await actor.removeCondition("unconscious");
-        if (actor.getFlag("dark-heresy", "fatigueCollapse")) {
-            await actor.unsetFlag("dark-heresy", "fatigueCollapse");
+        if (getLegacyFlag(actor, "fatigueCollapse")) {
+            await unsetLegacyFlag(actor, "fatigueCollapse");
         }
     }
 }
@@ -16012,8 +16122,8 @@ async function rollOverVehicleMovement(combat) {
     const updates = [];
     for (const c of combat.combatants) {
         if (c.actor?.type !== "vehicle" || !c.token) continue;
-        const moved = Number(c.token.getFlag("dark-heresy", "movedThisRound")) || 0;
-        await c.actor.setFlag("dark-heresy", "movedLastRound", moved);
+        const moved = Number(getLegacyFlag(c.token, "movedThisRound")) || 0;
+        await setLegacyFlag(c.actor, "movedLastRound", moved);
         if (moved) updates.push({ _id: c.token.id, "flags.dark-heresy.movedThisRound": 0 });
     }
     if (updates.length) await combat.scene?.updateEmbeddedDocuments("Token", updates);
@@ -17498,104 +17608,104 @@ const DH_STATUS_EFFECTS = [
     {
         id: "bleeding",
         name: "CONDITION.BLEEDING",
-        img: "systems/dark-heresy/assets/icons/conditions/bleeding-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/bleeding-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/bleeding-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/bleeding-major.svg",
         statuses: ["bleeding"]
     },
     {
         id: "blinded",
         name: "CONDITION.BLINDED",
-        img: "systems/dark-heresy/assets/icons/conditions/blinded.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/blinded.svg",
         statuses: ["blinded"]
     },
     {
         id: "deafened",
         name: "CONDITION.DEAFEND",
-        img: "systems/dark-heresy/assets/icons/conditions/deafened.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/deafened.svg",
         statuses: ["deafened"]
     },
     {
         id: "fear",
         name: "CONDITION.FEAR",
-        img: "systems/dark-heresy/assets/icons/conditions/frightened-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/frightened-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/frightened-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/frightened-major.svg",
         statuses: ["fear"]
     },
     {
         id: "fire",
         name: "CONDITION.FIRE",
-        img: "systems/dark-heresy/assets/icons/conditions/ablaze-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/ablaze-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/ablaze-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/ablaze-major.svg",
         statuses: ["fire"]
     },
     {
         id: "grappled",
         name: "CONDITION.GRAPPLED",
-        img: "systems/dark-heresy/assets/icons/conditions/restrained-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/restrained-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/restrained-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/restrained-major.svg",
         statuses: ["grappled"]
     },
     {
         id: "hidden",
         name: "CONDITION.HIDDEN",
-        img: "systems/dark-heresy/assets/icons/conditions/hidden.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/hidden.svg",
         statuses: ["hidden"]
     },
     {
         id: "pinned",
         name: "CONDITION.PINNED",
-        img: "systems/dark-heresy/assets/icons/conditions/pinned.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/pinned.svg",
         statuses: ["pinned"]
     },
     {
         id: "poisond",
         name: "CONDITION.POISONED",
-        img: "systems/dark-heresy/assets/icons/conditions/poisoned-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/poisoned-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/poisoned-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/poisoned-major.svg",
         statuses: ["poisond"]
     },
     {
         id: "prone",
         name: "CONDITION.PRONE",
-        img: "systems/dark-heresy/assets/icons/conditions/prone.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/prone.svg",
         statuses: ["prone"]
     },
     {
         id: "stunned",
         name: "CONDITION.STUNNED",
-        img: "systems/dark-heresy/assets/icons/conditions/stunned-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/stunned-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/stunned-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/stunned-major.svg",
         statuses: ["stunned"]
     },
     {
         id: "fatigued",
         name: "CONDITION.FATIGUED",
-        img: "systems/dark-heresy/assets/icons/conditions/fatigued-minor.svg",
-        imgMajor: "systems/dark-heresy/assets/icons/conditions/fatigued-major.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/fatigued-minor.svg",
+        imgMajor: "systems/apex-heresy-ru/assets/icons/conditions/fatigued-major.svg",
         statuses: ["fatigued"]
     },
     {
         id: "suffocating",
         name: "CONDITION.SUFFOCATING",
-        img: "systems/dark-heresy/assets/icons/conditions/fatigued-minor.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/fatigued-minor.svg",
         statuses: ["suffocating"]
     },
     {
         id: "vacuum",
         name: "CONDITION.VACUUM",
-        img: "systems/dark-heresy/assets/icons/conditions/ablaze-minor.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/ablaze-minor.svg",
         statuses: ["vacuum"]
     },
     {
         id: "unconscious",
         name: "CONDITION.UNCONSCIOUS",
-        img: "systems/dark-heresy/assets/icons/conditions/unconscious.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/unconscious.svg",
         statuses: ["unconscious"]
     },
     {
         id: "dead",
         name: "EFFECT.StatusDead", // Foundry Default Text Key
-        img: "systems/dark-heresy/assets/icons/conditions/dead.svg",
+        img: "systems/apex-heresy-ru/assets/icons/conditions/dead.svg",
         statuses: ["dead"]
     }
 ];
@@ -17643,10 +17753,11 @@ function updateTokenHordeLabel(token) {
 }
 
 Hooks.once("init", async function() {
+    registerDamageSettings();
     // Load template.json for accessing skill specialities
     let templateData = {};
     try {
-        const response = await fetch("systems/dark-heresy/template.json");
+        const response = await fetch("systems/apex-heresy-ru/template.json");
         templateData = await response.json();
     } catch (e) {
         console.warn("Dark Heresy: Could not load template.json", e);
@@ -17666,40 +17777,40 @@ Hooks.once("init", async function() {
     
     // Register default icons for actors
     CONFIG.Actor.defaultIcons = CONFIG.Actor.defaultIcons || {};
-    CONFIG.Actor.defaultIcons.acolyte = "systems/dark-heresy/assets/tokens/unknown.webp";
-    CONFIG.Actor.defaultIcons.heretic = "systems/dark-heresy/assets/tokens/unknown.webp";
-    CONFIG.Actor.defaultIcons.npc = "systems/dark-heresy/assets/tokens/unknown.webp";
-    CONFIG.Actor.defaultIcons.vehicle = "systems/dark-heresy/assets/icons/vehicle.svg";
-    CONFIG.Actor.defaultIcons.voidship = "systems/dark-heresy/assets/icons/ship.svg";
+    CONFIG.Actor.defaultIcons.acolyte = "systems/apex-heresy-ru/assets/tokens/unknown.webp";
+    CONFIG.Actor.defaultIcons.heretic = "systems/apex-heresy-ru/assets/tokens/unknown.webp";
+    CONFIG.Actor.defaultIcons.npc = "systems/apex-heresy-ru/assets/tokens/unknown.webp";
+    CONFIG.Actor.defaultIcons.vehicle = "systems/apex-heresy-ru/assets/icons/vehicle.svg";
+    CONFIG.Actor.defaultIcons.voidship = "systems/apex-heresy-ru/assets/icons/ship.svg";
     
     // Token bar attributes come from primaryTokenAttribute/secondaryTokenAttribute in system.json.
     // CONFIG.Token.attributeBars and CONFIG.Token.defaults do not exist in v14.
 
     // Register default icons for items
     CONFIG.Item.defaultIcons = CONFIG.Item.defaultIcons || {};
-    CONFIG.Item.defaultIcons.weapon = "systems/dark-heresy/assets/icons/armoury/melee_weapons/sword.webp";
-    CONFIG.Item.defaultIcons.ammunition = "systems/dark-heresy/assets/icons/armoury/ammunition/standard_ammo.webp";
-    CONFIG.Item.defaultIcons.weaponModification = "systems/dark-heresy/assets/icons/armoury/modifications/modification.webp";
-    CONFIG.Item.defaultIcons.armour = "systems/dark-heresy/assets/icons/armoury/protective_gear/full_armor.webp";
-    CONFIG.Item.defaultIcons.forceField = "systems/dark-heresy/assets/icons/armoury/protective_gear/force_field.webp";
-    CONFIG.Item.defaultIcons.cybernetic = "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp";
-    CONFIG.Item.defaultIcons.drug = "systems/dark-heresy/assets/icons/armoury/drugs_and_consumables/medicine.webp";
-    CONFIG.Item.defaultIcons.gear = "systems/dark-heresy/assets/icons/armoury/misc/box.webp";
-    CONFIG.Item.defaultIcons.tool = "systems/dark-heresy/assets/icons/armoury/tools_and_gear/combi-tool.webp";
-    CONFIG.Item.defaultIcons.criticalInjury = "systems/dark-heresy/assets/icons/body_parts/blood.webp";
-    CONFIG.Item.defaultIcons.malignancy = "systems/dark-heresy/assets/icons/misc/chaos.webp";
-    CONFIG.Item.defaultIcons.mentalDisorder = "systems/dark-heresy/assets/icons/conditions/mentally_ill.webp";
-    CONFIG.Item.defaultIcons.mutation = "systems/dark-heresy/assets/icons/mutations/scales.webp";
-    CONFIG.Item.defaultIcons.psychicPower = "systems/dark-heresy/assets/icons/psyhic_powers/bolt.webp";
-    CONFIG.Item.defaultIcons.talent = "systems/dark-heresy/assets/icons/aptitudes/general.webp";
-    CONFIG.Item.defaultIcons.specialAbility = "systems/dark-heresy/assets/icons/misc/aquila.webp";
-    CONFIG.Item.defaultIcons.trait = "systems/dark-heresy/assets/icons/aptitudes/toughness.webp";
-    CONFIG.Item.defaultIcons.vehicleWeapon = "systems/dark-heresy/assets/icons/armoury/ranged_weapons/heavy.webp";
-    CONFIG.Item.defaultIcons.vehicleTrait = "systems/dark-heresy/assets/icons/aptitudes/toughness.webp";
-    CONFIG.Item.defaultIcons.shipWeapon = "systems/dark-heresy/assets/icons/armoury/ranged_weapons/heavy.webp";
-    CONFIG.Item.defaultIcons.aptitude = "systems/dark-heresy/assets/icons/aptitudes/general.webp";
-    CONFIG.Item.defaultIcons.race = "systems/dark-heresy/assets/icons/misc/inquisition.webp";
-    CONFIG.Item.defaultIcons.origin = "systems/dark-heresy/assets/icons/misc/inquisition.webp";
+    CONFIG.Item.defaultIcons.weapon = "systems/apex-heresy-ru/assets/icons/armoury/melee_weapons/sword.webp";
+    CONFIG.Item.defaultIcons.ammunition = "systems/apex-heresy-ru/assets/icons/armoury/ammunition/standard_ammo.webp";
+    CONFIG.Item.defaultIcons.weaponModification = "systems/apex-heresy-ru/assets/icons/armoury/modifications/modification.webp";
+    CONFIG.Item.defaultIcons.armour = "systems/apex-heresy-ru/assets/icons/armoury/protective_gear/full_armor.webp";
+    CONFIG.Item.defaultIcons.forceField = "systems/apex-heresy-ru/assets/icons/armoury/protective_gear/force_field.webp";
+    CONFIG.Item.defaultIcons.cybernetic = "systems/apex-heresy-ru/assets/icons/armoury/cybernetics/cybernetics.webp";
+    CONFIG.Item.defaultIcons.drug = "systems/apex-heresy-ru/assets/icons/armoury/drugs_and_consumables/medicine.webp";
+    CONFIG.Item.defaultIcons.gear = "systems/apex-heresy-ru/assets/icons/armoury/misc/box.webp";
+    CONFIG.Item.defaultIcons.tool = "systems/apex-heresy-ru/assets/icons/armoury/tools_and_gear/combi-tool.webp";
+    CONFIG.Item.defaultIcons.criticalInjury = "systems/apex-heresy-ru/assets/icons/body_parts/blood.webp";
+    CONFIG.Item.defaultIcons.malignancy = "systems/apex-heresy-ru/assets/icons/misc/chaos.webp";
+    CONFIG.Item.defaultIcons.mentalDisorder = "systems/apex-heresy-ru/assets/icons/conditions/mentally_ill.webp";
+    CONFIG.Item.defaultIcons.mutation = "systems/apex-heresy-ru/assets/icons/mutations/scales.webp";
+    CONFIG.Item.defaultIcons.psychicPower = "systems/apex-heresy-ru/assets/icons/psyhic_powers/bolt.webp";
+    CONFIG.Item.defaultIcons.talent = "systems/apex-heresy-ru/assets/icons/aptitudes/general.webp";
+    CONFIG.Item.defaultIcons.specialAbility = "systems/apex-heresy-ru/assets/icons/misc/aquila.webp";
+    CONFIG.Item.defaultIcons.trait = "systems/apex-heresy-ru/assets/icons/aptitudes/toughness.webp";
+    CONFIG.Item.defaultIcons.vehicleWeapon = "systems/apex-heresy-ru/assets/icons/armoury/ranged_weapons/heavy.webp";
+    CONFIG.Item.defaultIcons.vehicleTrait = "systems/apex-heresy-ru/assets/icons/aptitudes/toughness.webp";
+    CONFIG.Item.defaultIcons.shipWeapon = "systems/apex-heresy-ru/assets/icons/armoury/ranged_weapons/heavy.webp";
+    CONFIG.Item.defaultIcons.aptitude = "systems/apex-heresy-ru/assets/icons/aptitudes/general.webp";
+    CONFIG.Item.defaultIcons.race = "systems/apex-heresy-ru/assets/icons/misc/inquisition.webp";
+    CONFIG.Item.defaultIcons.origin = "systems/apex-heresy-ru/assets/icons/misc/inquisition.webp";
     
     // Register item types from template.json
     if (templateData?.Item?.types) {
@@ -17828,10 +17939,10 @@ Hooks.once("init", async function() {
 
 Hooks.once("ready", async function() {
     applyAtmosphereSetting(game.settings.get("dark-heresy", "atmosphericEffects"));
-    game.darkHeresy.ready = migrateWorld();
+    game.darkHeresy.ready = migratePackageReferences(game).then(() => migrateWorld());
     await game.darkHeresy.ready;
 
-    game.socket.on("system.dark-heresy", data => {
+    game.socket.on("system.apex-heresy-ru", data => {
         if (data?.type === "autoDamage") {
             applyAutoDamageFromSocket(data.payload).catch(error => {
                 console.error("dark-heresy | Damage operation", error);
@@ -17848,7 +17959,7 @@ Hooks.once("ready", async function() {
         }
     });
     CONFIG.ChatMessage.documentClass.prototype.getRollData = function() {
-        return this.getFlag("dark-heresy", "rollData");
+        return getLegacyFlag(this, "rollData");
     };
 
 
@@ -17888,7 +17999,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changes) => {
     const metres = Math.hypot(dx, dy) / grid.size * (grid.distance || 1);
     if (metres <= 0) return;
 
-    const already = Number(tokenDoc.getFlag("dark-heresy", "movedThisRound")) || 0;
+    const already = Number(getLegacyFlag(tokenDoc, "movedThisRound")) || 0;
     foundry.utils.setProperty(changes, "flags.dark-heresy.movedThisRound", already + metres);
 });
 
@@ -17916,7 +18027,7 @@ Hooks.on("updateActor", async (actor, changes, options, userId) => {
     if (!crossed.length) return;
     const inCombat = game.combats.some(c => c.started && c.combatants.some(cb => cb.actor?.id === actor.id));
     if (inCombat) {
-        await actor.setFlag("dark-heresy", "mutinyPending", true);
+        await setLegacyFlag(actor, "mutinyPending", true);
         return;
     }
     await _postMutinyWarning(actor, crossed);
@@ -17929,8 +18040,8 @@ Hooks.on("deleteCombat", async combat => {
         const ship = cb.actor;
         if (ship?.type !== "voidship" || seen.has(ship.id)) continue;
         seen.add(ship.id);
-        if (!ship.getFlag("dark-heresy", "mutinyPending")) continue;
-        await ship.unsetFlag("dark-heresy", "mutinyPending");
+        if (!getLegacyFlag(ship, "mutinyPending")) continue;
+        await unsetLegacyFlag(ship, "mutinyPending");
         await _postMutinyWarning(ship, null);
     }
 });
@@ -18083,15 +18194,15 @@ Hooks.on("updateActor", async (actor, changes) => {
  */
 async function checkGiftThresholds(actor) {
     const points = Number(actor.corruption) || 0;
-    const legionnaire = !!actor.getFlag("dark-heresy", "spaceMarine");
+    const legionnaire = !!getLegacyFlag(actor, "spaceMarine");
     const thresholds = legionnaire ? Dh.giftThresholds.legionnaire : Dh.giftThresholds.disciple;
     const reached = thresholds.filter(t => points >= t);
     if (!reached.length) return;
 
     const highest = reached[reached.length - 1];
-    const seen = Number(actor.getFlag("dark-heresy", "giftThreshold")) || 0;
+    const seen = Number(getLegacyFlag(actor, "giftThreshold")) || 0;
     if (highest <= seen) return;
-    await actor.setFlag("dark-heresy", "giftThreshold", highest);
+    await setLegacyFlag(actor, "giftThreshold", highest);
 
     await ChatMessage.create({
         user: game.user.id,
@@ -18109,9 +18220,9 @@ async function checkGiftThresholds(actor) {
 
 async function checkHereticAllegiance(actor) {
     const decade = Math.floor((Number(actor.corruption) || 0) / 10);
-    const seen = Number(actor.getFlag("dark-heresy", "allegianceDecade")) || 0;
+    const seen = Number(getLegacyFlag(actor, "allegianceDecade")) || 0;
     if (decade <= seen) return;
-    await actor.setFlag("dark-heresy", "allegianceDecade", decade);
+    await setLegacyFlag(actor, "allegianceDecade", decade);
 
     const leader = actor.system.alignmentLeader || "undivided";
     const patron = actor.system.patron || "undivided";
@@ -18227,7 +18338,7 @@ function _getTargetSizeModifier(rollData) {
     // оно в size-rules.mjs, где его видно целиком.
     return targetSizeModifier({
         size: token.actor.system?.size,
-        spaceMarine: !!token.actor.getFlag("dark-heresy", "spaceMarine"),
+        spaceMarine: !!getLegacyFlag(token.actor, "spaceMarine"),
         armour: armourSizeModifier(token.actor.items ?? [])
     });
 }
@@ -18249,7 +18360,7 @@ function _targetSizeLabel(rollData) {
 
     const parts = describeTargetSize({
         size: actor.system?.size,
-        spaceMarine: !!actor.getFlag("dark-heresy", "spaceMarine"),
+        spaceMarine: !!getLegacyFlag(actor, "spaceMarine"),
         armour: armourSizeModifier(actor.items ?? [])
     });
     const words = [game.i18n.localize(`SIZE_STEP.${parts.sizeName.toUpperCase()}`)];
@@ -18440,8 +18551,8 @@ Hooks.on("renderDarkHeresySheet", (sheet, html, data) => {
 async function _onFatigueEffectExpired(effect) {
     if (game.user !== game.users.activeGM || !effect.statuses?.has("unconscious")) return;
     const actor = effect.actor ?? effect.parent;
-    if (!actor?.getFlag("dark-heresy", "fatigueCollapse")) return;
-    await actor.unsetFlag("dark-heresy", "fatigueCollapse");
+    if (!getLegacyFlag(actor, "fatigueCollapse")) return;
+    await unsetLegacyFlag(actor, "fatigueCollapse");
     await actor.update({"system.fatigue.value": Number(actor.system.fatigue?.max) || 0});
 }
 
@@ -18574,7 +18685,7 @@ function _resolvePendingCard(button) {
     const messageId = button?.closest?.("[data-message-id]")?.dataset?.messageId;
     if (!messageId) return;
     if (game.user.isGM) _clearPendingRollButtons(messageId);
-    else game.socket.emit("system.dark-heresy", { type: "resolvePendingRoll", payload: { messageId } });
+    else game.socket.emit("system.apex-heresy-ru", { type: "resolvePendingRoll", payload: { messageId } });
 }
 
 /**
@@ -18628,7 +18739,7 @@ async function onExtinguishFireClick(event) {
 function suffersBloodLoss(actor) {
     const rules = Dh.rulesetFor(actor).bloodLoss;
     if (!rules?.spaceMarineImmune) return true;
-    return !actor?.getFlag?.("dark-heresy", "spaceMarine");
+    return !getLegacyFlag(actor, "spaceMarine");
 }
 
 function bloodLossDeathThreshold(actor) {
@@ -18661,7 +18772,7 @@ async function onBloodLossRollClick(event) {
     const rollResult = deathRoll.total;
     const {isDead} = await resolveBloodLoss(actor, rollResult);
 
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/bleeding-effect.hbs", {
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/bleeding-effect.hbs", {
         actorName: actor.name,
         actorId: actor.id,
         tokenId: button.dataset.tokenId,
@@ -18764,7 +18875,7 @@ async function _applyFireEffect(actor, combatant) {
             ownerId: actor.id
     };
     
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/fire-effect.hbs", templateData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/fire-effect.hbs", templateData);
     
     await ChatMessage.create({
         content: html,
@@ -18888,7 +18999,7 @@ async function _postConditionCard(actor, combatant, titleKey, { figures = [], no
  * @param {object} combatant
  */
 async function _applyToxicEffect(actor, combatant) {
-    const pending = actor.getFlag("dark-heresy", "toxic");
+    const pending = getLegacyFlag(actor, "toxic");
     const value = Number(pending?.value) || 0;
     // Отметка без данных — состояние навесили руками; тогда разбирает стол.
     if (!value) {
@@ -18936,7 +19047,7 @@ async function _resolveToxicTest(actor, combatant, value) {
         // Ни броня, ни стойкость этот урон не снижают.
         taken = await _applyDirectDamage(actor, extra.total, true);
     }
-    await actor.unsetFlag("dark-heresy", "toxic");
+    await unsetLegacyFlag(actor, "toxic");
     if (actor.hasCondition("poisond")) await actor.removeCondition("poisond");
 
     await _postConditionCard(actor, combatant, "CONDITION.POISONED", {
@@ -18957,7 +19068,7 @@ async function onToxicTestClick(event) {
     const actor = await _getActorFromOwnerId(button.dataset.actorId, button.dataset.tokenId || null);
     if (!actor) return;
 
-    const value = Number(actor.getFlag("dark-heresy", "toxic")?.value) || 0;
+    const value = Number(getLegacyFlag(actor, "toxic")?.value) || 0;
     if (!value) return;
 
     button.disabled = true;
@@ -18967,8 +19078,8 @@ async function onToxicTestClick(event) {
 
 async function _applySuffocationEffect(actor, combatant) {
     const tb = _toughnessBonus(actor);
-    const held = (Number(actor.getFlag("dark-heresy", "suffocationRounds")) || 0) + 1;
-    await actor.setFlag("dark-heresy", "suffocationRounds", held);
+    const held = (Number(getLegacyFlag(actor, "suffocationRounds")) || 0) + 1;
+    await setLegacyFlag(actor, "suffocationRounds", held);
 
     const limit = Math.max(tb * 2, 1);
     const figures = [];
@@ -18977,8 +19088,8 @@ async function _applySuffocationEffect(actor, combatant) {
     if (actor.hasCondition("unconscious")) {
         // Без сознания и без воздуха — счёт идёт до смерти.
         const deadline = Math.max(tb, 1);
-        const dying = (Number(actor.getFlag("dark-heresy", "suffocationDying")) || 0) + 1;
-        await actor.setFlag("dark-heresy", "suffocationDying", dying);
+        const dying = (Number(getLegacyFlag(actor, "suffocationDying")) || 0) + 1;
+        await setLegacyFlag(actor, "suffocationDying", dying);
         figures.push({ n: dying + " / " + deadline, cap: game.i18n.localize("EFFECTS.SUFFOCATION_DYING"), lead: true });
         if (dying >= deadline && !actor.hasCondition("dead")) {
             await actor.addCondition("dead", { type: "major" });
@@ -19022,8 +19133,8 @@ async function _applySuffocationEffect(actor, combatant) {
  */
 async function _applyVacuumEffect(actor, combatant) {
     const tb = _toughnessBonus(actor);
-    const exposed = (Number(actor.getFlag("dark-heresy", "vacuumRounds")) || 0) + 1;
-    await actor.setFlag("dark-heresy", "vacuumRounds", exposed);
+    const exposed = (Number(getLegacyFlag(actor, "vacuumRounds")) || 0) + 1;
+    await setLegacyFlag(actor, "vacuumRounds", exposed);
 
     if (exposed <= tb) {
         await _postConditionCard(actor, combatant, "CONDITION.VACUUM", {
@@ -19309,7 +19420,7 @@ async function _applyBleedingEffect(actor, combatant) {
             ownerId: actor.id
     };
 
-    const html = await foundry.applications.handlebars.renderTemplate("systems/dark-heresy/template/chat/bleeding-effect.hbs", templateData);
+    const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/chat/bleeding-effect.hbs", templateData);
 
     await ChatMessage.create({
         content: html,
@@ -19400,7 +19511,7 @@ async function onApplyRollClick(event) {
  */
 function _addApplyRollButtons(message, html) {
     if (!game.user?.isGM && !message.isOwner) return;
-    if (message.getFlag?.("dark-heresy", "rollData")) return;
+    if (getLegacyFlag(message, "rollData")) return;
     if (html.querySelector(".dh-apply-roll")) return;
 
     const total = Number(message.rolls?.[0]?.total);
@@ -19421,7 +19532,7 @@ function _addApplyRollButtons(message, html) {
  */
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
     _addApplyRollButtons(message, html);
-    const rollData = message.getFlag?.("dark-heresy", "rollData");
+    const rollData = getLegacyFlag(message, "rollData");
 
     // Карточка пустотного выстрела своя, к rollData отношения не имеет.
     _activateShipChatListeners(html, message);
@@ -19453,7 +19564,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
 Hooks.once("ready", function() {
     if (!game.modules.get("healthEstimate")?.active) return;
-    if (game.system.id !== "dark-heresy") return;
+    if (game.system.id !== "apex-heresy-ru") return;
     
     // Wait a bit for Health Estimate to fully initialize
     setTimeout(() => {
@@ -19500,7 +19611,7 @@ Hooks.once("ready", function() {
                     // Create a proxy that intercepts fraction calls
                     const proxyProvider = new Proxy(originalProvider, {
                         get: function(target, prop) {
-                            if (prop === 'fraction' && game.system.id === "dark-heresy") {
+                            if (prop === 'fraction' && game.system.id === "apex-heresy-ru") {
                                 return function(token) {
                                     // Ensure attributes.hp exists for Health Estimate's internal checks
                                     if (token?.actor) {
@@ -19535,7 +19646,7 @@ Hooks.once("ready", function() {
                     
                     game.healthEstimate.getFraction = function(token) {
                         // Use our provider for Dark Heresy system
-                        if (game.system.id === "dark-heresy" && token?.actor) {
+                        if (game.system.id === "apex-heresy-ru" && token?.actor) {
                             // Ensure attributes.hp exists for Health Estimate's internal checks
                             const actor = token.actor;
                             if (actor.system && !actor.system.attributes) {

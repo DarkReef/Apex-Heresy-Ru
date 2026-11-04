@@ -1,8 +1,8 @@
 {
-  "id": "dark-heresy",
+  "id": "apex-heresy-ru",
   "title": "Apex Heresy RU",
   "description": "Unofficial Foundry VTT system for the Warhammer 40,000 roleplaying games: Dark Heresy 2nd Edition, Black Crusade, Only War, Rogue Trader and Deathwatch. Each book gets its own character sheet and its own rules.",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14.365"
@@ -27,7 +27,7 @@
       "banner": null,
       "path": "packs/black-crusade",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -39,7 +39,7 @@
       "banner": null,
       "path": "packs/dark-heresy",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -51,7 +51,7 @@
       "banner": null,
       "path": "packs/rogue-trader",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -63,7 +63,7 @@
       "banner": null,
       "path": "packs/only-war",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -75,7 +75,7 @@
       "banner": null,
       "path": "packs/deathwatch",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -87,7 +87,7 @@
       "banner": null,
       "path": "packs/origins",
       "type": "Item",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -99,7 +99,7 @@
       "banner": null,
       "path": "packs/bc-tables",
       "type": "RollTable",
-      "system": "dark-heresy",
+      "system": "apex-heresy-ru",
       "ownership": {
         "PLAYER": "OBSERVER",
         "ASSISTANT": "OWNER"
@@ -292,7 +292,7 @@
   "changelog": "https://github.com/DarkReef/Apex-Heresy-Ru/releases",
   "socket": true,
   "manifest": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/latest/download/system.json",
-  "download": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/download/v1.5.5-ru/apex-heresy-ru.zip",
+  "download": "https://github.com/DarkReef/Apex-Heresy-Ru/releases/download/v1.6.0-ru/apex-heresy-ru.zip",
   "license": "LICENSE",
   "relationships": {
     "recommends": [

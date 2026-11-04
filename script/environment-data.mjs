@@ -1,3 +1,4 @@
+import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from "./package-identity.mjs";
 import {environmentText as t} from "./localization/environment-text.mjs";
 // script/environment-data.mjs
 // ════════════════════════════════════════════════════════════════════════
@@ -252,10 +253,10 @@ export function normalizeEnv(raw) {
     note:        typeof raw.note === "string" ? raw.note : ""
   };
 }
-export function readEnv(scene) { return normalizeEnv(scene?.getFlag?.(ENV_SCOPE, ENV_FLAG)); }
+export function readEnv(scene) { return normalizeEnv(getLegacyFlag(scene, ENV_FLAG)); }
 export async function writeEnv(scene, env) {
   if (!scene || !game.user.isGM) return;
-  await scene.setFlag(ENV_SCOPE, ENV_FLAG, env);
+  await setLegacyFlag(scene, ENV_FLAG, env);
 }
 
 // Полный «вид» окружения — единый источник для окна и виджета. Принимает уже
@@ -284,13 +285,13 @@ export function envView(e) {
 // групп нет, поэтому источник всегда один — флаг самой сцены. Форма контейнера
 // сохранена: появится группировка сцен — меняется только этот блок.
 export function primaryGroupForScene() { return null; }
-export function envSceneHasOverride(scene) { return !!scene?.getFlag?.(ENV_SCOPE, ENV_FLAG); }
+export function envSceneHasOverride(scene) { return !!getLegacyFlag(scene, ENV_FLAG); }
 export function resolveEnvContainer(scene) {
   return {
     kind: "scene", id: scene?.id || "", label: scene?.name || "",
-    read:  () => normalizeEnv(scene?.getFlag?.(ENV_SCOPE, ENV_FLAG)),
-    write: (v) => scene?.setFlag?.(ENV_SCOPE, ENV_FLAG, v),
-    clear: () => scene?.unsetFlag?.(ENV_SCOPE, ENV_FLAG)
+    read:  () => normalizeEnv(getLegacyFlag(scene, ENV_FLAG)),
+    write: (v) => scene ? setLegacyFlag(scene, ENV_FLAG, v) : undefined,
+    clear: () => scene ? unsetLegacyFlag(scene, ENV_FLAG) : undefined
   };
 }
 export function readEnvForScene(scene) { return resolveEnvContainer(scene).read(); }

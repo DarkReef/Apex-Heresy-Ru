@@ -11,7 +11,7 @@
 
 import {openCharacterWizard} from "./wizard.mjs";
 
-const SOCKET = "system.dark-heresy";
+const SOCKET = "system.apex-heresy-ru";
 
 /** Тип листа по умолчанию. Книгу игрок называет уже в Мастере. */
 const DEFAULT_TYPE = "acolyte";

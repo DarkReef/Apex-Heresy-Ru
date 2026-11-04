@@ -1,5 +1,10 @@
 /** System settings remain separate from optional module settings. */
 export function registerSystemSettings() {
+    // A storage namespace is not a package ID. Retain it to preserve existing
+    // world/client preferences, including the selected ruleset, without copying.
+    game.settings.register("dark-heresy", "packageReferenceMigrationVersion", {
+        scope: "world", config: false, default: 0, type: Number
+    });
     game.settings.register("dark-heresy", "worldSchemaVersion", {
         name: "UI.WORLD_VERSION",
         hint: "UI.WORLD_VERSION_HINT",

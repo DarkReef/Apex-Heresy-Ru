@@ -1,3 +1,4 @@
+import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from "../package-identity.mjs";
 import {characteristicTerm} from "../localization/field-terms.mjs";
 import {ruleName, matchesRuleName} from "../localization/rule-name.mjs";
 // ════════════════════════════════════════════════════════════════════════
@@ -53,7 +54,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     static PARTS = {
         body: {
-            template: "systems/dark-heresy/template/apps/character-wizard.hbs",
+            template: "systems/apex-heresy-ru/template/apps/character-wizard.hbs",
             root: true,
             scrollable: [".wizard-step-body"]
         }
@@ -478,9 +479,9 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // или другими значениями. Само закрепление ставит значения, а не прибавляет,
         // так что повторное не наслаивается.
         if (step?.kind === "characteristics") {
-            await this.actor.unsetFlag(GRANT_FLAG_SCOPE, "creationRolls");
+            await unsetLegacyFlag(this.actor, "creationRolls");
             if (RULESET_DEFS[this.ruleset].vitalsStage === "characteristics")
-                await this.actor.unsetFlag(GRANT_FLAG_SCOPE, "creationVitals");
+                await unsetLegacyFlag(this.actor, "creationVitals");
         }
         if (step?.kind === "divination") await this._revertDivination();
     }
@@ -494,7 +495,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     _carrierFor(step) {
         const tag = this._tagFor(step);
         return this.actor.items.find(item =>
-            item.type === "origin" && item.getFlag(GRANT_FLAG_SCOPE, GRANT_FLAG_KEY) === tag);
+            item.type === "origin" && getLegacyFlag(item, GRANT_FLAG_KEY) === tag);
     }
 
     /** Бонус Интеллекта — от него зависит, сколько знаний просит выбор «any N». */
@@ -531,7 +532,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     /** Происхождения пака для одной стадии текущей книги, в книжном порядке. */
     async _originsFor(stage) {
-        const pack = game.packs.get("dark-heresy.origins");
+        const pack = game.packs.get("apex-heresy-ru.origins");
         const index = pack ? await pack.getIndex({fields: ["system.ruleset", "system.stage", "system.order",
                                                           "system.requires", "system.key"]}) : {contents: []};
         const fromPack = index.contents
@@ -643,7 +644,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // Добавки к элиткам запоминаются на носителе: элитку могут взять и позже, в
         // магазине, а санкция фона к ней всё равно относится.
         applied.eliteRiders = plan.eliteRiders ?? [];
-        await carrier.setFlag(GRANT_FLAG_SCOPE, "applied", applied);
+        await setLegacyFlag(carrier, "applied", applied);
 
         // Элитка даром (Mystic начинает псайкером, стр. 70). Фон закреплён раньше
         // роли, так что его санкция к этому моменту уже лежит на своём носителе.
@@ -653,12 +654,12 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             const record = await this._applyElite(key, {free: true, carrier});
             if (record) elite.push(record);
         }
-        if (elite.length) await carrier.setFlag(GRANT_FLAG_SCOPE, "elite", elite);
+        if (elite.length) await setLegacyFlag(carrier, "elite", elite);
 
         // Десантник Хаоса помечается флагом системы: от него зависят и Чёрный Панцирь
         // (стрелку не достаётся бонус за громадную цель), и пороги Даров богов —
         // легионер получает их реже ученика (Black Crusade, стр. 291).
-        if (source.system.rules?.spaceMarine) await actor.setFlag(GRANT_FLAG_SCOPE, "spaceMarine", true);
+        if (source.system.rules?.spaceMarine) await setLegacyFlag(actor, "spaceMarine", true);
 
         // Особая способность происхождения: санкционированный псайкер Only War начинает
         // с рейтингом пси и Порчей (стр. 95).
@@ -709,7 +710,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async _applyPsykerRules(psyker, carrier) {
         const actor = this.actor;
-        if (carrier.getFlag(GRANT_FLAG_SCOPE, "psyker")) return;
+        if (getLegacyFlag(carrier, "psyker")) return;
         const record = {rating: Number(actor.system.psy?.rating) || 0, corruption: 0};
         const update = {};
         if (psyker.psyRating) update["system.psy.rating"] = Math.max(record.rating, psyker.psyRating);
@@ -724,7 +725,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
                 {name: carrier.name, total: roll.total}));
         }
         if (Object.keys(update).length) await actor.update(update);
-        await carrier.setFlag(GRANT_FLAG_SCOPE, "psyker", record);
+        await setLegacyFlag(carrier, "psyker", record);
     }
 
     /** Снять закреплённый шаг, чтобы игрок мог выбрать иначе. */
@@ -737,10 +738,10 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // Бонус Влияния мог измениться вместе с происхождением — выбор снаряжения тоже заново.
         await this._clearEquipment();
         // Выданная даром элитка правила не только предметами: рейтинг, Порча, анкета.
-        for (const record of [...(carrier.getFlag(GRANT_FLAG_SCOPE, "elite") ?? [])].reverse())
+        for (const record of [...(getLegacyFlag(carrier, "elite") ?? [])].reverse())
             await this._revertElite(record);
 
-        const update = revertUpdate(actor, carrier.getFlag(GRANT_FLAG_SCOPE, "applied") ?? {});
+        const update = revertUpdate(actor, getLegacyFlag(carrier, "applied") ?? {});
         if (Object.keys(update).length) await actor.update(update);
 
         // Подпись в анкете снимается только если она всё ещё та, что мы вписали.
@@ -750,7 +751,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             await actor.update({[step.bioField]: ""});
 
         // Рейтинг пси и Порча, выданные этим шагом, тоже снимаются.
-        const psyker = carrier.getFlag(GRANT_FLAG_SCOPE, "psyker");
+        const psyker = getLegacyFlag(carrier, "psyker");
         if (psyker) {
             const back = {"system.psy.rating": psyker.rating};
             if (psyker.corruption)
@@ -760,10 +761,10 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
         // Раны и Судьба, брошенные на этом шаге, снимаются вместе с ним.
         if (RULESET_DEFS[this.ruleset].vitalsStage === step.stage)
-            await actor.unsetFlag(GRANT_FLAG_SCOPE, "creationVitals");
+            await unsetLegacyFlag(actor, "creationVitals");
 
         const granted = actor.items
-            .filter(item => item.getFlag(GRANT_FLAG_SCOPE, "grantedBy") === carrier.id)
+            .filter(item => getLegacyFlag(item, "grantedBy") === carrier.id)
             .map(item => item.id);
         await actor.deleteEmbeddedDocuments("Item", [carrier.id, ...granted]);
     }
@@ -773,7 +774,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     /** Добавки к элиткам со всех закреплённых происхождений. */
     _eliteRiders() {
         return this.actor.items.filter(item => item.type === "origin")
-            .flatMap(item => item.getFlag(GRANT_FLAG_SCOPE, "applied")?.eliteRiders ?? []);
+            .flatMap(item => getLegacyFlag(item, "applied")?.eliteRiders ?? []);
     }
 
     /**
@@ -790,7 +791,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             traits: actor.items.filter(item => item.type === "trait").map(item => ruleName(item))});
         if (!plan) return null;
         const flags = carrier
-            ? {[GRANT_FLAG_SCOPE]: {[GRANT_FLAG_KEY]: carrier.getFlag(GRANT_FLAG_SCOPE, GRANT_FLAG_KEY),
+            ? {[GRANT_FLAG_SCOPE]: {[GRANT_FLAG_KEY]: getLegacyFlag(carrier, GRANT_FLAG_KEY),
                                     grantedBy: carrier.id, elite: key}}
             : {[GRANT_FLAG_SCOPE]: {creationPurchase: true, elite: key}};
 
@@ -869,7 +870,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         }
         await this._ensureStartingExperience();
         const record = await this._applyElite(key);
-        if (record) await this.actor.setFlag(GRANT_FLAG_SCOPE, "creationPurchases", [...this._purchases, record]);
+        if (record) await setLegacyFlag(this.actor, "creationPurchases", [...this._purchases, record]);
     }
 
     // ── Повторные склонности ─────────────────────────────────────────────
@@ -882,10 +883,10 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         const records = [];
         for (const item of this.actor.items) {
             if (item.type !== "origin") continue;
-            const applied = item.getFlag(GRANT_FLAG_SCOPE, "applied") ?? {};
+            const applied = getLegacyFlag(item, "applied") ?? {};
             records.push({source: `origin:${item.id}`, label: item.name,
                           duplicateAptitudes: applied.duplicateAptitudes, replacedAptitudes: applied.replacedAptitudes});
-            (item.getFlag(GRANT_FLAG_SCOPE, "elite") ?? []).forEach((record, index) =>
+            (getLegacyFlag(item, "elite") ?? []).forEach((record, index) =>
                 records.push({source: `elite:${item.id}:${index}`, label: record.name,
                               duplicateAptitudes: record.duplicateAptitudes, replacedAptitudes: record.replacedAptitudes}));
         }
@@ -908,20 +909,20 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             const record = purchases[Number(id)];
             if (!record) return;
             record.replacedAptitudes = edit(record.replacedAptitudes ?? []);
-            await actor.setFlag(GRANT_FLAG_SCOPE, "creationPurchases", purchases);
+            await setLegacyFlag(actor, "creationPurchases", purchases);
             return;
         }
         const carrier = actor.items.get(id);
         if (!carrier) return;
         if (kind === "origin") {
-            const applied = foundry.utils.deepClone(carrier.getFlag(GRANT_FLAG_SCOPE, "applied") ?? {});
+            const applied = foundry.utils.deepClone(getLegacyFlag(carrier, "applied") ?? {});
             applied.replacedAptitudes = edit(applied.replacedAptitudes ?? []);
-            await carrier.setFlag(GRANT_FLAG_SCOPE, "applied", applied);
+            await setLegacyFlag(carrier, "applied", applied);
         } else if (kind === "elite") {
-            const list = foundry.utils.deepClone(carrier.getFlag(GRANT_FLAG_SCOPE, "elite") ?? []);
+            const list = foundry.utils.deepClone(getLegacyFlag(carrier, "elite") ?? []);
             if (!list[Number(index)]) return;
             list[Number(index)].replacedAptitudes = edit(list[Number(index)].replacedAptitudes ?? []);
-            await carrier.setFlag(GRANT_FLAG_SCOPE, "elite", list);
+            await setLegacyFlag(carrier, "elite", list);
         }
     }
 
@@ -932,7 +933,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         const [kind, id] = source.split(":");
         const carrier = kind === "purchase" ? null : actor.items.get(id);
         const flags = carrier
-            ? {[GRANT_FLAG_SCOPE]: {[GRANT_FLAG_KEY]: carrier.getFlag(GRANT_FLAG_SCOPE, GRANT_FLAG_KEY), grantedBy: carrier.id}}
+            ? {[GRANT_FLAG_SCOPE]: {[GRANT_FLAG_KEY]: getLegacyFlag(carrier, GRANT_FLAG_KEY), grantedBy: carrier.id}}
             : {[GRANT_FLAG_SCOPE]: {creationPurchase: true}};
         const [item] = await actor.createEmbeddedDocuments("Item",
             [{name: chosen, type: "aptitude", img: "icons/svg/book.svg", system: {}, flags}]);
@@ -1147,7 +1148,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     /** Компоненты сборки из пака происхождений. */
     async _regimentComponents() {
         if (this._components) return this._components;
-        const pack = game.packs.get("dark-heresy.origins");
+        const pack = game.packs.get("apex-heresy-ru.origins");
         if (!pack) return (this._components = []);
         const stages = ["regimentOrigin", "regimentCommander", "regimentType", "doctrine", "equipmentDoctrine"];
         const documents = await pack.getDocuments();
@@ -1225,7 +1226,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         const name = this._builder.name.trim();
         if (!name) { ui.notifications?.warn(game.i18n.localize("WIZARD.REGIMENT_NAME_NEEDED")); return; }
         try {
-            const item = await Item.create({name, type: "origin", img: "systems/dark-heresy/assets/icons/misc/inquisition.webp",
+            const item = await Item.create({name, type: "origin", img: "systems/apex-heresy-ru/assets/icons/misc/inquisition.webp",
                                             system: {...system, key: name.toLowerCase().replace(/[^a-z0-9]+/g, "")}});
             (this._selectedOrigin ??= {})[this.step.id] = item.uuid;
             (this._selectedSource ??= {})[this.step.id] = item.toObject().system;
@@ -1303,7 +1304,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         let total = 0;
         for (const item of this.actor.items) {
             if (item.type !== "origin") continue;
-            const applied = item.getFlag(GRANT_FLAG_SCOPE, "applied") ?? {};
+            const applied = getLegacyFlag(item, "applied") ?? {};
             total += applied.generationModifiers?.[key] ?? applied.characteristics?.[key] ?? 0;
         }
         return total;
@@ -1343,7 +1344,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     /** Контекст шага характеристик: способ, формулы и уже брошенные значения. */
     _characteristicsStepContext() {
-        const rolled = this.actor.getFlag(GRANT_FLAG_SCOPE, "creationRolls");
+        const rolled = getLegacyFlag(this.actor, "creationRolls");
         const profile = RULESET_DEFS[this.ruleset];
         const method = this._charMethod ?? rolled?.method ?? profile.characteristicMethods[0];
         const base = this._characteristicBase();
@@ -1355,7 +1356,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         const rerolls = profile.characteristicRerolls ?? 0;
         // Благословение Императора бросается вместе с Судьбой, а её книга может отложить
         // до другого шага — поэтому оно лежит в своём флаге.
-        const blessing = this.actor.getFlag(GRANT_FLAG_SCOPE, "creationVitals")?.blessing ?? null;
+        const blessing = getLegacyFlag(this.actor, "creationVitals")?.blessing ?? null;
         return {
             charRerolls: rerolls,
             charRerollsLeft: rolled ? 0 : rerolls - (this._charRerollsUsed ?? 0),
@@ -1403,7 +1404,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async _commitCharacteristicsStep() {
         const actor = this.actor;
-        if (actor.getFlag(GRANT_FLAG_SCOPE, "creationRolls")) return true;
+        if (getLegacyFlag(actor, "creationRolls")) return true;
 
         const root = this.element;
         const method = root?.querySelector(".wizard-char-method")?.value
@@ -1435,7 +1436,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             update[`system.characteristics.${key}.base`] = values[key] + (flat ? this._originModifier(key) : 0);
 
         await actor.update(update);
-        await actor.setFlag(GRANT_FLAG_SCOPE, "creationRolls", {method, values});
+        await setLegacyFlag(actor, "creationRolls", {method, values});
         // Раны и Судьба этой книги могут идти от происхождения, которое ещё не выбрано:
         // в Only War их задаёт специальность, а она после характеристик (стр. 100).
         if (RULESET_DEFS[this.ruleset].vitalsStage === "characteristics") await this._rollVitals();
@@ -1450,13 +1451,13 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async _rollVitals() {
         const actor = this.actor;
-        if (actor.getFlag(GRANT_FLAG_SCOPE, "creationVitals")) return;
+        if (getLegacyFlag(actor, "creationVitals")) return;
         const profile = RULESET_DEFS[this.ruleset];
         // Откуда книга берёт Раны: родной мир Dark Heresy, специальность Only War,
         // архетип Black Crusade. Несверенная книга идёт за Dark Heresy.
         const stage = profile.vitalsStage ?? "homeWorld";
         const source = actor.items.find(item => item.type === "origin" && item.system.stage === stage);
-        const values = actor.getFlag(GRANT_FLAG_SCOPE, "creationRolls")?.values ?? {};
+        const values = getLegacyFlag(actor, "creationRolls")?.values ?? {};
         const toughnessBonus = Math.floor((values.toughness ?? actor.system.characteristics?.toughness?.total ?? 0) / 10);
         const update = {};
         const wounds = await new Roll(woundsExpression(source?.system.wounds ?? {}, toughnessBonus)).evaluate();
@@ -1477,7 +1478,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         // ставится, а не прибавляется, и без этого их бы стёрло.
         let granted = 0;
         for (const item of actor.items)
-            if (item.type === "origin") granted += item.getFlag(GRANT_FLAG_SCOPE, "applied")?.wounds ?? 0;
+            if (item.type === "origin") granted += getLegacyFlag(item, "applied")?.wounds ?? 0;
         update["system.wounds.max"] = wounds.total + granted;
         // Generated Wounds are capacity; new characters start with no damage.
         update["system.wounds.value"] = 0;
@@ -1485,7 +1486,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         update["system.fate.max"] = update["system.fate.value"] = fateTotal;
 
         await actor.update(update);
-        await actor.setFlag(GRANT_FLAG_SCOPE, "creationVitals",
+        await setLegacyFlag(actor, "creationVitals",
                             {wounds: wounds.total + granted, fate: fateTotal, blessing});
     }
 
@@ -1503,7 +1504,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             if (item.type !== "origin") continue;
             const own = item.system.rules?.startingExperience;
             if (Number.isFinite(own)) pool = own;
-            credit += item.getFlag(GRANT_FLAG_SCOPE, "applied")?.duplicateExperience ?? 0;
+            credit += getLegacyFlag(item, "applied")?.duplicateExperience ?? 0;
         }
         return pool + credit;
     }
@@ -1512,7 +1513,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     // ── Магазин опыта ────────────────────────────────────────────────────
 
     /** Запись покупок этого прохода Мастера. */
-    get _purchases() { return this.actor.getFlag(GRANT_FLAG_SCOPE, "creationPurchases") ?? []; }
+    get _purchases() { return getLegacyFlag(this.actor, "creationPurchases") ?? []; }
 
     /** «Weapon Skill» → weaponSkill: предпосылки в книге пишутся английскими именами. */
     static CHARACTERISTIC_NAMES = {
@@ -1586,10 +1587,10 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async _ensureStartingExperience() {
         const actor = this.actor;
-        if (actor.getFlag(GRANT_FLAG_SCOPE, "startingExperienceApplied")) return;
+        if (getLegacyFlag(actor, "startingExperienceApplied")) return;
         const pool = this._startingExperience;
         await actor.update({"system.experience.value": (actor.system.experience?.value ?? 0) + pool});
-        await actor.setFlag(GRANT_FLAG_SCOPE, "startingExperienceApplied", pool);
+        await setLegacyFlag(actor, "startingExperienceApplied", pool);
     }
 
     /** Провести покупку: проверить остаток, записать на лист и в журнал покупок. */
@@ -1612,7 +1613,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             const [item] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
             record.itemId = item.id;
         }
-        await this.actor.setFlag(GRANT_FLAG_SCOPE, "creationPurchases", [...this._purchases, record]);
+        await setLegacyFlag(this.actor, "creationPurchases", [...this._purchases, record]);
     }
 
     async _buyCharacteristic(key) { await this._commitPurchase(purchaseCharacteristic(this._shopSnapshot(), key)); }
@@ -1669,7 +1670,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             await this.actor.update(update);
         }
         purchases.splice(index, 1);
-        await this.actor.setFlag(GRANT_FLAG_SCOPE, "creationPurchases", purchases);
+        await setLegacyFlag(this.actor, "creationPurchases", purchases);
     }
 
     /**
@@ -1863,7 +1864,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
                 priceRow(TALENT_COSTS, game.i18n.localize("WIZARD.PRICE_TALENTS"))
             ],
             experiencePool: this._startingExperience,
-            experienceApplied: !!this.actor.getFlag(GRANT_FLAG_SCOPE, "startingExperienceApplied"),
+            experienceApplied: !!getLegacyFlag(this.actor, "startingExperienceApplied"),
             aptitudeList: [...owned].sort().join(", ")
         };
     }
@@ -1882,7 +1883,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
 
     // ── Шаг снаряжения ───────────────────────────────────────────────────
 
-    get _equipmentPicks() { return this.actor.getFlag(GRANT_FLAG_SCOPE, "creationEquipment") ?? []; }
+    get _equipmentPicks() { return getLegacyFlag(this.actor, "creationEquipment") ?? []; }
 
     get _equipmentAllowance() {
         return acquisitionAllowance(this.actor.system.characteristics?.influence?.total);
@@ -1891,7 +1892,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     /** Предметы Арсенала из пака — имя, тип и доступность. */
     async _equipmentCatalogue() {
         if (this._armoury) return this._armoury;
-        const pack = game.packs.get("dark-heresy.dark-heresy");
+        const pack = game.packs.get("apex-heresy-ru.dark-heresy");
         if (!pack) return (this._armoury = []);
         const index = await pack.getIndex({fields: ["system.availability"]});
         this._armoury = index.contents.filter(entry => ARMOURY_TYPES.includes(entry.type)).map(entry => ({
@@ -1943,7 +1944,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         delete data._id;
         data.flags = foundry.utils.mergeObject(data.flags ?? {}, {[GRANT_FLAG_SCOPE]: {creationEquipment: true}});
         const [item] = await this.actor.createEmbeddedDocuments("Item", [data]);
-        await this.actor.setFlag(GRANT_FLAG_SCOPE, "creationEquipment", [...picks, {uuid, itemId: item.id, name: item.name}]);
+        await setLegacyFlag(this.actor, "creationEquipment", [...picks, {uuid, itemId: item.id, name: item.name}]);
     }
 
     async _dropEquipment(index) {
@@ -1952,13 +1953,13 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         if (!pick) return;
         if (this.actor.items.get(pick.itemId)) await this.actor.deleteEmbeddedDocuments("Item", [pick.itemId]);
         picks.splice(index, 1);
-        await this.actor.setFlag(GRANT_FLAG_SCOPE, "creationEquipment", picks);
+        await setLegacyFlag(this.actor, "creationEquipment", picks);
     }
 
     async _clearEquipment() {
         const ids = this._equipmentPicks.map(pick => pick.itemId).filter(id => this.actor.items.get(id));
         if (ids.length) await this.actor.deleteEmbeddedDocuments("Item", ids);
-        if (this.actor.getFlag(GRANT_FLAG_SCOPE, "creationEquipment")) await this.actor.unsetFlag(GRANT_FLAG_SCOPE, "creationEquipment");
+        if (getLegacyFlag(this.actor, "creationEquipment")) await unsetLegacyFlag(this.actor, "creationEquipment");
     }
 
     // ── Шаг Тёмных богов ─────────────────────────────────────────────────
@@ -2188,7 +2189,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     async _lifeTable(name) {
         const inWorld = game.tables?.find(table => matchesRuleName(table, name));
         if (inWorld) return inWorld;
-        const pack = game.packs.get("dark-heresy.bc-tables");
+        const pack = game.packs.get("apex-heresy-ru.bc-tables");
         if (!pack) return null;
         const index = await pack.getIndex();
         const hit = index.contents.find(entry => matchesRuleName(entry, name));
@@ -2222,7 +2223,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     async _divinationTable() {
         const inWorld = game.tables?.find(table => matchesRuleName(table, "Divinations"));
         if (inWorld) return inWorld;
-        const pack = game.packs.get("dark-heresy.bc-tables");
+        const pack = game.packs.get("apex-heresy-ru.bc-tables");
         if (!pack) return null;
         const index = await pack.getIndex();
         const hit = index.contents.find(entry => matchesRuleName(entry, "Divinations"));
@@ -2230,7 +2231,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     _divinationStepContext() {
-        const record = this.actor.getFlag(GRANT_FLAG_SCOPE, "divination");
+        const record = getLegacyFlag(this.actor, "divination");
         const applied = record?.applied ?? {};
         const signed = value => `${value > 0 ? "+" : ""}${value}`;
         const effect = [
@@ -2253,7 +2254,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
      */
     async _commitDivinationStep() {
         const actor = this.actor;
-        if (actor.getFlag(GRANT_FLAG_SCOPE, "divination")) return true;
+        if (getLegacyFlag(actor, "divination")) return true;
 
         const table = await this._divinationTable();
         if (!table) { ui.notifications?.warn(game.i18n.localize("WIZARD.NO_DIVINATION_TABLE")); return false; }
@@ -2274,7 +2275,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
             update["system.fate.value"] = (actor.system.fate?.value ?? 0) + effect.fate;
         }
         await actor.update(update);
-        await actor.setFlag(GRANT_FLAG_SCOPE, "divination",
+        await setLegacyFlag(actor, "divination",
                             {applied, fate: effect.fate ?? 0, name: result?.name ?? ""});
         return true;
     }
@@ -2282,7 +2283,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
     /** Снять брошенную дивинацию — для переброса или для «Назад». */
     async _revertDivination() {
         const actor = this.actor;
-        const record = actor.getFlag(GRANT_FLAG_SCOPE, "divination");
+        const record = getLegacyFlag(actor, "divination");
         if (!record) return;
 
         const update = revertUpdate(actor, record.applied ?? {});
@@ -2292,7 +2293,7 @@ export class CharacterWizard extends HandlebarsApplicationMixin(ApplicationV2) {
         }
         update["system.bio.divination"] = "";
         await actor.update(update);
-        await actor.unsetFlag(GRANT_FLAG_SCOPE, "divination");
+        await unsetLegacyFlag(actor, "divination");
     }
 
     /** Хвост: анкета заполнена по шагам, остаётся закрыть окно и поднять лист. */

@@ -45,7 +45,7 @@ test('point buy starts at the race base with 100 points and +20 on any one (p. 5
 test('starting experience is 1,000, and the race may say otherwise (p. 75)', () => {
     assert.equal(RULESET_DEFS.bc.startingExperience, 1000);
     assert.equal(RULESET_DEFS.bc.aptitudes, false, 'the book has no aptitudes at all');
-    assert.equal(contentPacksFor('bc')[0], 'dark-heresy.black-crusade');
+    assert.equal(contentPacksFor('bc')[0], 'apex-heresy-ru.black-crusade');
 });
 
 test('Table 2-4: Khorne and Nurgle stand together, Slaanesh and Tzeentch stand together (p. 76)', () => {

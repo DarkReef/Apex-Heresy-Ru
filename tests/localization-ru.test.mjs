@@ -24,7 +24,7 @@ test('every interface key has Russian text and preserves all formatting paramete
 });
 test('all origins preserve source HTML structure and numeric rules in Russian descriptions', () => {
     const source = read('./fixtures/origins-localization-source.json');
-    const catalog = read('../localization/ru/dark-heresy.origins.json');
+    const catalog = read('../localization/ru/apex-heresy-ru.origins.json');
     assert.equal(Object.keys(source).length, 134);
     assert.deepEqual(Object.keys(catalog.entries).sort(), Object.keys(source).sort());
     for (const [id, original] of Object.entries(source)) {
@@ -36,7 +36,7 @@ test('all origins preserve source HTML structure and numeric rules in Russian de
     }
 });
 test('all table titles are translated while canonical names remain searchable', () => {
-    const catalog = read('../localization/ru/dark-heresy.bc-tables.json');
+    const catalog = read('../localization/ru/apex-heresy-ru.bc-tables.json');
     assert.equal(Object.keys(catalog.entries).length, 74);
     for (const entry of Object.values(catalog.entries)) assert.match(entry.name, /[А-Яа-яЁё]/u);
     assert.ok(matchesRuleName(translated('Шок', 'Shock'), 'Shock'));
@@ -61,7 +61,7 @@ test('a translated catalogue does not reoffer an owned talent', () => {
 test('Babele maps prose only, leaving name-based mechanical inputs intact', () => {
     const system = read('../system.json');
     for (const pack of system.packs) {
-        const data = read(`../localization/ru/dark-heresy.${pack.name}.json`);
+        const data = read(`../localization/ru/apex-heresy-ru.${pack.name}.json`);
         assert.ok(data.entries && data.folders, pack.name);
         for (const field of ['special', 'aptitudes', 'grants', 'key', 'damage', 'range', 'prerequisites', 'prerequisite']) {
             assert.equal(data.mapping[field], undefined, `${pack.name}:${field}`);

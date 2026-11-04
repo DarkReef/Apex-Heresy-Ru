@@ -196,7 +196,7 @@ for (const file of files) {
         }
 
         const img = src.img ?? "icons/svg/item-bag.svg";
-        if (img.startsWith("systems/dark-heresy/") && !existsSync(img.replace("systems/dark-heresy/", ""))) {
+        if (img.startsWith("systems/apex-heresy-ru/") && !existsSync(img.replace("systems/apex-heresy-ru/", ""))) {
             errors.push(`${where}: нет файла иконки ${img}`);
         }
 

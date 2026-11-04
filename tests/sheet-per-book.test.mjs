@@ -70,16 +70,16 @@ test('each sheet names its own biography, vitals and tabs', () => {
 test('every partial a sheet names exists and is preloaded', () => {
     const system = loadSystem();
     const sheets = system.get('Dh.bookSheets');
-    const wanted = new Set(["systems/dark-heresy/template/sheet/actor/character.hbs"]);
+    const wanted = new Set(["systems/apex-heresy-ru/template/sheet/actor/character.hbs"]);
     for (const sheet of Object.values(sheets)) {
         wanted.add(sheet.bioPartial);
         for (const key of sheet.vitals)
-            wanted.add(`systems/dark-heresy/template/sheet/actor/partial/vital-${key}.hbs`);
+            wanted.add(`systems/apex-heresy-ru/template/sheet/actor/partial/vital-${key}.hbs`);
         for (const tab of sheet.tabList)
-            wanted.add(`systems/dark-heresy/template/sheet/actor/${tab.partial}`);
+            wanted.add(`systems/apex-heresy-ru/template/sheet/actor/${tab.partial}`);
     }
     for (const path of wanted) {
-        const file = new URL('../' + path.replace('systems/dark-heresy/', ''), import.meta.url);
+        const file = new URL('../' + path.replace('systems/apex-heresy-ru/', ''), import.meta.url);
         assert.ok(existsSync(file), `missing file: ${path}`);
         // A partial addressed by a name from the context must be loaded up front, or
         // Handlebars will not find it when the sheet renders.

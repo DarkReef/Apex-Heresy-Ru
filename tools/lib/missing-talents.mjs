@@ -29,7 +29,7 @@ const talent = (name, {tier, prerequisites, aptitudes, benefit, description, sou
     name,
     type: "talent",
     folder: TALENT_FOLDERS[tier] ?? TALENT_FOLDERS.faith,
-    img: "systems/dark-heresy/assets/icons/aptitudes/willpower.webp",
+    img: "systems/apex-heresy-ru/assets/icons/aptitudes/willpower.webp",
     system: {
         description: `<p>${description}</p>`,
         source,

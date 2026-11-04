@@ -30,8 +30,8 @@
 import {CHARACTERISTIC_KEYS} from "./origin-data.mjs";
 
 /** Паки, где ищется выданное по имени. У книги свой пак идёт первым. */
-const CONTENT_PACKS = ["dark-heresy.dark-heresy", "dark-heresy.black-crusade",
-    "dark-heresy.rogue-trader", "dark-heresy.only-war", "dark-heresy.deathwatch"];
+const CONTENT_PACKS = ["apex-heresy-ru.dark-heresy", "apex-heresy-ru.black-crusade",
+    "apex-heresy-ru.rogue-trader", "apex-heresy-ru.only-war", "apex-heresy-ru.deathwatch"];
 const packsFirst = pack => [pack, ...CONTENT_PACKS.filter(entry => entry !== pack)];
 
 //  Поля правил, которыми книги расходятся (значение Dark Heresy — по умолчанию):
@@ -60,7 +60,7 @@ export const RULESET_DEFS = {
         eliteAdvances: true,
         // Раны и Судьба Dark Heresy идут от родного мира и бросаются вместе с характеристиками.
         vitalsStage: "characteristics",
-        contentPacks: packsFirst("dark-heresy.dark-heresy"),
+        contentPacks: packsFirst("apex-heresy-ru.dark-heresy"),
         steps: [
             {id: "homeWorld",       label: "ORIGIN.STAGE.HOME_WORLD",  kind: "origin", stage: "homeWorld", bioField: "system.bio.homeWorld"},
             {id: "background",      label: "ORIGIN.STAGE.BACKGROUND",  kind: "origin", stage: "background", bioField: "system.bio.background"},
@@ -98,7 +98,7 @@ export const RULESET_DEFS = {
         duplicates: {skill: "advance", talentExperience: 100},
         // Раны задаёт специальность, а она выбирается после характеристик (стр. 100).
         vitalsStage: "speciality",
-        contentPacks: packsFirst("dark-heresy.only-war"),
+        contentPacks: packsFirst("apex-heresy-ru.only-war"),
         characteristicKeys: CHARACTERISTIC_KEYS.filter(key => key !== "influence"),
         steps: [
             // Книжный порядок (стр. 73): полк группы, затем характеристики, специальность,
@@ -133,7 +133,7 @@ export const RULESET_DEFS = {
         // Отсюда и строка «Покровитель» в лавке: она объясняет цену. У Deathwatch
         // склонностей тоже нет, но покровителя нет и подавно — цена там напечатана.
         patronPricing: true,
-        contentPacks: packsFirst("dark-heresy.black-crusade"),
+        contentPacks: packsFirst("apex-heresy-ru.black-crusade"),
         steps: [
             // Книжный порядок (стр. 48): раса, характеристики, архетип, страсти,
             // траты опыта, снаряжение с Порчей и, наконец, выбор Тёмного бога.
@@ -174,7 +174,7 @@ export const RULESET_DEFS = {
         aptitudes: false,
         // Цена — не лестница, а строка списка: Chapter, General Space Marine и Speciality.
         advanceLists: true,
-        contentPacks: packsFirst("dark-heresy.deathwatch"),
+        contentPacks: packsFirst("apex-heresy-ru.deathwatch"),
         // Влияния у десантника нет: снаряжение он получает Реквизицией (стр. 29).
         characteristicKeys: CHARACTERISTIC_KEYS.filter(key => key !== "influence"),
         steps: [

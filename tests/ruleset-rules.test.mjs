@@ -72,8 +72,8 @@ test('the rule differences are ruleset fields, with Dark Heresy unchanged', () =
     assert.equal(dh2.startingExperience, 1000);
     assert.deepEqual(ow.duplicates, {skill: 'advance', talentExperience: 100});
     assert.deepEqual(dh2.duplicates ?? {skill: 'best', talentExperience: 0}, {skill: 'best', talentExperience: 0});
-    assert.equal(contentPacksFor('ow')[0], 'dark-heresy.only-war');
-    assert.equal(contentPacksFor('dh2')[0], 'dark-heresy.dark-heresy');
+    assert.equal(contentPacksFor('ow')[0], 'apex-heresy-ru.only-war');
+    assert.equal(contentPacksFor('dh2')[0], 'apex-heresy-ru.dark-heresy');
     assert.deepEqual(new Set(contentPacksFor('ow')), new Set(contentPacksFor('dh2')), 'same packs, different order');
 });
 

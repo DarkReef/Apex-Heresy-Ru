@@ -37,6 +37,6 @@ test('a jam does not survive the roll that replaces it', () => {
     const block = check.slice(0, check.indexOf('rollData.result = result;'));
     assert.match(block, /rollData\.weaponJammed = false;/, 'the jam flag is reset per roll');
     assert.match(block, /rollData\.weaponOverheated = false;/, 'and so is the overheat flag');
-    assert.match(block, /isReRoll[\s\S]*unsetFlag\("dark-heresy", "jammed"\)/,
+    assert.match(block, /isReRoll[\s\S]*unsetLegacyFlag\(rolledWeapon, "jammed"\)/,
         'a re-roll that does not jam also clears the persisted flag');
 });

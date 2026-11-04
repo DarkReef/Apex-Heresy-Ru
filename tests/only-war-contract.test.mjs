@@ -28,7 +28,8 @@ test('snapshot hook preserves the original target for both common and combat rol
 });
 test('system distribution excludes optional modules',()=>{
  assert.equal(existsSync(new URL('../modules',import.meta.url)),false);
- const manifest=json('../system.json');assert.equal(manifest.version,'1.5.5');
+ const manifest=json('../system.json');assert.equal(manifest.version,'1.6.0');
+ assert.equal(manifest.id,'apex-heresy-ru');
  assert.ok(manifest.manifest.endsWith('/releases/latest/download/system.json'));
 });
 

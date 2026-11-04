@@ -29,7 +29,9 @@ test('small scientific doses retain exponent digits and invalid selections are n
 
 test('every visible system setting has localized name and hint without changing saved defaults',()=>{
  const before=globalThis.game,settings=new Map();globalThis.game={settings:{register:(_scope,key,config)=>settings.set(key,config)}};
- try{registerSystemSettings();for(const [key,config] of settings){assert.ok(en[config.name],key);assert.ok(ru[config.name],key);assert.ok(ru[config.hint],key);}
+ try{registerSystemSettings();for(const [key,config] of settings){if(!config.config)continue;assert.ok(en[config.name],key);assert.ok(ru[config.name],key);assert.ok(ru[config.hint],key);}
+ assert.equal(settings.get('packageReferenceMigrationVersion').config,false);
+ assert.equal(settings.get('packageReferenceMigrationVersion').default,0);
  assert.equal(settings.get('autoCalcXPCosts').default,false);assert.equal(settings.get('worldSchemaVersion').default,0);assert.equal(settings.get('atmosphericEffects').scope,'client');
  }finally{globalThis.game=before;}
 });
