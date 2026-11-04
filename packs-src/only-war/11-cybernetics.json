@@ -1,275 +1,1360 @@
 [
   {
-    "name": "Bionic Arm", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Bionic Arm",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/body_parts/arm.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
+      "availability": "scarce",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>One of the more common replacement limbs to be found, Common Craftsmanship versions ape a normal hand and arm exactly, retaining strength, dexterity and sense of touch.</p><div class='bc-rule'><p>Bionic replacement limbs are assumed to operate at the same level of strength and dexterity as the body they are attached to—rather than risk ripping themselves out of their host through overpressure—though their robust construction does add 2 to the owner’s Toughness Bonus against hits scored to that particular location.</p><p><strong>Poor:</strong> more cumbersome and visibly artificial; halve the owner’s Agility score where matters of fine dexterity are involved. In addition, Weapon Skill and Ballistic Skill Tests made when using the limb take a –5 penalty.</p><p><strong>Good:</strong> improve on natural design and provide a +10 bonus on Agility Tests requiring delicate manipulation.</p><p><strong>Best:</strong> add a +10 bonus to Strength Tests using the arm and can be used to store small items such as pistol ammo clips inside concealed interior compartments.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 204"
+    },
+    "effects": [
+      {
+        "_id": "6523484a36738d9c",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-ARM_DEXTERITY",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-arm.dexterity",
+              "conditional": true,
+              "selectors": [
+                "characteristic:agility"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.agility.displayTotal",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "45ac024bf3f0812d",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-ARM_STRENGTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-arm.strength",
+              "conditional": true,
+              "selectors": [
+                "characteristic:strength"
+              ],
+              "quality": [
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.strength.displayTotal",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "aD5OhczhpYUzuNze"
+      }
     }
   },
   {
-    "name": "Bionic Legs", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Bionic Legs",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/body_parts/leg.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
+      "availability": "scarce",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>In the basic Common version, locomotion bionics are fully integrated into the hip with a spinal link and allow a Guardsman to walk, run, and climb at normal human levels.</p><div class='bc-rule'><p><strong>Poor:</strong> lumbering affairs that reduce a character’s movement rate by one, and when running the user must succeed on an Ordinary (+10) Agility Test or fall at the end of his movement.</p><p><strong>Good:</strong> grant the owner the Sprint Talent and add a +20 bonus to Athletics Tests made to jump or leap.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
+    },
+    "effects": [
+      {
+        "_id": "aa0770db8dae6219",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-LEGS_JUMP",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-legs.jump",
+              "conditional": true,
+              "selectors": [
+                "skill:athletics"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "PETQu5Z5VoddhGQ0"
+      }
     }
   },
   {
-    "name": "Bionic Respiratory System", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Bionic Respiratory System",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/capacitor.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Common bionic lungs and implanted respiratory systems mimic the action of human lungs and keep the body supplied with oxygen. Such characters gain a +20 bonus to Toughness Tests made to resist airborne toxins and gas weapons.</p><div class='bc-rule'><p><strong>Poor:</strong> the same benefits as the Common system. However, they are raucously loud affairs and characters suffer a –20 penalty to Stealth Tests. A generally poor oxygen supply to the body means that the character suffers a –10 penalty on all Tests involving strenuous physical activity.</p><p><strong>Good:</strong> count as a full life support system—thus if for any reason the user’s own respiratory system fails, his bionic lungs keep his blood oxygenated—and their presence can be unnoticeable if designed to be so.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
+    },
+    "effects": [
+      {
+        "_id": "1c660f0c994f191a",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-LUNGS_GAS",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-lungs.gas",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "a5431adf18977999",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-LUNGS_NOISE",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-lungs.noise",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ],
+              "quality": [
+                "poor"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "-20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "fe5bd74362793f79",
+        "name": "EQUIPMENT_BONUS.OW_BIONIC-LUNGS_EXERTION",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.bionic-lungs.exertion",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "poor"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "luNxZh2ny9PkGnxZ"
+      }
     }
   },
   {
-    "name": "Bionic Heart", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Bionic Heart",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/capacitor.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
-      "grantsArmour": { "enabled": true, "isAdditive": true, "part": { "head": 0, "leftArm": 0, "rightArm": 0, "body": 1, "leftLeg": 0, "rightLeg": 0 } },
+      "availability": "very-rare",
+      "weight": 0,
+      "grantsArmour": {
+        "enabled": true,
+        "isAdditive": true,
+        "part": {
+          "head": 0,
+          "leftArm": 0,
+          "rightArm": 0,
+          "body": 1,
+          "leftLeg": 0,
+          "rightLeg": 0
+        }
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>The paranoid (or the prepared) are ever willing to replace crude flesh with more durable, armoured materials—the light armour shielding of a bionic heart provides a last line of defence.</p><div class='bc-rule'><p>Superior models can be triggered to pump more rapidly to increase physical capacity, though this risks stroke or other catastrophe as the rest of the circulatory system is put under pressure. A character with this implant gains +1 Armour to the Body location—this bonus stacks with any armour worn—and gains the Sprint Talent.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "1QXo3hzMQ23yRt1k"
+      }
     }
   },
   {
-    "name": "Cranial Armour", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Cranial Armour",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/armor.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
-      "grantsArmour": { "enabled": true, "isAdditive": true, "part": { "head": 1, "leftArm": 0, "rightArm": 0, "body": 0, "leftLeg": 0, "rightLeg": 0 } },
+      "availability": "scarce",
+      "weight": 0,
+      "grantsArmour": {
+        "enabled": true,
+        "isAdditive": true,
+        "part": {
+          "head": 1,
+          "leftArm": 0,
+          "rightArm": 0,
+          "body": 0,
+          "leftLeg": 0,
+          "rightLeg": 0
+        }
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>This augmentation covers or replaces most of the skull with layers of plasteel and gel padding to better prevent concussion and other brain injuries.</p><div class='bc-rule'><p>This implant adds +1 Armour to the Head location—this bonus stacks with any worn Armour.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 206"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "EOiQLhRReICiBcBX"
+      }
     }
   },
   {
-    "name": "Subskin Armour", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Subskin Armour",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/armor.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
-      "grantsArmour": { "enabled": true, "isAdditive": true, "part": { "head": 0, "leftArm": 2, "rightArm": 2, "body": 2, "leftLeg": 2, "rightLeg": 2 } },
+      "availability": "very-rare",
+      "weight": 0,
+      "grantsArmour": {
+        "enabled": true,
+        "isAdditive": true,
+        "part": {
+          "head": 0,
+          "leftArm": 2,
+          "rightArm": 2,
+          "body": 2,
+          "leftLeg": 2,
+          "rightLeg": 2
+        }
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Thin carapace plating is inserted under the skin in various locations, giving the user added protection against damage. While not as impressive as most augmentations and sometimes uncomfortable, subskin armour is very reliable.</p><div class='bc-rule'><p>This implant adds +2 Armour Points to the Arms, Body, and Legs locations. The bonus is added to any other Armour Points for these locations.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "erAwcD0r0I9E0V9O"
+      }
     }
   },
   {
-    "name": "Synthmuscle", "type": "cybernetic", "folder": "Cybernetics/Bionics",
+    "name": "Synthmuscle",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Bionics",
     "img": "systems/dark-heresy/assets/icons/augmetics/augmetic.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Ropey strands of vat-grown muscle tissue, thick with slurried nutrients and laced with flakweave, are woven into existing muscle groups, granting increased strength of varying levels.</p><div class='bc-rule'><p>Characters gain Unnatural Strength (1); Best Craftsmanship grafts grant Unnatural Strength (4) but also impose a –10 to any Agility Tests due to the newly misshapen and unnatural body shape.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
+    },
+    "effects": [
+      {
+        "_id": "72b8493529e7429f",
+        "name": "EQUIPMENT_BONUS.OW_SYNTHMUSCLE_AGILITY",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.synthmuscle.agility",
+              "conditional": true,
+              "selectors": [
+                "characteristic:agility"
+              ],
+              "quality": [
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.agility.displayTotal",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "yJsIpEh07JF2ebpL"
+      }
     }
   },
-
   {
-    "name": "Augur Array", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Augur Array",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/wires.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These implanted devices duplicate the effects of sensor systems that go beyond normal human senses. In all cases, their use requires concentration and a Half Action.</p><div class='bc-rule'><p><strong>Common:</strong> function identically to a standard hand-held auspex device (see page 200).</p><p><strong>Poor:</strong> possess only a single detection ability (either heat, radiation, electromagnetics, or very rarely Daemonic taint) and have the limited range of 20 metres. If the augur is set to detect Daemonic taint, it has the possibility to be overwhelmed and malfunction should a Daemon get too close.</p><p><strong>Good:</strong> function as a full auspex but also allow re-rolls on all Perception-based Tests when using its functions. In regards to the Daemonic taint detection, as opposed to the Poor system augur, a Good system cannot be overwhelmed and seems to almost filter out any taint it detects instead of getting backed up by it.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
+    },
+    "effects": [
+      {
+        "_id": "58cc21e8fe204076",
+        "name": "EQUIPMENT_BONUS.OW_AUGUR_SCAN",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.augur.scan",
+              "conditional": true,
+              "selectors": [
+                "skill:awareness"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.awareness.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "zWCBV47xn4SpfUVX"
+      }
     }
   },
   {
-    "name": "Autosanguine", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Autosanguine",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This ancient and blessed technology of the Mechanicus flows through the character’s blood.</p><div class='bc-rule'><p>These miniscule machines repair minor injuries and speed healing. When applying healing, the character is always considered Lightly Damaged, and heals at an increased rate, removing 2 points of Damage per day.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
     }
   },
   {
-    "name": "Baleful Eye", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Baleful Eye",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/body_parts/eye.webp",
     "system": {
-      "availability": "near-unique", "weight": 0,
-      "grantsAttack": { "enabled": true, "damage": "1d10+4", "damageType": "energy", "penetration": "7", "special": "", "class": "pistol" },
+      "availability": "near-unique",
+      "weight": 0,
+      "grantsAttack": {
+        "enabled": true,
+        "damage": "1d10+4",
+        "damageType": "energy",
+        "penetration": "7",
+        "special": "",
+        "class": "pistol"
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A baleful eye is a legendary archaeotech bionic eye pattern that incorporates a tiny las weapon, which sacrifices some of the normal abilities of a cybernetic vision implant in order for this device to be included.</p><div class='bc-rule'><p>Each baleful eye has been passed from recipient to recipient across centuries or millennia, reclaimed by the Machine Cult whenever its owner dies. As might be imagined, it is very intimidating when used as a part of negotiations with primitive societies.</p><p>A character with this implant has a weapon equal to a hot-shot pistol in his eye with a Range of 10m. The baleful eye can be fired even if the character’s hands are full and can be used as a Pistol in melee. It also has no Clip Size, however a Jam result causes the character to lose sight in the eye for a number of Rounds equal to the Degrees of Failure on the attack.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
     }
   },
   {
-    "name": "Ballistic Mechadendrite", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Ballistic Mechadendrite",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/mechadendrite.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This solid, shoulder-mounted mechadendrite is designed for self-defence.</p><div class='bc-rule'><p>This two metre limb may be armed with any Pistol-class weapon with the Compact Upgrade. The character can attack with this weapon as his Reaction. A character must have the appropriate Mechadendrite Use Talent to operate this implant.</p><p>Some cybernetic systems are only provided to tech-adepts of the Adeptus Mechanicus, though it is possible that skilled hereteks might risk the Machine Cult’s wrath by implanting crude versions of these systems in anyone willing to pay their price.</p><p>The maximum number of mechadendrites a character may have mounted upon his body is equal to his Toughness Bonus. All mechadendrite cybernetics are considered to be of Good Craftsmanship unless otherwise noted.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
     }
   },
   {
-    "name": "Calculus Logi Upgrade", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Calculus Logi Upgrade",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These bionics are internal cogitator implants which aid in data retention and processing. The user can rapidly sift through stacked data-slates and parchments, applying intuition to vast reams of data far beyond the capabilities of a normal man.</p><div class='bc-rule'><p>This implant grants the user a +10 bonus to Literacy, Logic, or Scholastic Lore Tests.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 205"
+    },
+    "effects": [
+      {
+        "_id": "b5df4c1718877be1",
+        "name": "EQUIPMENT_BONUS.OW_CALCULUS_LOGIC",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.calculus.logic",
+              "conditional": false,
+              "selectors": [
+                "skill:logic",
+                "skill:literacy"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.logic.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            },
+            {
+              "key": "system.skills.literacy.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "1e8b5f3cf439d6a2",
+        "name": "EQUIPMENT_BONUS.OW_CALCULUS_SCHOLASTIC",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.calculus.scholastic",
+              "conditional": true,
+              "selectors": [
+                "skill:scholasticLore.*"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.scholasticLore.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "ozpbRXS3ihW9piTg"
+      }
     }
   },
   {
-    "name": "Cerebral Implants", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Cerebral Implants",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Commonly used to repair a severely damaged brain or hopefully augment its abilities, these often risky implant systems represent a major step from simply replacing a limb, to altering a character from human to mechanism.</p><div class='bc-rule'><p><strong>Common:</strong> can restore paralysed and brain-damaged users to a semblance of normality, but with a permanent loss of 1d10 points from the character’s Weapon Skill, Ballistic Skill, Agility, Intelligence and Fellowship Characteristics.</p><p><strong>Poor:</strong> restore brain function but destroy the personality and memories of the subject, rendering them no better than a servitor, and as such are unsuitable for Player Characters.</p><p><strong>Good:</strong> very rare even among the high ranking officers of the Guard, and exceedingly difficult to arrange, becoming Near Unique in availability. These grant the user the Unnatural Intelligence (2) Trait and a +20 bonus to Logic and Lore Tests, thanks to the superior mental capabilities he now enjoys.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 206"
+    },
+    "effects": [
+      {
+        "_id": "62abb3c3ea75e041",
+        "name": "EQUIPMENT_BONUS.OW_CEREBRAL_LOGIC",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.cerebral.logic",
+              "conditional": false,
+              "selectors": [
+                "skill:logic"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.logic.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "3355aedf716bd0bd",
+        "name": "EQUIPMENT_BONUS.OW_CEREBRAL_LORE",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.cerebral.lore",
+              "conditional": true,
+              "selectors": [
+                "skill:commonLore.*",
+                "skill:scholasticLore.*",
+                "skill:forbiddenLore.*"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.commonLore.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "jqSDuIj58pdq8iyr"
+      }
     }
   },
   {
-    "name": "Cybernetic Senses", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Cybernetic Senses",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/body_parts/eye.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Sight, hearing, smell, touch, and taste can be duplicated artificially, and more esoteric senses may be added.</p><div class='bc-rule'><p><strong>Common:</strong> while usually very obviously artificial and often oversized, manage to more or less duplicate the approximate human range of senses adequately and have no further game effects.</p><p><strong>Poor:</strong> problem-ridden imitations of the real thing (hearing may be troubled by static, vision rendered in low-resolution monochrome, and so on). A character with this system suffers a –20 penalty to Tests made involving the cybernetic sense.</p><p><strong>Good:</strong> grant the Heightened Senses Talent for that particular sense and a +20 bonus to Tests made to resist attacks on the sense itself, such as deafening noises and blinding flashes. Basic and advanced cybernetic eyes can also incorporate magnifying lenses, a full photo-visor, and/or a system granting the Dark-Sight Trait. Basic or advanced cybernetic hearing can also include an internal micro-bead system.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 206"
+    },
+    "effects": [
+      {
+        "_id": "d1a0545e6866b8bc",
+        "name": "EQUIPMENT_BONUS.OW_CYBER-SENSES_POOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.cyber-senses.poor",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "poor"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "-20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "c0f96d7c629f9442",
+        "name": "EQUIPMENT_BONUS.OW_CYBER-SENSES_RESIST",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.cyber-senses.resist",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "8PiKC83Oy7gjpxp5"
+      }
     }
   },
   {
-    "name": "Ferric Lure Implants", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Ferric Lure Implants",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/magnet.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Powerful electromagnets are implanted in the Guardsman, allowing him to cast forth a net of invisible energy as a Full Action (requiring a successful Challenging (+0) Willpower Test), to call an unsecured metal object into his hand.</p><div class='bc-rule'><p>The object cannot mass more than 1 kg per point of Willpower Bonus and must be within 20 metres, and the user must already have Mechanicus Implants Trait for this system to function. This implant can be improved by certain Talents.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
     }
   },
   {
-    "name": "Interface Port", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Interface Port",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/wires.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>The Guardsman now has a mechanical port implanted in his body, commonly in the rear of the neck, which can be connected to machines via a data cable.</p><div class='bc-rule'><p>This allows the user faster and smoother access to the valuable information within and grants a +10 bonus to Common Lore, Inquiry, or Tech-Use Tests whilst connected to a relevant mechanism or data spool.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
+    },
+    "effects": [
+      {
+        "_id": "1f0b222c7c1bc6e6",
+        "name": "EQUIPMENT_BONUS.OW_INTERFACE-PORT_CONNECTION",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.interface-port.connection",
+              "conditional": true,
+              "selectors": [
+                "skill:commonLore.*",
+                "skill:inquiry",
+                "skill:techUse"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.commonLore.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "P5z2LcdNUxCO2XnO"
+      }
     }
   },
   {
-    "name": "Internal Reservoir", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Internal Reservoir",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/capacitor.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This implant acts as a powerful battery, storing energy for various implants and especially for functions that require energy to be expelled in rapid or violent fashions.</p><div class='bc-rule'><p>When fully charged, the user will no longer gain Fatigue from using Luminen Capacitors either to recharge something or offensively, but each use of those implants drains the reservoir by half. The battery fully recharges after one day of resting.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
     }
   },
   {
-    "name": "Locator Matrix", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Locator Matrix",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/magnet.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Micro-cogitators implanted at the base of the skull allow the user to be aware of the direction of the planetary poles, present location to within a few meters, relative velocity, altitude, time of day, and other valuable information.</p><div class='bc-rule'><p>The user must still have access to maps and other planetary data in order to benefit from this information, however—knowing you are at a specific location on a planetary surface has little meaning if you have no idea what is over the next rise, or what direction you must travel to reach a given destination.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
     }
   },
   {
-    "name": "Luminen Capacitor", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Luminen Capacitor",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/capacitor.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>The Guardsman’s internal energies, either through biological or artificial sources, are channeled into capacitors buried in the flesh, where they can be tapped to recharge items or even released in devastating attacks.</p><div class='bc-rule'><p>With a successful Toughness Test, the character may recharge or power machinery. This requires one minute of mental focus and meditation. The difficulty of the Toughness Test varies depending on the nature of the powered system.</p><dl class='bc-prof'><dt>Ordinary (+10)</dt><dd>Simple Power Cell, Illuminator</dd><dt>Challenging (+0)</dt><dd>Weapon Charge Pack, Data-Slate, Bridge Terminal</dd><dt>Difficult (–10)</dt><dd>Shuttle electronics, Servo-Skull</dd><dt>Hard (–20)</dt><dd>Lascannon Charge Pack, Servitor, Bridge Hololith</dd><dt>Very Hard (–30)</dt><dd>Cogitator Core, Reactor Machine Spirit, Xenos Technology</dd></dl><p>The device can also be used offensively, however it requires Talents to use properly. Only a Player Character with Mechanicus Implants Trait may use this device. Poor Craftsmanship variants impose a –10 penalty to all Toughness Tests made to use them. Good Craftsmanship variants grant a +10 bonus to all Toughness Tests made to use them.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
+    },
+    "effects": [
+      {
+        "_id": "5a9b6a3bf7767229",
+        "name": "EQUIPMENT_BONUS.OW_LUMINEN_POOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.luminen.poor",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "poor"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "f9d3c4a8effee8e2",
+        "name": "EQUIPMENT_BONUS.OW_LUMINEN_SUPERIOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.luminen.superior",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "OpkJdXsEwUTrxI5g"
+      }
     }
   },
   {
-    "name": "Maglev Coils", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Maglev Coils",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/magnet.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Archaeotech systems of powerful gravimetric coils are implanted in the body, allowing the user to become unshackled from gravity’s grasp for short periods.</p><div class='bc-rule'><p>Using a Half Action, the user may hover 20–30 centimetres off the ground for a number of minutes equal to 1d10 plus the character’s Toughness Bonus. The character must employ a Half Action each Round to concentrate on operating this implant and may use the other Action to move normally. The character can slow his rate of descent when falling so long as this implant is active when the character reaches the ground, reducing all falling Damage to 1d10+3 Impact Damage. Each time the character activates the coils, it drains the stored power and cannot be used again until recharged (which takes 24 hours).</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
     }
   },
   {
-    "name": "Manipulator Mechadendrite", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Manipulator Mechadendrite",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/mechadendrite.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Possibly the most common form of mechadendrite, this artificial limb is a great aid to Enginseers working to repair vehicles in the heat of battle, allowing them to lift greater weights and more easily operate industrial gear.</p><div class='bc-rule'><p>It can extend out to 1.5m and grants the user +20 to Strength-based Tests; the vicious gripping and crushing pincers can also tether the user to gantries or suitably heavy objects as a Free Action. The heavy metal pincers can be used in combat to make melee attacks. The character can strike with it as his Reaction for the Round or use it to make a Standard Attack (so long as it is only used once per Round). The manipulator mechadendrite deals 1d10+2 I Damage.</p><p>While powerful, the manipulator is not subtle, and attempts to use it for such tasks as data-slate typing, inscribing sacrificial etchings, handling delicate objects, or the like only ends with equipment being dropped, smashed, or otherwise ruined. A character must have the appropriate Mechadendrite Use Talent to operate this implant.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 207"
+    },
+    "effects": [
+      {
+        "_id": "2983b14861c84b16",
+        "name": "EQUIPMENT_BONUS.OW_MANIPULATOR_STRENGTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.manipulator.strength",
+              "conditional": true,
+              "selectors": [
+                "basedOn:strength"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.strength.displayTotal",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "fVBPb1MuIGGRCfa1"
+      }
     }
   },
   {
-    "name": "Medicae Mechadendrite", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Medicae Mechadendrite",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/mechadendrite.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This two metre long, flexible limb is designed to provide medical and surgical assistance in the field. It grants a +10 bonus to Medicae Tests.</p><div class='bc-rule'><p>The mechadendrite houses six injector pistons, each of which may be filled with one dose of a drug. These may be supplied separately. In addition to providing first aid, the mechadendrite’s flesh staplers may be used to staunch Blood Loss as a Half Action. A small chainscalpel attachment reduces the difficulty of limb amputation to Challenging (+0). This blade can be used as an improvised weapon and on a hit it deals 1d5 Rending Damage. Finally, the medicae mechadendrite grants a +10 bonus to Interrogation Tests. This mechadendrite may be shoulder or sternum mounted. A character must have the appropriate Mechadendrite Use Talent to operate this implant.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 208"
+    },
+    "effects": [
+      {
+        "_id": "16aaa6ee81478088",
+        "name": "EQUIPMENT_BONUS.OW_MEDICAE-MECHADENDRITE_USE",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.medicae-mechadendrite.use",
+              "conditional": true,
+              "selectors": [
+                "skill:medicae",
+                "skill:interrogation"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.medicae.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "mP547J3O9UxIUvfV"
+      }
     }
   },
   {
-    "name": "Memorance Implant", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Memorance Implant",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>A neurally linked datavault and pict-capture array, often incorporating augmetic replacement of one or both eyes, that records information on people or scenes viewed.</p><div class='bc-rule'><p>It can then later replay that information, or overlay the present view with additional data on people and objects viewed. It is a tool of chroniclers, remembrancers, and masters of ceremonies, as well as factors or nobles who like to see the secrets of their rivals overlaid upon their view of the negotiating table.</p><p>It can provide a +10 bonus to Trade (Remembrancer) Tests or other Tests in social situations where the recorded information provides leverage or value. The implant also grants the user the Total Recall Talent if he does not already possess it.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 208"
+    },
+    "effects": [
+      {
+        "_id": "022945aac29896d0",
+        "name": "EQUIPMENT_BONUS.OW_MEMORANCE_INFORMATION",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.memorance.information",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "f2aP2xGJFZlDVeeb"
+      }
     }
   },
   {
-    "name": "Mind Impulse Unit", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Mind Impulse Unit",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/wires.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These devices, also known as sense-links, allow the owner to interface directly with a machine or technological device. MIUs see widespread use among the Adeptus Mechanicus who regard them as objects of divine communion.</p><div class='bc-rule'><p>A basic MIU implant involves a single spinal or cortex connector, while advanced variants include wrist connector probes—and possibly mechadendrite connectors—in addition to the spinal plug.</p><p><strong>Common:</strong> impose no modifiers to machine spirit communication and add a +10 bonus to Tech-Use or Operate Tests used in conjunction with devices capable of MIU linking.</p><p><strong>Poor:</strong> require a Willpower Test to use and impose a –10 penalty when attempting to interface with a device.</p><p><strong>Good:</strong> grant a +10 bonus to communicate with machine spirits and for Tech-Use, Operate, Logic, Inquiry, and Ballistic Skill Tests made as part of interfacing with the MIU systems.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 208"
+    },
+    "effects": [
+      {
+        "_id": "a74a1c6b79bdb82d",
+        "name": "EQUIPMENT_BONUS.OW_MIU_COMMON",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.miu.common",
+              "conditional": true,
+              "selectors": [
+                "skill:techUse",
+                "skill:operate.*"
+              ],
+              "quality": [
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.techUse.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "870824fa62d16788",
+        "name": "EQUIPMENT_BONUS.OW_MIU_POOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.miu.poor",
+              "conditional": true,
+              "selectors": [
+                "skill:techUse",
+                "skill:operate.*",
+                "skill:logic",
+                "skill:inquiry"
+              ],
+              "quality": [
+                "poor"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.techUse.total",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "c564979507c9bf7f",
+        "name": "EQUIPMENT_BONUS.OW_MIU_SUPERIOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.miu.superior",
+              "conditional": true,
+              "selectors": [
+                "skill:techUse",
+                "skill:operate.*",
+                "skill:logic",
+                "skill:inquiry"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.techUse.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "zOkMpPKa3EYrXiN3"
+      }
     }
   },
   {
-    "name": "MIU Weapon Interface", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "MIU Weapon Interface",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/wires.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Unlike the more advanced version normally only granted to priests of the Adeptus Mechanicus, this version is more simplified, allowing the user to remotely operate a single weapon which is normally attached to the shoulder. While not as elaborate, it is easier to use and a favourite of many militant professions.</p><div class='bc-rule'><p>This system allows the user to fire the linked ranged weapon as a Free Action during his Turn. Note that he can still only take a single Action with the Attack Subtype during his Turn. This additional weapon must be connected to the user via the MIU weapon interface, and is often equipped as a shoulder mount.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 208"
     }
   },
   {
-    "name": "Optical Mechadendrite", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Optical Mechadendrite",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/mechadendrite.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This highly flexible mechadendrite, set with pict-capture and sensor devices, is designed to assist in inspection and detection. This mechadendrite extends to a length of 3 metres and can reduce its width to pencil thickness.</p><div class='bc-rule'><p>It grants a +10 bonus to all Perception-based Tests. The pict-devices mounted on the mechadendrite allow the user to examine surfaces at a microscopic level or may be used as telescopic sight. This mechadendrite is also mounted with an infra-red torch and sensors. A character using this mechadendrite suffers no penalties due to darkness and gains a +20 bonus to Vision-based Perception Tests at night. Finally, the mechadendrite is fitted with a light that may be tinted a variety of different colours depending on the controller’s whim. This mechadendrite may be shoulder or sternum-mounted. A character must have the appropriate Mechadendrite Use Talent to operate this implant.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 208"
+    },
+    "effects": [
+      {
+        "_id": "9fd6beda6f43142c",
+        "name": "EQUIPMENT_BONUS.OW_OPTICAL_PERCEPTION",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.optical.perception",
+              "conditional": true,
+              "selectors": [
+                "basedOn:perception"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.perception.displayTotal",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "y8hnABy3KnwVKzwu"
+      }
     }
   },
   {
-    "name": "Respiratory Filter Implant", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Respiratory Filter Implant",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/capacitor.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These are implanted inside the lungs and can sift out most toxic gases. Inhaled particulate matter is also filtered, making breathing easier in heavily polluted atmospheres.</p><div class='bc-rule'><p>This implant allows the user to ignore any inhaled toxic gases or atmospheric contaminants.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
     }
   },
   {
-    "name": "Utility Mechadendrite", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Utility Mechadendrite",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/mechadendrite.webp",
     "system": {
-      "availability": "very-rare", "weight": 0,
+      "availability": "very-rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This two-metre long limb houses a variety of tools and attachments designed to assist a Tech-Priest in the course of his holy duties.</p><div class='bc-rule'><p>The mechadendrite counts as a combi-tool, granting a +10 bonus to all Tech-Use Tests. The limb also houses six injector pistons, each of which may be filled with one dose of sacred unguent. These can be supplied separately. In addition to this, the limb contains an electrically powered censer, which can gust incense fumes over particularly troublesome faults. The censer generates one “blast” of smoke every fifteen minutes. This can be employed in melee combat to distract and choke, imposing a –5 penalty to Weapon Skill Tests made by all living creatures within a two-metre radius for one Round. This is a Half Action. Unless the censer is deactivated, all Perception Tests made to detect the Tech-Priest that rely on a sense of smell gain a +10 bonus. Finally, the mechadendrite contains a cutting blade. This counts as a knife with the Defensive Quality and Mono upgrade. A character must have the appropriate Mechadendrite Use Talent to operate this implant.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
+    },
+    "effects": [
+      {
+        "_id": "77e32ca50e184beb",
+        "name": "EQUIPMENT_BONUS.OW_UTILITY_TECH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "installed",
+            "equipmentBonus": {
+              "id": "ow.utility.tech",
+              "conditional": true,
+              "selectors": [
+                "skill:techUse"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.techUse.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "bAAbDGfoRq8aBBAX"
+      }
     }
   },
   {
-    "name": "Vocal Implant", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Vocal Implant",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/equipment/laud-hailer.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
+      "availability": "scarce",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>This implant is usually reserved for Commissars or soldiers who use their voice to project commands or statements.</p><div class='bc-rule'><p>This implant works to amplify the vocal chords to an inhuman range in order to shout commands over the noise of a raging battle.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
     }
   },
   {
-    "name": "Volitor Implant", "type": "cybernetic", "folder": "Cybernetics/Implants",
+    "name": "Volitor Implant",
+    "type": "cybernetic",
+    "folder": "Cybernetics/Implants",
     "img": "systems/dark-heresy/assets/icons/armoury/cybernetics/cybernetics.webp",
     "system": {
-      "availability": "rare", "weight": 0,
+      "availability": "rare",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>The subject has cranial surgery to implant neural receptors and artificial nerve routing, and can be compelled not to reveal a certain item of information, remain within a set area, or perform a specific task.</p><div class='bc-rule'><p>If the subject attempts—or is forced—to counter this compulsion, his brain shuts down into unconsciousness—or even death for some severe volitor patterns. Typically, Guardsmen are not trusted with valuable enough information to warrant such an extreme implant. However, the Departmento Munitorum has been known to use the volitor implant on squads of Guardsmen that are told valuable secrets in order to operate behind enemy lines in the Severan Dominate.</p></div></div>",
       "source": "Only War, p. 205 (Table 6-24), p. 209"
     }

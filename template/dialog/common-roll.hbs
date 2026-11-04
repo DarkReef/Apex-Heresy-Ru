@@ -43,4 +43,16 @@
             {{selectOptions (config "difficulties") selected=difficulty localize=true}}
         </select>
     </div>
+    {{#if equipmentBonusChoices}}
+        <fieldset class="dh-equipment-bonuses">
+            <legend>{{localize "EQUIPMENT_BONUS.TITLE"}}</legend>
+            <p>{{localize "EQUIPMENT_BONUS.HINT"}}</p>
+            {{#each equipmentBonusChoices}}
+                <label class="dh-equipment-bonus-choice"{{#unless matches}} hidden{{/unless}}>
+                    <input type="checkbox" name="equipmentBonus" value="{{id}}"{{#unless matches}} disabled{{/unless}}>
+                    <span><strong>{{name}} {{signed}}</strong><small>{{condition}}</small></span>
+                </label>
+            {{/each}}
+        </fieldset>
+    {{/if}}
 </div>

@@ -260,9 +260,13 @@ export function createFoundryAttackWorkflowBridge(native={}) {
     }
 
     function modifiers(data) {
-        const parts=[];
-        for(const [label,value] of [[tr('COMBAT_FLOW.MODIFIER'),data.target?.modifier],[tr('COMBAT_FLOW.DIFFICULTY'),data.difficulty?.value??data.difficulty]])
-            if(Number(value)) parts.push(`${label}: ${Number(value)>0?'+':''}${Number(value)}`);
+        const parts=data.evasionSources?[String(data.evasionSources)]:[];
+        if(!data.evasionSources) {
+            for(const [label,value] of [[tr('COMBAT_FLOW.MODIFIER'),data.target?.modifier],[tr('COMBAT_FLOW.DIFFICULTY'),data.difficulty?.value??data.difficulty]])
+                if(Number(value)) parts.push(`${label}: ${Number(value)>0?'+':''}${Number(value)}`);
+            if(data.actorConditionSources) parts.push(String(data.actorConditionSources));
+        }
+        if(data.equipmentBonusSources) parts.push(String(data.equipmentBonusSources));
         return parts.join('; ');
     }
 

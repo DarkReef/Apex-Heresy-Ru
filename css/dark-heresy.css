@@ -14655,3 +14655,14 @@ body:not(.no-theme) .dark-heresy.app.window-app .voidship .ship-sp input {
 .dh-workflow-review table {width:100%;font-size:13px;}
 .dh-workflow-review-warning {border:1px solid #9d5d42;padding:8px;margin:8px 0;}
 .dh-workflow-review-warning label {display:flex;align-items:flex-start;gap:7px;}
+
+/* Situational equipment is an explicit choice for this test only. */
+.dh-dialog .dh-equipment-bonuses {margin:10px 0 0;padding:8px;border:1px solid var(--dh-gold,#80672f);min-width:0;}
+.dh-dialog .dh-equipment-bonuses legend {font-size:12px;}
+.dh-dialog .dh-equipment-bonuses p {font-size:11px;line-height:1.4;margin:0 0 8px;}
+.dh-dialog .dh-equipment-bonus-choice {display:flex;align-items:flex-start;gap:6px;cursor:pointer;margin:7px 0;}
+.dh-dialog .dh-equipment-bonus-choice[hidden] {display:none;}
+.dh-dialog .dh-equipment-bonus-choice input {flex:0 0 16px;width:16px;height:16px;margin:2px 0;}
+.dh-dialog .dh-equipment-bonus-choice span {min-width:0;overflow-wrap:anywhere;}
+.dh-dialog .dh-equipment-bonus-choice strong,.dh-dialog .dh-equipment-bonus-choice small {display:block;font-size:12px;line-height:1.4;}
+.dh-dialog .dh-equipment-bonus-choice small {font-size:11px;opacity:.85;}

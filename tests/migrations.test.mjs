@@ -37,10 +37,10 @@ test('a world already upgraded to schema 15 is carried forward, not refused', as
     // Worlds that ran the short-lived weapon-training migration sit at 15.
     const f = fixture(15);
     await f.system.get('migrateWorld')();
-    assert.equal(f.written(), 16);
+    assert.equal(f.written(), 17);
 });
 test('a world at the current schema is opened without being rewritten', async () => {
-    const f = fixture(16);
+    const f = fixture(17);
     await f.system.get('migrateWorld')();
     assert.equal(f.written(), undefined);
 });

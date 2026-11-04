@@ -47,7 +47,7 @@ async function makeFixture() {
             system: {description: '<a>@UUID[Compendium.dark-heresy.only-war.Item.stable-item]</a>', damage: '1d10+3'},
             flags: {'dark-heresy': {equipped: true, source: 'Compendium.dark-heresy.only-war.Item.stable-item'}, other: {kept: 42}},
             _stats: {systemId: 'dark-heresy', systemVersion: '1.4.2', compendiumSource: 'Compendium.dark-heresy.only-war.Item.stable-item'},
-            effects: [{_id: 'stable-effect', img: 'systems/dark-heresy/assets/effect.webp', _stats: {systemId: 'dark-heresy'}}],
+            effects: [{_id: 'stableEffect0001', img: 'systems/dark-heresy/assets/effect.webp', _stats: {systemId: 'dark-heresy'}}],
             command: 'game.settings.get("dark-heresy", "mode"); fromUuid("Compendium.dark-heresy.only-war.Item.stable-item")'
         },
         '!folders!stable-folder': {_id: 'stable-folder', name: 'Arsenal', sorting: 'a', flags: {}},
@@ -74,16 +74,19 @@ test('release rewrites copied packs without changing source files, document IDs,
     const db = new ClassicLevel(join(output, 'packs/only-war'), {valueEncoding: 'json', createIfMissing: false});
     try {
         await db.open();
-        assert.deepEqual((await db.keys().all()).sort(), Object.keys(records).sort());
+        assert.deepEqual((await db.keys().all()).sort(), [...Object.keys(records), '!items.effects!stable-item.stableEffect0001'].sort());
         const item = await db.get('!items!stable-item');
         assert.equal(item._id, 'stable-item');
-        assert.equal(item.effects[0]._id, 'stable-effect');
+        assert.equal(item.effects[0], 'stableEffect0001');
+        const effect = await db.get('!items.effects!stable-item.stableEffect0001');
+        assert.equal(effect._id, 'stableEffect0001');
+        assert.equal(effect.img, 'systems/apex-heresy-ru/assets/effect.webp');
         assert.equal(item.img, 'systems/apex-heresy-ru/assets/weapon.webp');
         assert.match(item.system.description, /Compendium\.apex-heresy-ru\.only-war\.Item\.stable-item/);
         assert.equal(item.system.damage, '1d10+3');
         assert.equal(item._stats.systemId, 'apex-heresy-ru');
         assert.equal(item._stats.systemVersion, '1.4.2');
-        assert.equal(item.effects[0]._stats.systemId, 'apex-heresy-ru');
+        assert.equal(effect._stats.systemId, 'apex-heresy-ru');
         assert.equal(item.flags['dark-heresy'].equipped, true);
         assert.equal(item.flags['dark-heresy'].source, 'Compendium.apex-heresy-ru.only-war.Item.stable-item');
         assert.deepEqual(item.flags.other, {kept: 42});

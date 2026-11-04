@@ -5,6 +5,8 @@ import {processEffectBoundary, decorateEffectClockView, restartEffectClockUpdate
 import {openEffectClockDialog} from './combat/effect-clock-ui.mjs';
 import {resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock} from "./data/ammunition-link.mjs";
 import {decorateModifierTooltips} from "./data/modifier-breakdown.mjs";
+import {equipmentBonusMetadata, equipmentEffectApplies, equipmentItemEquippable, conditionalEquipmentBonuses, snapshotEquipmentBonuses, localizeEquipmentEffectNames} from "./data/equipment-bonuses.mjs";
+import {syncEquipmentBonuses} from "./data/equipment-bonus-migration.mjs";
 import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from "./package-identity.mjs";
 import {migratePackageReferences} from "./package-reference-migration.mjs";
 import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
@@ -148,9 +150,18 @@ const DH_DERIVED_EFFECT_KEYS = new Set([
     "system.encumbrance.value", "system.encumbrance.max"
 ]);
 
+Hooks.on("preCreateItem", (item, data) => {
+    const localized = localizeEquipmentEffectNames(item._source?.effects ?? data.effects, key => game.i18n.localize(key));
+    if (localized.changed) item.updateSource({effects:localized.effects});
+});
+
 class DarkHeresyActiveEffect extends ActiveEffect {
     get isSuppressed() {
         if (super.isSuppressed) return true;
+        if (equipmentBonusMetadata(this)?.id) {
+            const actor = this.parent?.documentName === "Item" ? this.parent.parent : this.parent;
+            return !equipmentEffectApplies(this, actor, {ruleset: actor ? Dh.rulesetFor(actor).id : null});
+        }
         const item = this.parent?.documentName === "Item" ? this.parent : null;
         if (!item || !this.transfer) return false;
         const activation = this.flags?.["dark-heresy"]?.activation;
@@ -3107,7 +3118,7 @@ class DarkHeresyItem extends Item {
         if (["armour", "weapon", "forceField"].includes(this.type)) return true;
         // Снаряжение, которое книга описывает как «даёт N брони» или собственную
         // атаку, носят наравне с доспехом. Синскин — как раз такой случай.
-        return !!(this.system?.grantsArmour?.enabled || this.system?.grantsAttack?.enabled);
+        return !!(this.system?.grantsArmour?.enabled || this.system?.grantsAttack?.enabled || equipmentItemEquippable(this));
     }
 
     /**
@@ -4057,6 +4068,9 @@ async function _computeCommonTarget(rollData) {
     const difficultyMod = Number(rollData?.difficulty?.value) || 0;
     const actor = _actorFromRollData(rollData);
     const actorConditionMod = _getActorConditionModifier(actor, rollData);
+    const equipmentBonus = snapshotEquipmentBonuses(actor, rollData, {
+        ruleset: actor ? Dh.rulesetFor(actor).id : null, localize: key => game.i18n.localize(key)
+    });
     
     rollData.actorConditionModifier = actorConditionMod;
     
@@ -4112,7 +4126,7 @@ async function _computeCommonTarget(rollData) {
         // Захват режет любую реакцию, не только парирование.
         if (rollData.evasionBlocked) rollData.target.final = 0;
     } else {
-        rollData.target.final = _getRollTarget(rollData.target.modifier + difficultyMod + actorConditionMod, rollData.target.base);
+        rollData.target.final = _getRollTarget(rollData.target.modifier + difficultyMod + actorConditionMod + equipmentBonus, rollData.target.base);
     }
 }
 
@@ -5836,6 +5850,11 @@ async function prepareCommonRoll(rollData) {
     } else if (rollData.difficulty === undefined || rollData.difficulty === null) {
         rollData.difficulty = 0;
     }
+    const equipmentActor = _actorFromRollData(rollData);
+    rollData.equipmentBonusChoices = conditionalEquipmentBonuses(equipmentActor, rollData, {
+        ruleset: equipmentActor ? Dh.rulesetFor(equipmentActor).id : null, allCharacteristics: true,
+        localize: key => game.i18n.localize(key)
+    });
     const html = await foundry.applications.handlebars.renderTemplate("systems/apex-heresy-ru/template/dialog/common-roll.hbs", rollData);
     let dialog = dhDialog({
         title: game.i18n.localize(rollData.name),
@@ -5863,6 +5882,8 @@ async function prepareCommonRoll(rollData) {
                         }
                     }
                     rollData.target.modifier = parseInt(html.find("#modifier")[0].value, 10);
+                    rollData.equipmentBonusSelection = Array.from(html.find("[name='equipmentBonus']:checked"))
+                        .filter(input => !input.disabled).map(input => input.value);
                     const difficulty = html.find("#difficulty")[0];
                     if (difficulty) {
                         const selectedOption = difficulty.options[difficulty.selectedIndex];
@@ -5908,20 +5929,34 @@ async function prepareCommonRoll(rollData) {
                     option.text(suffix ? `${baseText} (${suffix})` : baseText);
                 });
             };
-            const sel = html.find("select[name=characteristic");
+            const sel = html.find("select[name=characteristic]");
             const target = html.find("#target");
+            const refreshEquipment = () => {
+                const characteristicKey = sel.val() || rollData.characteristicKey;
+                const applicable = new Set(conditionalEquipmentBonuses(equipmentActor, {...rollData, characteristicKey}, {
+                    ruleset: equipmentActor ? Dh.rulesetFor(equipmentActor).id : null
+                }).map(choice => choice.id));
+                html.find("[name='equipmentBonus']").each((_, input) => {
+                    const enabled = applicable.has(input.value);
+                    input.disabled = !enabled;
+                    if (!enabled) input.checked = false;
+                    input.closest(".dh-equipment-bonus-choice").hidden = !enabled;
+                });
+            };
             sel.change(() => {
                 const selectedOption = sel.find(":selected");
                 target.val(selectedOption.data("target"));
+                refreshEquipment();
             });
             const initialOption = sel.find(":selected");
             if (initialOption.length) {
                 target.val(initialOption.data("target"));
             }
+            refreshEquipment();
             setOptionLabels(html.find("#difficulty"), value => formatSigned(value));
         }
     }, {
-        width: 200
+        width: rollData.equipmentBonusChoices.length ? 440 : 200
     });
     dialog.render(true);
 }
@@ -7291,6 +7326,14 @@ class DarkHeresyUtil {
         // другое: у Rogue Trader необученный базовый идёт на половине
         // характеристики, а не на минус двадцати (стр. 231).
         const skillModel = Dh.rulesetFor(actor).skills?.model ?? "dh2";
+        const sourceCharacteristic = Object.values(actor.characteristics).find(char => char.short === skill.characteristics[0]);
+        const sourceBase = Number(sourceCharacteristic?.displayTotal ?? sourceCharacteristic?.total) || 0;
+        const sourceTarget = skillModel === "basicAdvanced"
+            ? rtSkillBase({characteristic:sourceBase, advance:skill.advance, type:rtSkillType(skillName)}).base
+            : sourceBase + (Number(skill.advance) || 0);
+        // Final ActiveEffects and native weapon bonuses belong to the skill,
+        // including when the player chooses another governing characteristic.
+        const preparedDelta = Number.isFinite(Number(skill.total)) ? Number(skill.total) - sourceTarget : 0;
         characteristics = characteristics.map(char => {
             if (skillModel === "basicAdvanced") {
                 char.target = rtSkillBase({
@@ -7299,14 +7342,16 @@ class DarkHeresyUtil {
                     type: rtSkillType(skillName)
                 }).base;
             } else {
-                char.target += skill.advance;
+                char.target += Number(skill.advance) || 0;
             }
+            char.target += preparedDelta;
             return char;
         });
         const defaultCharKey = characteristics.find(char => char.selected)?.key;
 
         return foundry.utils.mergeObject(this.createCommonNormalRollData(actor, skill), {
             name: skill.label,
+            skillKey: skillName,
             characteristics: characteristics,
             characteristicKey: defaultCharKey
         });
@@ -7315,11 +7360,18 @@ class DarkHeresyUtil {
     static createSpecialtyRollData(actor, skillName, specialityName) {
         const skill = actor.skills[skillName];
         const speciality = skill.specialities[specialityName];
-        const defaultChar = skill.defaultCharacteristic || skill.characteristics[0];
+        const defaultChar = speciality.defaultCharacteristic || skill.defaultCharacteristic || speciality.characteristics?.[0] || skill.characteristics[0];
 
         let characteristics = this.getCharacteristicOptions(actor, defaultChar);
         // Специализация считается моделью своей группы, как и её число на листе.
         const specialityModel = Dh.rulesetFor(actor).skills?.model ?? "dh2";
+        const sourceShort = speciality.characteristics?.[0] || skill.characteristics[0];
+        const sourceCharacteristic = Object.values(actor.characteristics).find(char => char.short === sourceShort);
+        const sourceBase = Number(sourceCharacteristic?.displayTotal ?? sourceCharacteristic?.total) || 0;
+        const sourceTarget = specialityModel === "basicAdvanced"
+            ? rtSkillBase({characteristic:sourceBase, advance:speciality.advance, type:rtSkillType(skillName)}).base
+            : sourceBase + (Number(speciality.advance) || 0);
+        const preparedDelta = Number.isFinite(Number(speciality.total)) ? Number(speciality.total) - sourceTarget : 0;
         characteristics = characteristics.map(char => {
             if (specialityModel === "basicAdvanced") {
                 char.target = rtSkillBase({
@@ -7328,14 +7380,17 @@ class DarkHeresyUtil {
                     type: rtSkillType(skillName)
                 }).base;
             } else {
-                char.target += speciality.advance;
+                char.target += Number(speciality.advance) || 0;
             }
+            char.target += preparedDelta;
             return char;
         });
         const defaultCharKey = characteristics.find(char => char.selected)?.key;
 
         return foundry.utils.mergeObject(this.createCommonNormalRollData(actor, speciality), {
             name: speciality.label,
+            skillKey: skillName,
+            specialityKey: specialityName,
             characteristics: characteristics,
             characteristicKey: defaultCharKey
         });
@@ -14125,7 +14180,7 @@ function registerHandlebarsHelpers() {
 }
 
 const migrateWorld = async () => {
-    const schemaVersion = 16;
+    const schemaVersion = 17;
     if (game.user !== game.users.activeGM) return;
     const previous = Number(game.settings.get("dark-heresy", "worldSchemaVersion"));
     if (previous > schemaVersion) throw new Error("World schema is newer than this system; migration refused.");
@@ -14142,6 +14197,7 @@ const migrateWorld = async () => {
         for (const item of game.items.contents) {
             const update = migrateItemData(item);
             if (!foundry.utils.isEmpty(update)) await item.update(update);
+            await syncEquipmentBonuses(item);
         }
         for (const pack of game.packs.filter(p => (p.metadata.packageType === "world" || p.metadata.package === "world")
             && ["Actor", "Item"].includes(p.documentName ?? p.metadata.type))) {
@@ -14221,6 +14277,7 @@ const migrateActorItems = async (actor) => {
     if (updates.length) {
         await actor.updateEmbeddedDocuments("Item", updates);
     }
+    for (const item of actor.items.contents ?? actor.items) await syncEquipmentBonuses(item);
 };
 
 /**
@@ -14412,6 +14469,7 @@ const migrateCompendium = async function(pack, worldSchemaVersion) {
             else {
                 const update = migrateItemData(doc);
                 if (!foundry.utils.isEmpty(update)) await doc.update(update);
+                await syncEquipmentBonuses(doc);
             }
         }
     } finally {

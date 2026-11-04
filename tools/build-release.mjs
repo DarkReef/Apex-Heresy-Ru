@@ -12,6 +12,7 @@ import {dirname, isAbsolute, join, relative, resolve, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {ClassicLevel} from 'classic-level';
 import {LEGACY_DATA_SCOPE, SYSTEM_ID, rewriteLegacyReferences} from '../script/package-identity.mjs';
+import {addEquipmentPackEffects, splitItemEffects} from './lib/equipment-pack-data.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 export const RELEASE_CONTENTS = Object.freeze([
@@ -87,7 +88,12 @@ async function rewriteCopiedPack(path, name) {
             let original;
             try { original = JSON.parse(raw); }
             catch (cause) { throw new Error(`Pack ${name}, record ${key}: invalid JSON.`, {cause}); }
-            const updated = rewritePackRecord(original);
+            let updated = addEquipmentPackEffects(rewritePackRecord(original), name);
+            if (key.startsWith('!items!') && Array.isArray(updated.effects)) {
+                const split = splitItemEffects(updated);
+                updated = split.document;
+                for (const effect of split.effects) batch.push({type:'put', key:effect.key, value:JSON.stringify(rewritePackRecord(effect.value))});
+            }
             records++;
             if (JSON.stringify(original) === JSON.stringify(updated)) continue;
             batch.push({type: 'put', key, value: JSON.stringify(updated)});

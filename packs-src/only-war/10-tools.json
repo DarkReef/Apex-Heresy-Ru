@@ -1,306 +1,806 @@
 [
   {
-    "name": "Accordion Wire", "type": "tool", "folder": "Tools",
+    "name": "Accordion Wire",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/entrenching-tool.webp",
     "system": {
-      "availability": "common", "weight": 0.5,
+      "availability": "common",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>A staple of trench warfare, accordion wire comes in wickedly barbed metal spools that can be quickly stretched out and deployed to defend trenches or buildings from an infantry assault.</p><div class='bc-rule'><p>Any character attempting to cross deployed accordion wire must make a Hard (–20) Acrobatics Test or suffer 1d5 Rending Damage plus 1 extra Damage for each Degree of Failure on the Test.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 200"
     }
   },
   {
-    "name": "Auspex/Scanner", "type": "tool", "folder": "Tools",
+    "name": "Auspex/Scanner",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/auspex.webp",
     "system": {
-      "availability": "scarce", "weight": 0.5,
+      "availability": "scarce",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>The standard Imperial detection device, these are used to detect energy emissions, motion, biological life-signs, and other information.</p><div class='bc-rule'><p>A character using an auspex gains a +20 bonus to Awareness Tests and may make a Tech-Use Test to use it to spot things not normally possible with human senses, such as invisible gases, nearby signs of life, non-visible radiation, or other things as appropriate. The standard range for an auspex is 50m, though walls more than 50cm thick and certain shielding materials can block the scanner. Good Craftsmanship models increase the bonus to +30, but Poor Craftsmanship models can only penetrate 20cm of material.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 200"
+    },
+    "effects": [
+      {
+        "_id": "edacd06689f9d8cc",
+        "name": "EQUIPMENT_BONUS.OW_AUSPEX_SCAN",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.auspex.scan",
+              "conditional": true,
+              "selectors": [
+                "skill:awareness"
+              ],
+              "quality": [
+                "poor",
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.awareness.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "f5faa522a4f7fb14",
+        "name": "EQUIPMENT_BONUS.OW_AUSPEX_SCAN-SUPERIOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.auspex.scan-superior",
+              "conditional": true,
+              "selectors": [
+                "skill:awareness"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.awareness.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "b2nt86pBygaRqGtP"
+      }
     }
   },
   {
-    "name": "Auto Quill", "type": "tool", "folder": "Tools",
+    "name": "Auto Quill",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/auto-quill.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
+      "availability": "scarce",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These scribing devices seem arcane in appearance, but allow the user to copy text at an impressive rate with great accuracy.</p><div class='bc-rule'><p>A character with the Trade Skill can use an auto quill to gain a +10 to their Tests involving this Skill.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 200"
+    },
+    "effects": [
+      {
+        "_id": "6d91afe0ee61282a",
+        "name": "EQUIPMENT_BONUS.OW_AUTO-QUILL_TRADE",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.auto-quill.trade",
+              "conditional": true,
+              "selectors": [
+                "skill:trade.*"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.trade.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "faxo1U5xxyzHzlK5"
+      }
     }
   },
   {
-    "name": "Calixian Infantryman’s PCTD", "type": "tool", "folder": "Tools",
+    "name": "Calixian Infantryman’s PCTD",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/writing-kit.webp",
     "system": {
-      "availability": "plentiful", "weight": 0,
+      "availability": "plentiful",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>While the construction of the Calixian Infantryman’s Portable Communications Transcription Device varies greatly from planet to planet, its function is vital. Every Guardsman tithed from a world within the Calixis Sector is expected to have a rudimentary understanding of its operating procedures so that he may communicate when Vox-operators are not available.</p><div class='bc-rule'><p>Typically a gripped cylinder with a reservoir or staining liquid, the device has also been manufactured successfully on primitive worlds such as Iocanthos using soft breaking metal or fissionable residue encased in a strain resistant substance, usually milled on site. When a staining liquid is used, it can be manufactured from a variety of substances found throughout the Calixis Sector including, but not limited to, flora/fauna compression, animal excretion harvesting, or synthetic means. This source can often affect the hue of the staining liquid.</p><p>The “por-com,” as many Scintillan regiments have come to call it, is typically issued with locally rendered Calixian Infantryman’s Portable Communications Notation Devices. These can be harvested from fauna rendering processes or created synthetically.</p><p>A Poor Craftsmanship device is unreliable. Whenever a Guardsman wishes to make use of one, he must roll 1d10; on a 1 or 2, the device fails to function. An Ordinary (+10) Tech-Use Test will allow the Guardsman to perform the Drusian Litany of Gesticulation, calling on the power Saint Drusus to restore the device to working order. A Best Craftsmanship device functions even in locations without gravity and has multiple reservoirs that hold different pigments of staining liquid.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 200–201"
     }
   },
   {
-    "name": "Combi-tool", "type": "tool", "folder": "Tools",
+    "name": "Combi-tool",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/combi-tool.webp",
     "system": {
-      "availability": "rare", "weight": 1,
+      "availability": "rare",
+      "weight": 1,
       "description": "<div class='bc-entry'><p class='bc-lead'>Commonly found in the hands of members of the Adeptus Mechanicus, combi-tools are versatile, if somewhat bizarre, mechanical devices.</p><div class='bc-rule'><p>A character using a combi-tool gains a +10 bonus to Tech-Use Tests.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
+    },
+    "effects": [
+      {
+        "_id": "897c01b02b37be46",
+        "name": "EQUIPMENT_BONUS.OW_COMBI-TOOL_TECH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.combi-tool.tech",
+              "conditional": true,
+              "selectors": [
+                "skill:techUse"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.techUse.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "fhSpaoobAznR7faG"
+      }
     }
   },
   {
-    "name": "Data-slate", "type": "tool", "folder": "Tools",
+    "name": "Data-slate",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/data-slate.webp",
     "system": {
-      "availability": "common", "weight": 0.5,
+      "availability": "common",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Data-slates are common in the Imperium and are the primary means of storing and reading printed text and other media such as video or audio recordings.</p><div class='bc-rule'><p>They are cheap and easy to make, and many contain a single media recording, such as text, and can only play that single file. Others can re-record new information or transmit and receive data from other devices.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Demolition Charge", "type": "tool", "folder": "Tools",
+    "name": "Demolition Charge",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/weapons/demolition-charge.webp",
     "system": {
-      "availability": "scarce", "weight": 1,
+      "availability": "scarce",
+      "weight": 1,
       "description": "<div class='bc-entry'><p class='bc-lead'>A demolition charge is a simple explosive device, commonly used for blowing open doors, breaching bulkheads, and destroying infrastructure.</p><div class='bc-rule'><p>The listed weight for a demolition charge represents 1kg of explosives, though it is possible to rig charges together, thus increasing their destructive potential. When a demolition charge explodes, anything caught within its blast suffers 3d10 Explosive Damage plus 2 Damage for every kilogram used. The blast radius is 5 meters for each kilogram used. For setting and defusing explosives, see the Tech-Use Skill (see page 133).</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Diagnostor", "type": "tool", "folder": "Tools",
+    "name": "Diagnostor",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/diagnostor.webp",
     "system": {
-      "availability": "rare", "weight": 4,
+      "availability": "rare",
+      "weight": 4,
       "description": "<div class='bc-entry'><p class='bc-lead'>The diagnostor is a sophisticated medical device used across the galaxy. It can detect and diagnose almost every ailment known to the Imperium, and can be incorporated into medical kits, servo-skulls, and other dedicated servitors.</p><div class='bc-rule'><p>Any individual trained in medical knowledge in the Imperial Guard understands its use. A diagnostor provides +20 to Medicae or Perception Tests to determine an ailment. A success indicates the proper treatment.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
+    },
+    "effects": [
+      {
+        "_id": "16a050a5a5a502db",
+        "name": "EQUIPMENT_BONUS.OW_DIAGNOSTOR_DIAGNOSE",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.diagnostor.diagnose",
+              "conditional": true,
+              "selectors": [
+                "skill:medicae",
+                "characteristic:perception"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.medicae.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "gWLagIpJt9xvVNQY"
+      }
     }
   },
   {
-    "name": "Field Suture", "type": "tool", "folder": "Tools",
+    "name": "Field Suture",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/chirugeons-kit.webp",
     "system": {
-      "availability": "average", "weight": 0.5,
+      "availability": "average",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Common implements found on battlefields across the Imperium, field sutures are used to quickly sew shut wounds to prevent blood loss.</p><div class='bc-rule'><p>They can vary in form, from a simple needle and thread to archaic devices which staple shut the injury. Field sutures provide +30 to Medicae Tests to staunch Blood Loss.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
+    },
+    "effects": [
+      {
+        "_id": "e1fdcdacc63f705a",
+        "name": "EQUIPMENT_BONUS.OW_FIELD-SUTURE_BLEEDING",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.field-suture.bleeding",
+              "conditional": true,
+              "selectors": [
+                "skill:medicae"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.medicae.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "saon0Vv95vGlIbnn"
+      }
     }
   },
   {
-    "name": "Glow-globe/Lamp Pack", "type": "tool", "folder": "Tools",
+    "name": "Glow-globe/Lamp Pack",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/glow-globe.webp",
     "system": {
-      "availability": "abundant", "weight": 0.5,
+      "availability": "abundant",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Sturdy and reliable, glow-globes illuminate many an Imperial paveway and cathedral.</p><div class='bc-rule'><p>Most portable ones are roughly the size of a clenched fist and can shine strong, yellowish light a dozen or so metres in width, lasting roughly five hours before their power pack needs recharging or replacing.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Grapnel & Line", "type": "tool", "folder": "Tools",
+    "name": "Grapnel & Line",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/grapnel-launcher.webp",
     "system": {
-      "availability": "common", "weight": 2,
+      "availability": "common",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Grapnels use a small launcher or gas-gun to fire a hooked or magnetic grapnel, connected to the launcher with a coiled 100m length of thin but strong line.</p><div class='bc-rule'><p>Once the grapnel attaches to the desired spot such as a rooftop, a Guardsman can manually climb the line or activate a powered winch. Common sets can hold 150kg, while Good or Best can support 200 kg.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Grav Chute", "type": "tool", "folder": "Tools",
+    "name": "Grav Chute",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/grav-chute.webp",
     "system": {
-      "availability": "rare", "weight": 15,
+      "availability": "rare",
+      "weight": 15,
       "description": "<div class='bc-entry'><p class='bc-lead'>A smaller version of a jump pack, these rely on suspensor fields to counter gravity to slow descent. Two small jets on either side above the shoulders offer extra braking as well.</p><div class='bc-rule'><p>Unlike a jetpack, Grav Chutes are designed only to allow the user to land safely from a long fall—such as combat drop from a transport—rather than leap into the air.</p><p>If the character passes a Challenging (+0) Agility Test or Routine (+20) Operate (Aeronautica) Test, the grav chute allows for a safe, guided fall from any height, otherwise the character counts as having fallen two metres for each Degree of Failure.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Injector", "type": "tool", "folder": "Tools",
+    "name": "Injector",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/inhaler.webp",
     "system": {
-      "availability": "common", "weight": 0.5,
+      "availability": "common",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Most specialised drugs require injectors. These can take many forms, from low-tech, disposable syringes up to sophisticated hypo-sprays.</p><div class='bc-rule'><p>An injector can hold one dose of any drug, which a character may administer as a Half Action.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Lascutter", "type": "tool", "folder": "Tools",
+    "name": "Lascutter",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/lascutter.webp",
     "system": {
-      "availability": "average", "weight": 4,
+      "availability": "average",
+      "weight": 4,
       "description": "<div class='bc-entry'><p class='bc-lead'>Ideal for slicing open doors and bulkheads, lascutters were originally designed for mining where their short range but intense cutting beam could chop apart even the toughest rock.</p><div class='bc-rule'><p>Most models can cut or weld around 10cm of metal depending on the thickness involved. They are large and cumbersome to use, however, precluding their effectiveness in combat situations. It can be used as a weapon (Heavy; 2m; 2d10+16 E; Pen 10; Clip 5; Rld 2 Full) but only on stationary targets.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Laud Hailer", "type": "tool", "folder": "Tools",
+    "name": "Laud Hailer",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/laud-hailer.webp",
     "system": {
-      "availability": "scarce", "weight": 4,
+      "availability": "scarce",
+      "weight": 4,
       "description": "<div class='bc-entry'><p class='bc-lead'>Whether belting orders over the ferocious roar of combat or addressing a crowd of thousands of men, Imperial Commanders often require great volume, and a laud hailer is the perfect tool.</p><div class='bc-rule'><p>A laud hailer can amplify normal speech levels such that an entire crowd can hear it clearly.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 201"
     }
   },
   {
-    "name": "Magboots", "type": "tool", "folder": "Tools",
+    "name": "Magboots",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/mag-boots.webp",
     "system": {
-      "availability": "rare", "weight": 2,
+      "availability": "rare",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Heavy and bulky, these oversized boots contain electromagnets that allow the wearer to adhere to metallic surfaces such as exterior hull plating and are often found in void-ship emergency lockers.</p><div class='bc-rule'><p>Magboots reduce the character’s Agility Bonus by 2 when used, but otherwise allow normal movement in low- or zero-gravity areas, provided there is a suitable surface to walk upon.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "DfmeuaYux63PX8nO"
+      }
     }
   },
   {
-    "name": "Magnoculars", "type": "tool", "folder": "Tools",
+    "name": "Magnoculars",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/magnoculars.webp",
     "system": {
-      "availability": "average", "weight": 0.5,
+      "availability": "average",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>These are powerful vision aids that magnify distant objects.</p><div class='bc-rule'><p>More advanced, high quality magnoculars can also do such things as give range read-outs, detect heat sources, calculate target location positioning, and take pict-captures of a view for later analysis.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Manacles", "type": "tool", "folder": "Tools",
+    "name": "Manacles",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/manacles.webp",
     "system": {
-      "availability": "plentiful", "weight": 1,
+      "availability": "plentiful",
+      "weight": 1,
       "description": "<div class='bc-entry'><p class='bc-lead'>These are solid restraints often used by bounty hunters and enforcers—and can also be found in the hands of more nefarious individuals or used for darker purposes.</p><div class='bc-rule'><p>An Imperial Guardsman might be issued these to capture a hostile civilian or to restrain a very valuable target for questioning.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Mantrap", "type": "tool", "folder": "Tools",
+    "name": "Mantrap",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/manacles.webp",
     "system": {
-      "availability": "plentiful", "weight": 2,
+      "availability": "plentiful",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>A portable hinged jaw device that has become popular in the Spinward Front, being used against the Orks of Waaagh! Grimtoof. It was designed as a lightweight tool that the Guardsmen could place as a trap or to protect an area from outside enemies.</p><div class='bc-rule'><p>Most Orks, not being of the highest level of intelligence, tend not to notice them. It was developed primarily for fighting in cities such as Kulth, to slow the Orks down without sacrificing the city’s buildings. If a character steps on the clutch inside the trap, it snaps shut on their leg dealing 1d10 Rending Damage, and rendering him Immobilized. The individual must pass a Difficult (–10) Strength Test to free themselves from the clutches of the trap.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Medi-kit", "type": "tool", "folder": "Tools",
+    "name": "Medi-kit",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/chirugeons-kit.webp",
     "system": {
-      "availability": "common", "weight": 2,
+      "availability": "common",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Small, compact, and reliable, medi-kits are essential gear for every Imperial Guard Squad. Each has a diagnostic cogitator complete with bio-scanner and probes, along with chemicals, drugs, and other means to treat a variety of injuries and ailments.</p><div class='bc-rule'><p>They grant a +20 to those using it in conjunction with the Medicae Skill. Advanced models include such items as tox wands, synth-skin applicators, and other aids usually available only to the wealthiest of the Imperial elite. These grant the +20 bonus to the Medicae Test even if the user does not possess the Medicae Skill, but weigh an extra 3 kg and are Rare instead of Common.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
+    },
+    "effects": [
+      {
+        "_id": "45904805cfa85bd3",
+        "name": "EQUIPMENT_BONUS.OW_MEDI-KIT_TREATMENT",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.medi-kit.treatment",
+              "conditional": true,
+              "selectors": [
+                "skill:medicae"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.medicae.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "cMpkMefljttJZcet"
+      }
     }
   },
   {
-    "name": "Melta Bomb", "type": "tool", "folder": "Tools",
+    "name": "Melta Bomb",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/weapons/melta-bomb.webp",
     "system": {
-      "availability": "very-rare", "weight": 12,
+      "availability": "very-rare",
+      "weight": 12,
       "description": "<div class='bc-entry'><p class='bc-lead'>Perhaps the most powerful portable explosive in existence, melta bombs use magna-adhesives to adhere to metallic surfaces where they detonate with a lethal shaped charge of intense heat, similar in effect to a melta weapon.</p><div class='bc-rule'><p>They are ideal for destroying bulkheads, vehicle hulls, and other heavily armoured targets. The common Imperial variety is roughly domed in shape but heavy and unwieldy. Handles on the casing allow the user to heft the bomb and slap it into place against the target surface, but it is not practical to throw (especially should the explosive side be facing the user when it detonates).</p><p>A melta bomb explodes for 6d10 E Damage, Penetration 12, with a range of two metres and the Flame and Melta Qualities.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Micro-bead", "type": "tool", "folder": "Tools",
+    "name": "Micro-bead",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/micro-bead.webp",
     "system": {
-      "availability": "average", "weight": 0,
+      "availability": "average",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>A micro-bead or comm-bead is a short range communication device worn in the ear, good for communication out to about one kilometre (depending on weather conditions and intervening terrain).</p><div class='bc-rule'><p>Each fits discretely in the ear, with higher Craftsmanship models nearly undetectable in casual inspection.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Multicompass", "type": "tool", "folder": "Tools",
+    "name": "Multicompass",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/multicompass.webp",
     "system": {
-      "availability": "near-unique", "weight": 4,
+      "availability": "near-unique",
+      "weight": 4,
       "description": "<div class='bc-entry'><p class='bc-lead'>When exploring new worlds, a device of this ancient tech-pattern is indispensable—but few have the means or influence to acquire one.</p><div class='bc-rule'><p>After a few seconds of analyzing planetary data, a multicompass can display directions, show topographical maps, point out compass bearings, indicate altitude, and much more. Even the Mechanicus Calixis do not fully understand all of the capabilities of such a rare and hallowed device. Possessing a multicompass adds a +20 bonus to all Survival and Navigation (Surface) Tests.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
+    },
+    "effects": [
+      {
+        "_id": "6489d9885e5bee9a",
+        "name": "EQUIPMENT_BONUS.OW_MULTICOMPASS_NAVIGATION",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.multicompass.navigation",
+              "conditional": false,
+              "selectors": [
+                "skill:survival",
+                "skill:navigate.surface"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.survival.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            },
+            {
+              "key": "system.skills.navigate.specialities.surface.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "TcxJ6KLRJ5EvrDRw"
+      }
     }
   },
   {
-    "name": "Multikey", "type": "tool", "folder": "Tools",
+    "name": "Multikey",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/multikey.webp",
     "system": {
-      "availability": "scarce", "weight": 0,
+      "availability": "scarce",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>As it can open most standard Imperial locks, the multikey is not a standard item for most honest Imperial citizens.</p><div class='bc-rule'><p>For the same reason, though, they are widely sought after by criminals and other disreputable elements. A character with a multikey gains a +30 bonus to any Security Test when trying to open locks.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
+    },
+    "effects": [
+      {
+        "_id": "2748b995daeb155b",
+        "name": "EQUIPMENT_BONUS.OW_MULTIKEY_LOCKS",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.multikey.locks",
+              "conditional": true,
+              "selectors": [
+                "skill:security"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.security.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "dtD9ibbnPQPcUyEm"
+      }
     }
   },
   {
-    "name": "Munitorum Manual", "type": "tool", "folder": "Tools",
+    "name": "Munitorum Manual",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/data-slate.webp",
     "system": {
-      "availability": "plentiful", "weight": 0.5,
+      "availability": "plentiful",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>A mandatory item that is required of all Guardsmen to have on them at all times.</p><div class='bc-rule'><p>This item details information about weaponry, supplies, and kits that the Guard and the Imperium utilize. Written by the Departmento Munitorum, it is a key staple in all Guardsmen’s gear. If this item is lost or not on the person, there are severe consequences.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Pict Recorder", "type": "tool", "folder": "Tools",
+    "name": "Pict Recorder",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/pict-recorder.webp",
     "system": {
-      "availability": "average", "weight": 1,
+      "availability": "average",
+      "weight": 1,
       "description": "<div class='bc-entry'><p class='bc-lead'>Pict recorders (or sometimes referred to as picters) are relatively simple live-media recording devices, and some have holographic capabilities.</p><div class='bc-rule'><p>Most also allow for playback as well as recording, and some are even built into dedicated pict-servitors so that they can capture important archaeological quests, weapon tests, alien interrogations, and other dangerous events.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 202"
     }
   },
   {
-    "name": "Psy Focus", "type": "tool", "folder": "Tools",
+    "name": "Psy Focus",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/psy-focus.webp",
     "system": {
-      "availability": "average", "weight": 0,
+      "availability": "average",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Psykers often use devices to help them focus their powers. A psy-focus could be a sacred bone, carved wytch stave, or chain of crystals.</p><div class='bc-rule'><p>When a Psyker with a psy-focus makes a Focus Power Test (see Chapter VII: Psychic Powers) he gains a +10 bonus.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "gpMWmrrCbB0Rb2ow"
+      }
     }
   },
   {
-    "name": "Screamer", "type": "tool", "folder": "Tools",
+    "name": "Screamer",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/screamer.webp",
     "system": {
-      "availability": "scarce", "weight": 2,
+      "availability": "scarce",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>These proximity alarms alert their users to incoming dangers by setting off a horrendous noise.</p><div class='bc-rule'><p>To activate, the player must succeed on a Challenging (+0) Tech-Use Test, but the GM rolls this Test in secret; players will not know how well the device is working until later on. Once set, a screamer has a Perception of 75 for the purposes of detecting sounds or motions. If it detects an intruder, it sounds its alarm, which can be heard anywhere out to one kilometre. Doors, walls, and other barriers may reduce the alarm’s range. Simple models (Poor Craftsmanship) only detect loud noises or fast movements nearby while more advanced models (Good Craftsmanship) can detect specific sound, movement, or even odour ranges and can also have more subtle warning methods (such as screaming only into vox channels).</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
     }
   },
   {
-    "name": "Signal Jammer", "type": "tool", "folder": "Tools",
+    "name": "Signal Jammer",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/signal-jammer.webp",
     "system": {
-      "availability": "rare", "weight": 2,
+      "availability": "rare",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>As the name suggests, this device acts to overpower local vox, data, or other transmissions.</p><div class='bc-rule'><p>Basic models are overt and obvious, such that the transmitting agencies know they are being jammed. Sophisticated versions emit precisely-tuned frequencies that dampen out transmissions without anyone detecting the action.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
     }
   },
   {
-    "name": "Static Generator", "type": "tool", "folder": "Tools",
+    "name": "Static Generator",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/signal-jammer.webp",
     "system": {
-      "availability": "very-rare", "weight": 3,
+      "availability": "very-rare",
+      "weight": 3,
       "description": "<div class='bc-entry'><p class='bc-lead'>Simple but obvious, this emits a powerful sphere of white noise across commonly used transmission frequencies within 30 metres.</p><div class='bc-rule'><p>Comm devices do not function, but it is also clear to all users that they are being disrupted and the device can be easily located. Still, when set on a timer and placed next to a transmission tower, they are effective for short-duration sabotage.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
     }
   },
   {
-    "name": "Stummer", "type": "tool", "folder": "Tools",
+    "name": "Stummer",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/stummer.webp",
     "system": {
-      "availability": "average", "weight": 2,
+      "availability": "average",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>The reverse of a screamer, stummers generate sound waves to cancel out ambient sounds and noises made by moving personnel in a small area.</p><div class='bc-rule'><p>A character carrying an active stummer gains a +30 bonus to Stealth Tests. A stummer typically has enough power for 20 minutes of continuous use before needing to be recharged—a process that takes about one hour.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
+    },
+    "effects": [
+      {
+        "_id": "41f799b392afac55",
+        "name": "EQUIPMENT_BONUS.OW_STUMMER_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.stummer.stealth",
+              "conditional": true,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "nXcCyMahf3JMbHkU"
+      }
     }
   },
   {
-    "name": "Hand-Held Targeter", "type": "tool", "folder": "Tools",
+    "name": "Hand-Held Targeter",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/magnoculars.webp",
     "system": {
-      "availability": "scarce", "weight": 0.5,
+      "availability": "scarce",
+      "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>A hand-held targeter is a small, hand-held device that is used by most forces of the Imperium. It is capable of detecting ranges to targets using optical sights for zooming, prediction systems for firing, and so on.</p><div class='bc-rule'><p>It is commonly used by spotters assisting with artillery fire. A Guardsman with a hand-held targeter may spend a Half Action to grant another character +20 to his next Ballistic Skill Test when firing a weapon with the Indirect Quality.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "vMmj0Ye9Pf5jefQy"
+      }
     }
   },
   {
-    "name": "Uplifting Primer", "type": "tool", "folder": "Tools",
+    "name": "Uplifting Primer",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/data-slate.webp",
     "system": {
-      "availability": "plentiful", "weight": 0,
+      "availability": "plentiful",
+      "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>A staple piece of gear that Guardsmen are required to have on them at all times—this piece of kit is never to fall into the hands of the enemies of the Imperium.</p><div class='bc-rule'><p>It details everything a Guardsman needs to know: principles and regulations of the Imperial Guard, issued arms, attire, apparatus, and equipment, basic battlefield policy and Imperial Guard organisation and structure, elementary battlefield medical instructions, and a detailed guide on the foes of the Imperium. No Guardsman should ever be found without possession of a copy of the Uplifting Primer—the punishment is severe.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
     }
   },
   {
-    "name": "Vox-caster", "type": "tool", "folder": "Tools",
+    "name": "Vox-caster",
+    "type": "tool",
+    "folder": "Tools",
     "img": "systems/dark-heresy/assets/icons/equipment/vox-caster.webp",
     "system": {
-      "availability": "scarce", "weight": 4,
+      "availability": "scarce",
+      "weight": 4,
       "description": "<div class='bc-entry'><p class='bc-lead'>A vox is a standard and reliable communication device used to transmit over long distances, including to and from orbiting vessels.</p><div class='bc-rule'><p>This allows communications with other who have vox-casters. Standard ranges are 100 kilometres, though higher Craftsmanship versions have longer ranges.</p></div></div>",
       "source": "Only War, p. 201 (Table 6-23), p. 203"
     }
