@@ -9,6 +9,43 @@
       "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Chameleoline material is made up of mimic fibres that blend the coloration of the wearer into their surroundings and are the garb of choice for snipers.</p><div class='bc-rule'><p>A character wearing a chameleoline cloak gains a +20 bonus to Stealth Tests. If the wearer remains stationary, any Ballistic Skill Tests to target him suffer a –30 penalty.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 197"
+    },
+    "effects": [
+      {
+        "_id": "f4dfa29c0407ba96",
+        "name": "EQUIPMENT_BONUS.OW_CHAMELEOLINE_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.chameleoline.stealth",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "w0t4fnQMMo5kXgD8"
+      }
     }
   },
   {
@@ -21,6 +58,43 @@
       "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>These are useful when operating on rooftops or rappelling down buildings and consist of a coiled safety line with a stout magnetic or hook fixture, all attached to a belt or torso harness.</p><div class='bc-rule'><p>A character using a clip harness to descend a vertical surface gains a +30 bonus to Climb Tests and cannot fall if he fails. Common quality harnesses can hold 150kg, while Good quality harnesses can support 200 kg.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 197"
+    },
+    "effects": [
+      {
+        "_id": "96262eadd7d54def",
+        "name": "EQUIPMENT_BONUS.OW_HARNESS_DESCENT",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.harness.descent",
+              "conditional": true,
+              "selectors": [
+                "skill:athletics"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "QpmAHVybfqoPIsLu"
+      }
     }
   },
   {
@@ -33,6 +107,43 @@
       "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>Each of these devices can limit high-volume sonic disturbances such as explosions by automatically detecting and dampening the excessive noise down to a tolerable level.</p><div class='bc-rule'><p>Users make any Toughness Tests against sonic effects or against the auditory effects of a Concussive weapon with a +20 bonus.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 197"
+    },
+    "effects": [
+      {
+        "_id": "310b3ad00e9c1a76",
+        "name": "EQUIPMENT_BONUS.OW_EARPIECE_SOUND",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.earpiece.sound",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "QJdwMSkaw0npOt0U"
+      }
     }
   },
   {
@@ -45,6 +156,81 @@
       "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>These simple plugs of porous fibres are worn in each nostril to screen out most pollutants and harmful gases.</p><div class='bc-rule'><p>A character wearing filtration plugs gains a +20 bonus to any Toughness Test made to resist the effects of damaging gases. Good Craftsmanship models add another +10 bonus, while Poor models must be replaced after five hours usage as the filter becomes clogged and unusable.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 197"
+    },
+    "effects": [
+      {
+        "_id": "7b0539aa5f8fa8dc",
+        "name": "EQUIPMENT_BONUS.OW_FILTRATION_GAS",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.filtration.gas",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "poor",
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "4f66de3efa0e5d64",
+        "name": "EQUIPMENT_BONUS.OW_FILTRATION_GAS-SUPERIOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.filtration.gas-superior",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "7Tiv9q01Kg52pJeF"
+      }
     }
   },
   {
@@ -69,6 +255,43 @@
       "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>Preysense goggles allow the wearer to see thermal images in low lighting, revealing hidden bodies (and other heat sources) against the coolness surrounding them.</p><div class='bc-rule'><p>Poor Craftsmanship models cannot belie their true nature and are bulky goggles with glowing lenses; Good and Best Craftsmanship models are disguised as normal (if elaborate) eyeglasses. A character wearing these goggles suffers no penalties due to darkness and gains a +20 bonus to vision-based Perception Tests at night.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 197"
+    },
+    "effects": [
+      {
+        "_id": "47f847eba61e1bc1",
+        "name": "EQUIPMENT_BONUS.OW_PREYSENSE_NIGHT",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.preysense.night",
+              "conditional": true,
+              "selectors": [
+                "characteristic:perception"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.perception.displayTotal",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "xh2a2nYFAhsRyKHx"
+      }
     }
   },
   {
@@ -93,6 +316,12 @@
       "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>These specialised gauntlets use interlocking plates connected with memory wire so that when the user grips a weapon, it locks together into a rigid strut around the hand and wrist and prevents wrist or arm damage when the weapon discharges.</p><div class='bc-rule'><p>A character using a recoil glove can fire a Basic weapon with one hand without the normal –20 penalty and pistol weapons that require two hands can be used one-handed without penalty. Note that specialised weapon training is still required to use the weapon properly, without which the untrained penalty of –20 still applies.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 198"
+    },
+    "effects": [],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "JmqJ5nr871cST1Ki"
+      }
     }
   },
   {
@@ -105,6 +334,81 @@
       "weight": 0.5,
       "description": "<div class='bc-entry'><p class='bc-lead'>A simple breathing mask that covers the nose and mouth or entire face, these offer much better protection than filtration plugs.</p><div class='bc-rule'><p>A character wearing a respirator gains a +30 bonus to Toughness Tests made to resist the effects of gas and may re-roll failed results. Good Craftsmanship models add another +10 bonus, while poor models must be replaced after 10 hours usage as the filter becomes clogged and unusable.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 198"
+    },
+    "effects": [
+      {
+        "_id": "734f6bb5507d6a2b",
+        "name": "EQUIPMENT_BONUS.OW_RESPIRATOR_GAS",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.respirator.gas",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "poor",
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "4eb866739b9695b5",
+        "name": "EQUIPMENT_BONUS.OW_RESPIRATOR_GAS-SUPERIOR",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.respirator.gas-superior",
+              "conditional": true,
+              "selectors": [
+                "characteristic:toughness"
+              ],
+              "quality": [
+                "good",
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.toughness.displayTotal",
+              "type": "add",
+              "value": "40",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "cBq10SKdjPZa6sMw"
+      }
     }
   },
   {
@@ -117,6 +421,116 @@
       "weight": 0,
       "description": "<div class='bc-entry'><p class='bc-lead'>When working in harsh and extreme conditions (especially when it is not known in advance what they will be), survival suits are a must. No matter if it is too hot or too cold, the suit can maintain proper body temperature and hydration via excellent insulation capabilities.</p><div class='bc-rule'><p>Using the differential between body temperature and outside temperature to drive thermoelectric power cells, it also has reclamation systems for turning sweat into drinking water. Most suits come complete with a hood, as well as goggles to protect the head and face. While it does not protect forever, for medium duration emergencies it can help sustain life until a rescue.</p><p>The suit grants a +20 bonus to any Tests against the effects of extreme environments. Good and Best Craftsmanship suits grant a +25 and +30 bonus, respectively, while Poor outfits only last three days before their internal mechanisms falter and need removal from the extreme temperatures to recharge.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 198"
+    },
+    "effects": [
+      {
+        "_id": "676fd64e18619ce8",
+        "name": "EQUIPMENT_BONUS.OW_SURVIVAL-SUIT_ENVIRONMENT",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.survival-suit.environment",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "poor",
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "0cbbcc2cac4a1d4e",
+        "name": "EQUIPMENT_BONUS.OW_SURVIVAL-SUIT_ENVIRONMENT-GOOD",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.survival-suit.environment-good",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "good"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "25",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      },
+      {
+        "_id": "ba1c4a1bc752a441",
+        "name": "EQUIPMENT_BONUS.OW_SURVIVAL-SUIT_ENVIRONMENT-BEST",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.survival-suit.environment-best",
+              "conditional": true,
+              "selectors": [
+                "skill:*",
+                "characteristic:*"
+              ],
+              "quality": [
+                "best"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.athletics.total",
+              "type": "add",
+              "value": "30",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "S3h9Z7Cf10vxYKyD"
+      }
     }
   },
   {
@@ -129,6 +543,43 @@
       "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Synskin is a bio-reactive body glove with an inert non-reflective surface that moulds itself to the wearers form.</p><div class='bc-rule'><p>It grants 2 Armour Points to all locations not already armoured and the wearer gains a +10 bonus to Stealth Tests. It also renders the wearer invisible to the use of infra-red goggles and Dark Sight.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 198"
+    },
+    "effects": [
+      {
+        "_id": "88b87793fea08ff9",
+        "name": "EQUIPMENT_BONUS.OW_SYNSKIN_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.synskin.stealth",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "odfSnUGRld48FdiA"
+      }
     }
   },
   {
@@ -141,6 +592,47 @@
       "weight": 8,
       "description": "<div class='bc-entry'><p class='bc-lead'>Void suits are clumsy affairs designed to protect a user against vacuum.</p><div class='bc-rule'><p>A Common Craftsmanship void suit has 12 hours of air and imposes a –10 penalty to Agility Tests. Poor Craftsmanship versions have six hours of air, while Good and Best Craftsmanship versions eliminate the Agility penalty.</p></div></div>",
       "source": "Only War, p. 198 (Table 6-20), p. 198"
+    },
+    "effects": [
+      {
+        "_id": "b80b2cec36c5a372",
+        "name": "EQUIPMENT_BONUS.OW_VOID-SUIT_AGILITY",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": false,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.void-suit.agility",
+              "conditional": true,
+              "selectors": [
+                "characteristic:agility"
+              ],
+              "quality": [
+                "poor",
+                "common"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.characteristics.agility.displayTotal",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "IWWjI6Ep2ghJXHn5"
+      }
     }
   }
 ]

@@ -1,220 +1,540 @@
 [
   {
-    "name": "Heavy Leathers", "type": "armour", "folder": "Armour/Primitive",
+    "name": "Heavy Leathers",
+    "type": "armour",
+    "folder": "Armour/Primitive",
     "img": "systems/dark-heresy/assets/icons/protection/armour.webp",
     "system": {
-      "type": "basic", "availability": "common", "weight": 5,
-      "part": { "head": 0, "leftArm": 1, "rightArm": 1, "body": 1, "leftLeg": 0, "rightLeg": 0 },
+      "type": "basic",
+      "availability": "common",
+      "weight": 5,
+      "part": {
+        "head": 0,
+        "leftArm": 1,
+        "rightArm": 1,
+        "body": 1,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Primitive Armour is the norm on many feudal or feral planets, the lower levels of some hives where technology is unreliable or too expensive, and many alien worlds. Protection at this level often consists of reinforced animal hides, metal plating worn over the chest, chainmail, or combinations of these and other crude methods.</p><div class='bc-rule'><p>Primitive armour will rarely stop a lasgun hit outright, but can turn a blade and is better than no protection at all.</p><p><strong>Locations Covered:</strong> Arms, Body. <strong>AP:</strong> 1.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Chainmail Suit", "type": "armour", "folder": "Armour/Primitive",
+    "name": "Chainmail Suit",
+    "type": "armour",
+    "folder": "Armour/Primitive",
     "img": "systems/dark-heresy/assets/icons/protection/armour.webp",
     "system": {
-      "type": "basic", "availability": "common", "weight": 15,
-      "part": { "head": 0, "leftArm": 3, "rightArm": 3, "body": 3, "leftLeg": 3, "rightLeg": 3 },
+      "type": "basic",
+      "availability": "common",
+      "weight": 15,
+      "part": {
+        "head": 0,
+        "leftArm": 3,
+        "rightArm": 3,
+        "body": 3,
+        "leftLeg": 3,
+        "rightLeg": 3
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Interlocking metal rings worn over a padded undercoat: the classic protection of feudal worlds.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Arms, Body, Legs. <strong>AP:</strong> 3.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17)"
     }
   },
   {
-    "name": "Feudal World Plate", "type": "armour", "folder": "Armour/Primitive",
+    "name": "Feudal World Plate",
+    "type": "armour",
+    "folder": "Armour/Primitive",
     "img": "systems/dark-heresy/assets/icons/protection/armour.webp",
     "system": {
-      "type": "basic", "availability": "scarce", "weight": 30,
-      "part": { "head": 5, "leftArm": 5, "rightArm": 5, "body": 5, "leftLeg": 5, "rightLeg": 5 },
+      "type": "basic",
+      "availability": "scarce",
+      "weight": 30,
+      "part": {
+        "head": 5,
+        "leftArm": 5,
+        "rightArm": 5,
+        "body": 5,
+        "leftLeg": 5,
+        "rightLeg": 5
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A full suit of shaped metal plate, the pride of a feudal world’s armourers and the mark of its knights.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> All. <strong>AP:</strong> 5.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17)"
     }
   },
   {
-    "name": "Death World Beast Hide Vest", "type": "armour", "folder": "Armour/Primitive",
+    "name": "Death World Beast Hide Vest",
+    "type": "armour",
+    "folder": "Armour/Primitive",
     "img": "systems/dark-heresy/assets/icons/protection/armour.webp",
     "system": {
-      "type": "basic", "availability": "very-rare", "weight": 20,
-      "part": { "head": 0, "leftArm": 0, "rightArm": 0, "body": 6, "leftLeg": 0, "rightLeg": 0 },
+      "type": "basic",
+      "availability": "very-rare",
+      "weight": 20,
+      "part": {
+        "head": 0,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 6,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Cut from the hide of a death world predator, this vest turns blades and claws as well as many a manufactured plate.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Body. <strong>AP:</strong> 6.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17)"
     }
   },
-
   {
-    "name": "Flak Helmet", "type": "armour", "folder": "Armour/Flak",
+    "name": "Flak Helmet",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-helmet.webp",
     "system": {
-      "type": "flak", "availability": "average", "weight": 2,
-      "part": { "head": 2, "leftArm": 0, "rightArm": 0, "body": 0, "leftLeg": 0, "rightLeg": 0 },
+      "type": "flak",
+      "availability": "average",
+      "weight": 2,
+      "part": {
+        "head": 2,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 0,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>The most common type of armour in the galaxy is Flak Armour, as it is standard issue to the countless millions of Imperial Guardsmen. Many layers of ablative and impact absorbent material go into making each suit, enough to deflect or negate most low-level attacks such as small arms, shrapnel, and proximity blasts.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Head. <strong>AP:</strong> 2.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Flak Gauntlets", "type": "armour", "folder": "Armour/Flak",
+    "name": "Flak Gauntlets",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "average", "weight": 1,
-      "part": { "head": 0, "leftArm": 2, "rightArm": 2, "body": 0, "leftLeg": 0, "rightLeg": 0 },
+      "type": "flak",
+      "availability": "average",
+      "weight": 1,
+      "part": {
+        "head": 0,
+        "leftArm": 2,
+        "rightArm": 2,
+        "body": 0,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Flakweave gloves and forearm guards, issued where a full suit is not.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Arms. <strong>AP:</strong> 2.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Light Flak Cloak", "type": "armour", "folder": "Armour/Flak",
+    "name": "Light Flak Cloak",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "scarce", "weight": 4,
-      "part": { "head": 0, "leftArm": 2, "rightArm": 2, "body": 2, "leftLeg": 2, "rightLeg": 2 },
+      "type": "flak",
+      "availability": "scarce",
+      "weight": 4,
+      "part": {
+        "head": 0,
+        "leftArm": 2,
+        "rightArm": 2,
+        "body": 2,
+        "leftLeg": 2,
+        "rightLeg": 2
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A lighter weave of the flak cloak, worn where mobility matters more than protection.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Arms, Body, Legs. <strong>AP:</strong> 2.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Flak Vest", "type": "armour", "folder": "Armour/Flak",
+    "name": "Flak Vest",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "average", "weight": 5,
-      "part": { "head": 0, "leftArm": 0, "rightArm": 0, "body": 3, "leftLeg": 0, "rightLeg": 0 },
+      "type": "flak",
+      "availability": "average",
+      "weight": 5,
+      "part": {
+        "head": 0,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 3,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A sleeveless flakweave torso protector, the cheapest way to keep a soldier’s vitals intact.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Body. <strong>AP:</strong> 3.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Flak Cloak", "type": "armour", "folder": "Armour/Flak",
+    "name": "Flak Cloak",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "scarce", "weight": 8,
-      "part": { "head": 0, "leftArm": 3, "rightArm": 3, "body": 3, "leftLeg": 3, "rightLeg": 3 },
+      "type": "flak",
+      "availability": "scarce",
+      "weight": 8,
+      "part": {
+        "head": 0,
+        "leftArm": 3,
+        "rightArm": 3,
+        "body": 3,
+        "leftLeg": 3,
+        "rightLeg": 3
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A heavy flakweave cloak that can be thrown over other clothing, covering limbs and torso alike.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Arms, Body, Legs. <strong>AP:</strong> 3.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Flak Coat", "type": "armour", "folder": "Armour/Flak",
+    "name": "Flak Coat",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "average", "weight": 5,
-      "part": { "head": 0, "leftArm": 3, "rightArm": 3, "body": 3, "leftLeg": 0, "rightLeg": 0 },
+      "type": "flak",
+      "availability": "average",
+      "weight": 5,
+      "part": {
+        "head": 0,
+        "leftArm": 3,
+        "rightArm": 3,
+        "body": 3,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A flakweave greatcoat, the everyday wear of many an Imperial officer and enforcer.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> Arms, Body. <strong>AP:</strong> 3.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
   {
-    "name": "Imperial Guard Flak Armour", "type": "armour", "folder": "Armour/Flak",
+    "name": "Imperial Guard Flak Armour",
+    "type": "armour",
+    "folder": "Armour/Flak",
     "img": "systems/dark-heresy/assets/icons/protection/flak-armour.webp",
     "system": {
-      "type": "flak", "availability": "scarce", "weight": 11,
-      "part": { "head": 4, "leftArm": 4, "rightArm": 4, "body": 4, "leftLeg": 4, "rightLeg": 4 },
+      "type": "flak",
+      "availability": "scarce",
+      "weight": 11,
+      "part": {
+        "head": 4,
+        "leftArm": 4,
+        "rightArm": 4,
+        "body": 4,
+        "leftLeg": 4,
+        "rightLeg": 4
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>The full issue suit of the Imperial Guard: helmet, carapace-backed vest, limb guards and all. Given that it is relatively lightweight, cheap to produce, and dependable in most combat situations, many veterans keep using it even when offered better.</p><div class='bc-rule'><p>As long as the wearer is not on the target spot of the blast, Flak Armour counts as 1 AP higher against Damage from weapons with the Blast Quality.</p><p><strong>Locations Covered:</strong> All. <strong>AP:</strong> 4.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 195"
     }
   },
-
   {
-    "name": "Carapace Helm", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Carapace Helm",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "rare", "weight": 2,
-      "part": { "head": 4, "leftArm": 0, "rightArm": 0, "body": 0, "leftLeg": 0, "rightLeg": 0 },
+      "type": "carapace",
+      "availability": "rare",
+      "weight": 2,
+      "part": {
+        "head": 4,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 0,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Carapace Armour is generally a sign of status and is mostly worn by Imperial officers and agents. Made from moulded plates of armaplas, ceramite, or other strong materials, it can cover the entire body or just sections depending on the desired level of protection.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Head. <strong>AP:</strong> 4.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
   {
-    "name": "Carapace Gauntlets", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Carapace Gauntlets",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "rare", "weight": 2,
-      "part": { "head": 0, "leftArm": 5, "rightArm": 5, "body": 0, "leftLeg": 0, "rightLeg": 0 },
+      "type": "carapace",
+      "availability": "rare",
+      "weight": 2,
+      "part": {
+        "head": 0,
+        "leftArm": 5,
+        "rightArm": 5,
+        "body": 0,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Moulded plates covering the hands and forearms, often worn with a chestplate rather than a full suit.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Arms. <strong>AP:</strong> 5.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
   {
-    "name": "Carapace Greaves", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Carapace Greaves",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "rare", "weight": 3,
-      "part": { "head": 0, "leftArm": 0, "rightArm": 0, "body": 0, "leftLeg": 5, "rightLeg": 5 },
+      "type": "carapace",
+      "availability": "rare",
+      "weight": 3,
+      "part": {
+        "head": 0,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 0,
+        "leftLeg": 5,
+        "rightLeg": 5
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Shaped leg plates that turn shrapnel and small arms fire away from the thighs and shins.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Legs. <strong>AP:</strong> 5.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
   {
-    "name": "Light Carapace", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Light Carapace",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "rare", "weight": 15,
-      "part": { "head": 5, "leftArm": 5, "rightArm": 5, "body": 5, "leftLeg": 5, "rightLeg": 5 },
+      "type": "carapace",
+      "availability": "rare",
+      "weight": 15,
+      "part": {
+        "head": 5,
+        "leftArm": 5,
+        "rightArm": 5,
+        "body": 5,
+        "leftLeg": 5,
+        "rightLeg": 5
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>A full suit of thinner carapace plating, worn where the weight of a Storm Trooper suit would be a burden.</p><div class='bc-rule'><p>Some bodysuits have slots designed for simple carapace plates to be inserted in, so that the overall suits can be rapidly configured for as much or little protection as desired. Damaged plates can be more easily replaced without requiring the purchase of an entire new suit.</p><p><strong>Locations Covered:</strong> All. <strong>AP:</strong> 5.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
   {
-    "name": "Carapace Chestplate", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Carapace Chestplate",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "rare", "weight": 7,
-      "part": { "head": 0, "leftArm": 0, "rightArm": 0, "body": 6, "leftLeg": 0, "rightLeg": 0 },
+      "type": "carapace",
+      "availability": "rare",
+      "weight": 7,
+      "part": {
+        "head": 0,
+        "leftArm": 0,
+        "rightArm": 0,
+        "body": 6,
+        "leftLeg": 0,
+        "rightLeg": 0
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Most soldiers are lucky to gain access to just a simple chestplate to wear over more comfortable mesh or flakweave suits.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> Body. <strong>AP:</strong> 6.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
   {
-    "name": "Storm Trooper Carapace", "type": "armour", "folder": "Armour/Carapace",
+    "name": "Storm Trooper Carapace",
+    "type": "armour",
+    "folder": "Armour/Carapace",
     "img": "systems/dark-heresy/assets/icons/protection/light-carapace-armour.webp",
     "system": {
-      "type": "carapace", "availability": "very-rare", "weight": 15,
-      "part": { "head": 6, "leftArm": 6, "rightArm": 6, "body": 6, "leftLeg": 6, "rightLeg": 6 },
+      "type": "carapace",
+      "availability": "very-rare",
+      "weight": 15,
+      "part": {
+        "head": 6,
+        "leftArm": 6,
+        "rightArm": 6,
+        "body": 6,
+        "leftLeg": 6,
+        "rightLeg": 6
+      },
       "description": "<div class='bc-entry'><p class='bc-lead'>Storm Troopers wear full body suits including a helmet — the heaviest carapace an ordinary soldier of the Imperium is ever issued.</p><div class='bc-rule'><p><strong>Locations Covered:</strong> All. <strong>AP:</strong> 6.</p></div></div>",
       "source": "Only War, p. 196 (Table 6-17), p. 196"
     }
   },
-
   {
-    "name": "Refractor Field", "type": "forceField", "folder": "Force Fields",
+    "name": "Refractor Field",
+    "type": "forceField",
+    "folder": "Force Fields",
     "img": "systems/dark-heresy/assets/icons/protection/field.webp",
     "system": {
-      "protectionRating": 30, "overloadChance": 10, "availability": "very-rare", "weight": 2,
+      "protectionRating": 30,
+      "overloadChance": 10,
+      "availability": "very-rare",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Refractor fields are generally the size of an eyepiece and can easily be worn as a disguised ornamentation. When active, they disperse an attack through the wide area of the field, effectively negating it.</p><div class='bc-rule'><p>When active, though, they surround the wearer with a soft haze of light, making them easily noticeable in low lighting or darkness. They impose a –10 penalty on all Stealth Tests.</p><p>When a character wearing an active field is attacked, roll 1d100. If the result is lower than or equal to the field’s protection rating, the attack is nullified and has no effect on the protected character. Compare the same roll to Table 6–18: Field Overload Chance; the overload roll depends on the field’s Craftsmanship (Poor 01–15, Common 01–10, Good 01–05, Best 1). A character may only benefit from one field at a time.</p></div></div>",
       "source": "Only War, p. 197 (Table 6-19), p. 196"
+    },
+    "effects": [
+      {
+        "_id": "e3ed021a59beb82c",
+        "name": "EQUIPMENT_BONUS.OW_REFRACTOR_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.refractor.stealth",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "-10",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "iqZyNDiudPNlpc6K"
+      }
     }
   },
   {
-    "name": "Conversion Field", "type": "forceField", "folder": "Force Fields",
+    "name": "Conversion Field",
+    "type": "forceField",
+    "folder": "Force Fields",
     "img": "systems/dark-heresy/assets/icons/protection/field.webp",
     "system": {
-      "protectionRating": 50, "overloadChance": 10, "availability": "extremely-rare", "weight": 1,
+      "protectionRating": 50,
+      "overloadChance": 10,
+      "availability": "extremely-rare",
+      "weight": 1,
       "description": "<div class='bc-entry'><p class='bc-lead'>Also known as Flare Fields, these work by converting the energy of an attack into blinding light, allowing them to negate much higher forces and delivering a disorientating visual blast as well.</p><div class='bc-rule'><p>If the field blocks more than 12 points of Damage from a single attack, the release of light is strong enough to act as a photon flash grenade burst centred on the wearer (see page 183). The character wearing the conversion field is unaffected by this burst.</p></div></div>",
       "source": "Only War, p. 197 (Table 6-19), p. 196"
     }
   },
   {
-    "name": "Displacer Field", "type": "forceField", "folder": "Force Fields",
+    "name": "Displacer Field",
+    "type": "forceField",
+    "folder": "Force Fields",
     "img": "systems/dark-heresy/assets/icons/protection/field.webp",
     "system": {
-      "protectionRating": 55, "overloadChance": 10, "availability": "near-unique", "weight": 2,
+      "protectionRating": 55,
+      "overloadChance": 10,
+      "availability": "near-unique",
+      "weight": 2,
       "description": "<div class='bc-entry'><p class='bc-lead'>Displacer fields are very powerful but also more risky than other fields. Instead of absorbing or shunting away the energy of an attack, they instead shift the wearer away from the attack using miniature Warp-jump technologies.</p><div class='bc-rule'><p>This action is usually automatically triggered by the attack through unfathomable sensors, though a user can manually activate the device if desired. This flickering into and then back from the dangers of the Empyrean is often as hazardous as the actual attack, however. Roll 3d10 for the number of metres travelled—the wearer always emerges on solid footing and in a suitable empty space. If all three dice come up with the same number (e.g. three sevens), then the user does not re-emerge for 1d5 Rounds and gains 1 Corruption Point from exposure to strange energies. If the activation is unexpected, then the wearer cannot act for one Round while he regains his sense of place.</p></div></div>",
       "source": "Only War, p. 197 (Table 6-19), p. 196"
     }
   },
   {
-    "name": "Power Field (Personal)", "type": "forceField", "folder": "Force Fields",
+    "name": "Power Field (Personal)",
+    "type": "forceField",
+    "folder": "Force Fields",
     "img": "systems/dark-heresy/assets/icons/protection/field.webp",
     "system": {
-      "protectionRating": 80, "overloadChance": 10, "availability": "near-unique", "weight": 50,
+      "protectionRating": 80,
+      "overloadChance": 10,
+      "availability": "near-unique",
+      "weight": 50,
       "description": "<div class='bc-entry'><p class='bc-lead'>While most field devices are small enough to be easily disguised or concealed, power fields, though highly effective, are also the most obtrusive and overt. The smallest are heavy backpack-sized affairs.</p><div class='bc-rule'><p>The force wall they project can deflect away the strongest of attacks, but sustained use drains energy very quickly. Personal units can only be active for an hour before depletion and are so large that users are automatically Encumbered.</p><p>A power field causes the air to visibly ripple and crackle with static discharge, imposing a –20 penalty on all Stealth Tests. It also does not defend against ranged attacks made within 1 metre or attacks in melee.</p></div></div>",
       "source": "Only War, p. 197 (Table 6-19), p. 196"
+    },
+    "effects": [
+      {
+        "_id": "64857d95b702ccc3",
+        "name": "EQUIPMENT_BONUS.OW_POWER-FIELD-PERSONAL_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.power-field-personal.stealth",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "-20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "yIfo35tuB8SsIidB"
+      }
     }
   },
   {
-    "name": "Power Field (Vehicle/Emplacement)", "type": "forceField", "folder": "Force Fields",
+    "name": "Power Field (Vehicle/Emplacement)",
+    "type": "forceField",
+    "folder": "Force Fields",
     "img": "systems/dark-heresy/assets/icons/protection/field.webp",
     "system": {
-      "protectionRating": 80, "overloadChance": 10, "availability": "very-rare", "weight": 500,
+      "protectionRating": 80,
+      "overloadChance": 10,
+      "availability": "very-rare",
+      "weight": 500,
       "description": "<div class='bc-entry'><p class='bc-lead'>Larger power field models are the size of sentry weapons and can protect entire vehicles or emplacements — they are too big to be carried.</p><div class='bc-rule'><p>A power field causes the air to visibly ripple and crackle with static discharge, imposing a –20 penalty on all Stealth Tests. It also does not defend against ranged attacks made within 1 metre or attacks in melee.</p></div></div>",
       "source": "Only War, p. 197 (Table 6-19), p. 196"
+    },
+    "effects": [
+      {
+        "_id": "f5c5fcad64d26b87",
+        "name": "EQUIPMENT_BONUS.OW_POWER-FIELD-VEHICLE_STEALTH",
+        "img": "icons/svg/upgrade.svg",
+        "disabled": false,
+        "transfer": true,
+        "flags": {
+          "dark-heresy": {
+            "activation": "equipped",
+            "equipmentBonus": {
+              "id": "ow.power-field-vehicle.stealth",
+              "conditional": false,
+              "selectors": [
+                "skill:stealth"
+              ]
+            }
+          }
+        },
+        "system": {
+          "changes": [
+            {
+              "key": "system.skills.stealth.total",
+              "type": "add",
+              "value": "-20",
+              "phase": "final",
+              "priority": 20
+            }
+          ]
+        }
+      }
+    ],
+    "flags": {
+      "dark-heresy": {
+        "owEquipmentSource": "B7IwhCPjveJrbNDa"
+      }
     }
   }
 ]

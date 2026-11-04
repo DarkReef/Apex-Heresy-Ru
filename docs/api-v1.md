@@ -48,6 +48,16 @@ game.darkHeresy.util.extractWeaponTraits("Reliable, Toxic (1)", {toxic: 3});
 
 Подсказки `modifierTooltip` и `modifierTooltipHtml` добавляются только в копию данных листа. Это представление, а не поля модели Actor.
 
+## Эффекты снаряжения с версии 1.6.2
+
+Каталог OW использует `effect.flags["dark-heresy"].equipmentBonus` со стабильным `id`, признаком `conditional`, списком `selectors` и необязательным списком качества `quality`. Режим применения лежит в соседнем `activation`: `equipped` или `installed`. Это адресные поля данных, а не вызов `setFlag` с неактивным scope.
+
+Постоянные эффекты используют штатные `transfer:true` и финальную фазу `system.changes`; условные имеют `transfer:false` и выбираются отдельно в обычном броске. Селекторы `skill:<key>[.<speciality>]`, `skill:<key>.*`, `characteristic:<key>` и `basedOn:<key>` различают навык, отдельный тест характеристики и тест, основанный на ней. Не превращайте условный бонус в постоянную характеристику.
+
+`rollData.equipmentBonusSelection` хранит выбранные ID вида `itemId:effectId`; перед новым броском система проверяет текущий инвентарь. `equipmentBonusSnapshot`, `equipmentBonusModifier` и `equipmentBonusSources` сохраняют применённый набор для карточки и переброса. Ручной `target.modifier` не включает эти бонусы; повторное суммирование расширением удвоит результат.
+
+При копировании предмета сохраняйте его встроенные эффекты и флаги. `flags["dark-heresy"].owEquipmentSource` хранит исходный ID OW; миграция также понимает точный UUID официального пакета этого форка. По одному названию правила не назначаются.
+
 ## Атака и события
 
 ```js

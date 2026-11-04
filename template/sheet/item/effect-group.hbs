@@ -8,7 +8,7 @@
     <div class="items">
     {{#each entries}}
         <div class="effect item flex row {{#if inactive}}inactive{{/if}}" data-id="{{id}}" data-uuid="{{uuid}}" data-collection="effects">
-            <a class="flex name list-edit">{{name}}</a>
+            <a class="flex name list-edit">{{localize name}}</a>
             <div class="source">
                 {{#if item}}<a class="list-edit" data-uuid="{{item.uuid}}">{{source}}</a>{{else}}{{source}}{{/if}}
                 <small>{{localize stateLabel}}{{#if durationLabel}} · {{durationLabel}}{{/if}}</small>
