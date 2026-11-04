@@ -148,7 +148,7 @@
                         <div class="name">
                             <button class="roll-skill" data-skill="{{key}}" type="button">{{safeLocalize skill.label}}</button>
                         </div>
-                        <input class="total" type="number" value="{{skill.total}}" data-dtype="Number" disabled />
+                        <input class="total dh-modifier-total" type="number" value="{{skill.total}}" data-dtype="Number" readonly title="{{skill.modifierTooltip}}" data-tooltip="{{skill.modifierTooltipHtml}}" aria-label="{{skill.modifierTooltip}}" />
                         <span class="dh-chip is-{{skill.advanceState}}">{{localize skill.advanceLabel}}</span>
                         <span class="skill-characteristic">{{skill.characteristics.[0]}}</span>
                     </div>
@@ -175,7 +175,7 @@
                                         <div class="name">
                                             <button class="roll-speciality" data-speciality="{{keySpe}}" type="button">{{speciality.label}}</button>
                                         </div>
-                                        <input class="total" type="number" value="{{speciality.total}}" data-dtype="Number" disabled />
+                                        <input class="total dh-modifier-total" type="number" value="{{speciality.total}}" data-dtype="Number" readonly title="{{speciality.modifierTooltip}}" data-tooltip="{{speciality.modifierTooltipHtml}}" aria-label="{{speciality.modifierTooltip}}" />
                                         <span class="dh-chip is-{{speciality.advanceState}}">{{localize speciality.advanceLabel}}</span>
                                         {{!-- The speciality's own characteristic when it names one; template
                                               groups fall back to the group's. --}}

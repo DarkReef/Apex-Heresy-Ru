@@ -3,13 +3,24 @@ import assert from 'node:assert/strict';
 import {loadSystem} from './helpers/system.mjs';
 import {readFileSync} from 'node:fs';
 
+function applyUpdate(item,patch) {
+    item.updates.push(structuredClone(patch));
+    for(const [path,value] of Object.entries(patch)){
+        if(path==='_id')continue;
+        const keys=path.split('.'),last=keys.pop();let target=item;
+        for(const key of keys)target=target[key]??={};
+        target[last]=structuredClone(value);
+    }
+    return item;
+}
+
 /** An ammunition item the reload can find and spend. */
 function round(id, name, weaponTypes, quantity = 1) {
     return {
         id, name, type: 'ammunition', isAmmunition: true,
         system: {quantity, weaponTypes, weaponClasses: []},
         updates: [],
-        async update(data) { this.updates.push(data); Object.assign(this.system, data['system.quantity'] !== undefined ? {quantity: data['system.quantity']} : {}); }
+        async update(data) {return applyUpdate(this,data);}
     };
 }
 
@@ -19,14 +30,14 @@ function weapon(id, name, type, ammo = '') {
         id, name, type: 'weapon',
         system: {type, class: 'basic', ammo, clip: {value: 0, max: 30}},
         updates: [],
-        async update(data) { this.updates.push(data); }
+        async update(data) {return applyUpdate(this,data);}
     };
 }
 
 function worldWith(items) {
     const system = loadSystem();
     const actor = {
-        id: 'base', type: 'acolyte', isToken: false,
+        id: 'base', uuid:'Actor.base', type: 'acolyte', isToken: false, isOwner:true, batches:[],
         items: {
             get: id => items.find(item => item.id === id),
             find: predicate => items.find(predicate),
@@ -34,8 +45,13 @@ function worldWith(items) {
             [Symbol.iterator]: () => items[Symbol.iterator]()
         },
         getFlag: () => false,
-        prototypeToken: {actorLink: true}
+        prototypeToken: {actorLink: true},
+        async updateEmbeddedDocuments(type,patches){
+            assert.equal(type,'Item');this.batches.push(structuredClone(patches));
+            return Promise.all(patches.map(patch=>this.items.get(patch._id).update(patch)));
+        }
     };
+    for(const item of items){item.parent=actor;item.uuid=`${actor.uuid}.Item.${item.id}`;}
     system.context.game.actors.set('base', actor);
     system.context.ChatMessage = {create: async () => ({}), getSpeaker: () => ({})};
     system.context.foundry.applications = {handlebars: {renderTemplate: async () => ''}};
@@ -51,7 +67,11 @@ test('a weapon with no chosen round reloads from what the character carries', as
     // Spread the object: deepStrictEqual compares prototypes, and this one was
     // built inside the vm realm, so a bare deepEqual fails on identity alone.
     assert.equal(lasgun.updates.length, 1);
-    assert.deepEqual({...lasgun.updates[0]}, {'system.clip.value': 30, 'system.ammo': 'a1'});
+    assert.deepEqual({...lasgun.updates[0]}, {_id:'w1','system.clip.value': 30, 'system.ammo': 'a1',
+        'system.loadedAmmo':{itemId:'a1',uuid:'Actor.base.Item.a1',name:'Standard Lasgun Cell',effect:{}}});
+    assert.equal(system.context.game.actors.get('base').batches.length,1);
+    assert.equal(system.context.game.actors.get('base').batches[0].length,2);
+    assert.equal(cell.system.quantity,0);
 });
 
 test('a weapon carrying only the wrong round says so, rather than failing blankly', async () => {
@@ -96,9 +116,14 @@ test('the refusal the player sees names the real cause', () => {
     // The report: the pop-up claimed no ammunition was available even as the
     // weapon reloaded. The reasons the reload returns must each reach a message
     // of their own, or every failure reads the same and none of them is true.
-    const source = readFileSync(new URL('../script/dark-heresy.js', import.meta.url), 'utf8');
-    for (const reason of ['out_of_ammo', 'no_ammunition', 'wrong_ammunition', 'no_compatible_ammunition'])
-        assert.match(source, new RegExp(`reason === "${reason}"`), reason);
+    const system=loadSystem(),message=system.get('ammunitionFailureMessage');
     const lang = JSON.parse(readFileSync(new URL('../lang/en.json', import.meta.url), 'utf8'));
-    assert.ok(lang['CHAT.RELOAD_NO_COMPATIBLE'], 'the new reason has a string of its own');
+    const cases={out_of_ammo:'CHAT.RELOAD_OUT_OF_AMMO',no_ammunition:'CHAT.RELOAD_NO_AMMUNITION',
+        wrong_ammunition:'CHAT.RELOAD_WRONG_AMMUNITION',no_compatible_ammunition:'CHAT.RELOAD_NO_COMPATIBLE',
+        clip_full:'AMMUNITION.CLIP_FULL',different_ammunition_loaded:'AMMUNITION.DIFFERENT_LOADED',
+        invalid_quantity:'AMMUNITION.INVALID_QUANTITY',invalid_clip:'AMMUNITION.INVALID_CLIP',
+        wrong_owner:'AMMUNITION.OWNED_ONLY',no_permission:'AMMUNITION.OWNED_ONLY'};
+    for(const [reason,key] of Object.entries(cases)){
+        assert.ok(lang[key],key);assert.equal(message({reason},{name:'Autogun'}),lang[key].replaceAll('{weapon}','Autogun'));
+    }
 });

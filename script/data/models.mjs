@@ -56,6 +56,9 @@ export function createDataModels(data, runtime) {
         // Массив или объект по умолчанию — своя копия на документ, иначе правка одного течёт во все.
         const initial = value && typeof value === "object" ? () => structuredClone(value) : value;
         const options = {required: false, initial};
+        if (key === 'loadedAmmo') return new fields.ObjectField({...options, nullable:true});
+        if (key === 'quantityUnit') return new fields.StringField({...options,
+            choices:['magazines','rounds'], blank:false, nullable:false});
         if (key === 'traitOverrides') return new fields.ObjectField({...options,
             validate: value => {validateTraitOverrides(value); return true;}});
         if (typeof value === "number") return new fields.NumberField({...options, nullable:false});

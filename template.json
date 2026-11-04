@@ -2220,6 +2220,7 @@
         "equipment"
       ],
       "quantity": 0,
+      "quantityUnit": "magazines",
       "effect": {
         "damage": {
           "modifier": 0,
@@ -2228,6 +2229,7 @@
         "special": "",
         "removeSpecial": "",
         "penetration": "",
+        "penetrationModifier": 0,
         "attack": {
           "modifier": 0
         }
@@ -2390,7 +2392,8 @@
       "reload": "",
       "special": "",
       "attack": 0,
-      "ammo": ""
+      "ammo": "",
+      "loadedAmmo": null
     },
     "weaponModification": {
       "templates": [
@@ -2500,6 +2503,7 @@
       "special": "",
       "attack": 0,
       "ammo": "",
+      "loadedAmmo": null,
       "destroyed": false
     },
     "vehicleTrait": {
