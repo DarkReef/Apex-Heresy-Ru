@@ -19,12 +19,14 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import {packEffectData} from './lib/pack-effects.mjs';
+import {splitItemEffects} from './lib/equipment-pack-data.mjs';
 import {validateOrigin} from "../script/creation/origin-data.mjs";
 
 const require = createRequire(import.meta.url);
 
 const CHECK_ONLY = process.argv.includes("--check");
 const PACK = process.argv.slice(2).find(a => !a.startsWith("--")) ?? "rogue-trader";
+if (!/^[a-z][a-z0-9-]*$/.test(PACK)) throw new Error('Invalid package directory name');
 const SRC = `packs-src/${PACK}`;
 const DEST = `packs/${PACK}`;
 
@@ -225,7 +227,7 @@ if (errors.length) {
 if (CHECK_ONLY) process.exit(0);
 
 // ── Запись ────────────────────────────────────────────────────────────────
-const { ClassicLevel } = require("d:/Foundry/Foundry14/Foundry Virtual Tabletop/resources/app/node_modules/classic-level");
+const { ClassicLevel } = require("classic-level");
 
 // Foundry держит LOCK на загруженных паках. Сносить каталог вслепую нельзя: на
 // полпути это оставило бы пак разобранным. Сначала проверяем, открывается ли он.
@@ -251,7 +253,11 @@ const db = new ClassicLevel(DEST, { valueEncoding: "json" });
 await db.open();
 const batch = db.batch();
 for (const f of folders.values()) batch.put(`!folders!${f._id}`, { ...f, _stats: stats() });
-for (const it of items) batch.put(`!items!${it._id}`, { ...it, _stats: stats() });
+for (const it of items) {
+    const split = splitItemEffects({...it, _stats:stats()});
+    batch.put(`!items!${it._id}`, split.document);
+    for (const effect of split.effects) batch.put(effect.key, effect.value);
+}
 await batch.write();
 await db.close();
 console.log(`built ${DEST}: ${items.length} items, ${folders.size} folders`);

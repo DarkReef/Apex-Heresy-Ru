@@ -1,6 +1,8 @@
 import {ruleName,matchesRuleName} from '../../script/localization/rule-name.mjs';
 import {resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock} from '../../script/data/ammunition-link.mjs';
 import {decorateModifierTooltips} from '../../script/data/modifier-breakdown.mjs';
+import {equipmentBonusMetadata, equipmentEffectApplies, equipmentItemEquippable, conditionalEquipmentBonuses, snapshotEquipmentBonuses, localizeEquipmentEffectNames} from '../../script/data/equipment-bonuses.mjs';
+import {syncEquipmentBonuses} from '../../script/data/equipment-bonus-migration.mjs';
 import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from '../../script/package-identity.mjs';
 import {migratePackageReferences} from '../../script/package-reference-migration.mjs';
 import {planOWDamage, owHitProtection, owCharacteristicBonus} from '../../script/combat/ow-damage.mjs';
@@ -44,6 +46,7 @@ export function loadSystem(overrides = {}) {
     class Document {}
     const context = vm.createContext({
         resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock, decorateModifierTooltips,
+        equipmentBonusMetadata, equipmentEffectApplies, equipmentItemEquippable, conditionalEquipmentBonuses, snapshotEquipmentBonuses, localizeEquipmentEffectNames, syncEquipmentBonuses,
         getLegacyFlag, setLegacyFlag, unsetLegacyFlag, migratePackageReferences,
         characteristicTerm, ruleName, matchesRuleName, planOWDamage, owHitProtection, owCharacteristicBonus, createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,
         applyTraitOverrides, editTraitOverrides, validateTraitOverrides, WEAPON_TRAIT_TYPES, traitOverridesFromRows, traitOverridePatch,

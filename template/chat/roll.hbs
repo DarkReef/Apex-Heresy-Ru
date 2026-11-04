@@ -91,6 +91,11 @@
                     <dd>{{signed target.modifier}}</dd>
                 {{/if}}
 
+                {{#if equipmentBonusSources}}
+                    <dt>{{localize "EQUIPMENT_BONUS.TITLE"}}</dt>
+                    <dd>{{equipmentBonusSources}}</dd>
+                {{/if}}
+
                 {{#if rolledWith}}
                     <dt>{{localize "CHAT.ROLLED_WITH"}}</dt>
                     <dd>{{rolledWith}}</dd>
