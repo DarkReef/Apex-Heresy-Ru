@@ -61,7 +61,7 @@ test('field preview is inert; explicit per-hit ruling preserves rolls and overlo
     const p=await prepare(f,{reactionReason:'Reaction spent',fieldReason:'GM rules each hit separately',fieldMode:'per-hit'});
     assert.equal(p.preview.status,'pending-defense');assert.equal(f.rolls(),0);
     const resolved=await f.api.resolveField({...p.input,expected:p.preview.fingerprint});
-    assert.equal(f.rolls(),2);assert.equal(f.field.flags.overloaded,true);
+    assert.equal(f.rolls(),2);assert.equal(f.field.flags['dark-heresy'].overloaded,true);
     assert.deepEqual(resolved.plan.rows.map(r=>r.damage),[0,0,5]);
     await f.api.resolveField({...p.input,expected:p.preview.fingerprint});assert.equal(f.rolls(),2);
     const r=await f.api.commit({...p.input,expected:resolved.fingerprint});assert.equal(r.status,'applied');assert.equal(f.actor.wounds.value,5);
@@ -120,9 +120,9 @@ test('before/after write failures and another GM key never blindly replay; chat 
 test('replicated journal/Actor flags contain no cleartext private defense or wound receipt',async()=>{
     const f=damageFixture(),p=await prepare(f),r=await f.api.commit({...p.input,expected:p.preview.fingerprint});
     const entry=f.messages.get(r.id);
-    assert.deepEqual(Object.keys(entry.getFlag('dark-heresy','damageJournal')).sort(),['ciphertext','iv','version']);
+    assert.deepEqual(Object.keys(entry.flags['dark-heresy'].damageJournal).sort(),['ciphertext','iv','version']);
     assert.ok(!JSON.stringify(entry.flags).includes('Secret NPC'));assert.ok(!JSON.stringify(entry.flags).includes('toughnessForHit'));
-    assert.deepEqual(f.actor.getFlag('dark-heresy','damageReceipts')[r.id],{status:'applied'});
+    assert.deepEqual(f.actor.flags['dark-heresy'].damageReceipts[r.id],{status:'applied'});
     assert.ok(!JSON.stringify(f.messages.contents.map(m=>m.flags).filter(f=>f['dark-heresy']?.damageSummary)).includes('remaining'));
 });
 

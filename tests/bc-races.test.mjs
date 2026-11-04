@@ -140,5 +140,5 @@ test('the Legionnaire is flagged as a Space Marine, which the system already rea
     assert.equal(find('chaosSpaceMarine').rules.spaceMarine, true);
     assert.equal(find('human').rules.spaceMarine, undefined);
     const wizard = readFileSync(new URL('../script/creation/wizard.mjs', import.meta.url), 'utf8');
-    assert.match(wizard, /rules\?\.spaceMarine\) await actor\.setFlag\(GRANT_FLAG_SCOPE, "spaceMarine", true\)/);
+    assert.match(wizard, /rules\?\.spaceMarine\) await setLegacyFlag\(actor, "spaceMarine", true\)/);
 });

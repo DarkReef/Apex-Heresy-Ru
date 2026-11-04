@@ -50,7 +50,7 @@ test('an ordinary roll card offers to apply its total', () => {
 test('attack cards keep their own buttons and gain no second pair', () => {
     const fn = source.slice(source.indexOf('function _addApplyRollButtons'));
     const body = fn.slice(0, fn.indexOf('\n}'));
-    assert.match(body, /getFlag\?\.\("dark-heresy", "rollData"\)\) return;/);
+    assert.match(body, /getLegacyFlag\(message, "rollData"\)\) return;/);
 });
 
 test('only the owner or the GM is offered the buttons', () => {

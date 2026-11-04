@@ -72,7 +72,7 @@ for (const pack of json('system.json').packs) {
             const fields = [data.name && !entry?.name && 'name', data.description && !entry?.description && 'description'].filter(Boolean);
             if (fields.length) results.pending.push({tableId, id: data._id, name: data.name, fields});
         }
-        write(`localization/ru/dark-heresy.${pack.name}.json`, translation);
+        write(`localization/ru/apex-heresy-ru.${pack.name}.json`, translation);
         if (pack.name === 'only-war') {
             const terms = json('localization/ru/only-war-rule-terms.json');
             for (const [id, source] of Object.entries(json('localization/ru/only-war-sources.json'))) {

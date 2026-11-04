@@ -29,7 +29,7 @@ test('the resolution still applies damage that armour and Toughness do not stop'
     const body = fn.slice(0, fn.indexOf('\n}'));
     assert.match(body, /_rollWeaponEffectTest\(actor, "toughness", -10 \* value/);
     assert.match(body, /_applyDirectDamage\(actor, extra\.total, true\)/);
-    assert.match(body, /unsetFlag\("dark-heresy", "toxic"\)/, 'and clears the mark afterwards');
+    assert.match(body, /unsetLegacyFlag\(actor, "toxic"\)/, 'and clears the mark afterwards');
 });
 
 test('the button is wired to a handler', () => {

@@ -1,3 +1,4 @@
+import {getLegacyFlag, setLegacyFlag} from "../package-identity.mjs";
 import {createDamageService} from './damage-service.mjs';
 import {createDamageVault} from './damage-vault.mjs';
 import {planOWDamage, damageReviewReasons} from './ow-damage.mjs';
@@ -32,16 +33,16 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
     const journal=async(id)=>{
         const message=game.messages.get(id);
         if(!message || !game.user.isGM) throw Error('Journal unavailable');
-        const data=await vault.decrypt(message.getFlag(SCOPE,'damageJournal'));
+        const data=await vault.decrypt(getLegacyFlag(message, 'damageJournal'));
         return {...data,id};
     };
     const chain=message=>{
         const result=[],seen=new Set();let current=message;
         while(current && !seen.has(current.id) && result.length<12) {
             seen.add(current.id);result.push(current);
-            const currentData=current.getFlag(SCOPE,'rollData');
+            const currentData=getLegacyFlag(current, 'rollData');
             if(currentData?.flags?.isAttack && !currentData.flags.isDamageRoll && !currentData.flags.isEvasion) return result;
-            const id=current.getFlag(SCOPE,'rollData')?.sourceMessageId;
+            const id=getLegacyFlag(current, 'rollData')?.sourceMessageId;
             if(!id) return result;
             current=game.messages.get(id);
             if(!current) throw Error('Missing original attack card');
@@ -50,21 +51,21 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
     };
     const evidence=async(input)=>{
         const request=input.requestId ? game.messages.get(input.requestId) : null;
-        const spec=request?.getFlag(SCOPE,'damageRequest')??input;
+        const spec=getLegacyFlag(request, 'damageRequest')??input;
         const initiator=request ? request.author : game.user;
         if(!initiator) throw Error('Request author missing');
         const message=game.messages.get(spec.messageId);
         if(!message || !visible(message,initiator)) throw Error('Original card is not visible to the initiator');
-        const data=message.getFlag(SCOPE,'rollData');
+        const data=getLegacyFlag(message, 'rollData');
         if(!data?.flags?.isDamageRoll || !data.damages?.length || data.multiDamages?.length || data.flags.isMassEvasion)
             throw Error('unsupported: requires a single native damage result');
         const ancestry=chain(message),root=ancestry.at(-1);
-        if(ancestry.some(m=>{const r=m.getFlag(SCOPE,'rollData');return r?.flags?.isAttack && r.flags.isSuccess===false && !r.weapon?.traits?.skipAttackRoll;}))
+        if(ancestry.some(m=>{const r=getLegacyFlag(m, 'rollData');return r?.flags?.isAttack && r.flags.isSuccess===false && !r.weapon?.traits?.skipAttackRoll;}))
             throw Error('unsupported: original attack failed');
         for(const parent of ancestry) {
             const replaced=parent.getFlag(MODULE,'fate')?.sourceId;
             const original=replaced ? game.messages.get(replaced) : null;
-            if(original && chain(original).some(m=>m.getFlag(SCOPE,'damageClaim') || m.getFlag(SCOPE,'appliedDamage')))
+            if(original && chain(original).some(m=>getLegacyFlag(m, 'damageClaim') || getLegacyFlag(m, 'appliedDamage')))
                 throw Error('needs-review: original Fate result already has a damage operation');
         }
         const attacker=attackerFromRoll(data);
@@ -92,7 +93,7 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
             dice:clone(d.damageRoll?.toJSON?.()??d.damageRoll??null),attackDos:Number(data.attackDos??data.dos??0)}));
         if(hits.some(h=>!Number.isFinite(h.amount)||h.amount<0||!Number.isFinite(h.penetration)||h.penetration<0)) throw Error('Invalid stored damage result');
         const reactionResolved=ancestry.some(m=>{
-            const r=m.getFlag(SCOPE,'rollData');
+            const r=getLegacyFlag(m, 'rollData');
             const defender=r?.evasions?.[r.evasions?.selected]?.actorUuid;
             const authorized=m.author?.isGM || actor.testUserPermission?.(m.author,'OWNER');
             return authorized && r?.flags?.isEvasion && (!defender || defender===actor.uuid) &&
@@ -106,10 +107,10 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
         return {message,root,ancestry,actor,token,attack,attackerName:attacker.name,targetName:token.name??actor.name,
             target:{tokenUuid:token.uuid,actorUuid:actor.uuid},reactionResolved,
             sourceState:ancestry.map(m=>({id:m.id,replacement:m.getFlag(MODULE,'replacement')??null,
-                result:m.getFlag(SCOPE,'rollData')?.result,dos:m.getFlag(SCOPE,'rollData')?.dos}))};
+                result:getLegacyFlag(m, 'rollData')?.result,dos:getLegacyFlag(m, 'rollData')?.dos}))};
     };
     const wornField=actor=>{
-        const items=actor.items.filter(i=>i.type==='forceField' && i.system.equipped && !i.getFlag(SCOPE,'overloaded'));
+        const items=actor.items.filter(i=>i.type==='forceField' && i.system.equipped && !getLegacyFlag(i, 'overloaded'));
         if(!items.length) return null;
         const item=items[0],name=ruleName(item);
         const rating=Number(item.system.protectionRating);
@@ -131,14 +132,14 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
             const bytes=new TextEncoder().encode(JSON.stringify(state));
             return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
         },
-        claim:e=>e.actor.getFlag(SCOPE,'damageMessageReceipts')?.[e.message.id] ??
-            e.actor.getFlag(SCOPE,'damageAttackReceipts')?.[e.root.id] ?? e.root.getFlag(SCOPE,'damageClaim') ??
-            (e.ancestry.some(m=>m.getFlag(SCOPE,'damageOperation') || m.getFlag(SCOPE,'appliedDamage')) ? {legacy:true} : null),
+        claim:e=>getLegacyFlag(e.actor, 'damageMessageReceipts')?.[e.message.id] ??
+            getLegacyFlag(e.actor, 'damageAttackReceipts')?.[e.root.id] ?? getLegacyFlag(e.root, 'damageClaim') ??
+            (e.ancestry.some(m=>getLegacyFlag(m, 'damageOperation') || getLegacyFlag(m, 'appliedDamage')) ? {legacy:true} : null),
         claimAttack:async(e,id)=>{
-            await e.root.setFlag(SCOPE,'damageClaim',{id});
+            await setLegacyFlag(e.root, 'damageClaim',{id});
             await e.actor.update({[`flags.${SCOPE}.damageAttackReceipts.${e.root.id}`]:{id,status:'processing'},
                 [`flags.${SCOPE}.damageMessageReceipts.${e.message.id}`]:{id,status:'processing'}});
-            if(e.actor.getFlag(SCOPE,'damageAttackReceipts')?.[e.root.id]?.id!==id || e.root.getFlag(SCOPE,'damageClaim')?.id!==id)
+            if(getLegacyFlag(e.actor, 'damageAttackReceipts')?.[e.root.id]?.id!==id || getLegacyFlag(e.root, 'damageClaim')?.id!==id)
                 throw Error('Operation intent was not persisted');
         },
         readJournal:journal,
@@ -151,11 +152,11 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
         saveJournal:async op=>{
             if(!authority()) throw Error('Active GM changed during operation');
             const message=game.messages.get(op.id),encrypted=await vault.encrypt(op);
-            await message.setFlag(SCOPE,'damageJournal',encrypted);
-            if(message.getFlag(SCOPE,'damageJournal')?.ciphertext!==encrypted.ciphertext)
+            await setLegacyFlag(message, 'damageJournal',encrypted);
+            if(getLegacyFlag(message, 'damageJournal')?.ciphertext!==encrypted.ciphertext)
                 throw Error('Journal write was not confirmed');
         },
-        wounds:readWounds,actorMarker:(actor,id)=>actor.getFlag(SCOPE,'damageReceipts')?.[id],
+        wounds:readWounds,actorMarker:(actor,id)=>getLegacyFlag(actor, 'damageReceipts')?.[id],
         apply:async(actor,plan,id,rootId,sourceId)=>{
             actor._suppressWoundsFloat=true;
             const source=actor._source?.system?.wounds??actor.system.wounds;
@@ -165,7 +166,7 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
                 [`flags.${SCOPE}.damageMessageReceipts.${sourceId}`]:{id,status:'applied'},
                 [`flags.${SCOPE}.damageAttackReceipts.${rootId}`]:{id,status:'applied'}});}
             finally {delete actor._suppressWoundsFloat;}
-            if(actor.getFlag(SCOPE,'damageReceipts')?.[id]?.status!=='applied') throw Error('Actor receipt marker was not persisted');
+            if(getLegacyFlag(actor, 'damageReceipts')?.[id]?.status!=='applied') throw Error('Actor receipt marker was not persisted');
         },
         validateEffects:effects=>{
             if(!Array.isArray(effects) || effects.some(e=>!CONFIG.statusEffects.some(s=>s.id===e.condition) ||
@@ -182,11 +183,11 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
         },
         overload:async(actor,field)=>{
             const item=actor.items.find(i=>i.uuid===field.uuid);if(!item) throw Error('Field removed');
-            await item.setFlag(SCOPE,'overloaded',true);
+            await setLegacyFlag(item, 'overloaded',true);
         },
         announce:async(e,op)=>{
             // No defense, remaining wounds, hidden identity or numeric receipt in public flags/content.
-            await e.message.setFlag(SCOPE,'damageConfirmation',{status:'applied',receiptId:op.id});
+            await setLegacyFlag(e.message, 'damageConfirmation',{status:'applied',receiptId:op.id});
             await ChatMessage.create({content:'<p>Урон подтверждён ведущим.</p>',whisper:[...e.message.whisper],blind:e.message.blind,
                 flags:{[SCOPE]:{damageSummary:{sourceId:e.message.id,status:'applied'}}}});
         }
@@ -195,8 +196,8 @@ export function createFoundryDamageAPI({queue, rulesetFor, attackerFromRoll}) {
         if(!game.users.activeGM) throw Error('No active GM');
         const e=await evidence(input);
         const existing=game.messages.contents.find(m=>m.author?.id===game.user.id &&
-            m.getFlag(SCOPE,'damageRequest')?.messageId===e.message.id &&
-            m.getFlag(SCOPE,'damageRequest')?.tokenUuid===e.target.tokenUuid);
+            getLegacyFlag(m, 'damageRequest')?.messageId===e.message.id &&
+            getLegacyFlag(m, 'damageRequest')?.tokenUuid===e.target.tokenUuid);
         if(existing) return existing;
         return ChatMessage.create({content:'<p>Запрос подтверждения урона.</p>',whisper:game.users.filter(u=>u.isGM).map(u=>u.id),
             flags:{[SCOPE]:{damageRequest:{version:1,messageId:e.message.id,...e.target,targetReason:input.targetReason??''}}}});

@@ -95,7 +95,7 @@ test('native field intercept is inside the repeat guard and prevents wounds', as
     await Promise.all([apply(input),apply(input)]);
     assert.equal(f.rolls(),1);
     assert.equal(f.writes(),0);
-    assert.equal(f.source.getFlag('dark-heresy','appliedDamage').blocked,true);
+    assert.equal(f.source.flags['dark-heresy'].appliedDamage.blocked,true);
 });
 
 test('a blocked attack applies no damage and says so', () => {
@@ -106,12 +106,18 @@ test('a blocked attack applies no damage and says so', () => {
     assert.match(body, /if \(field\?\.blocked\)[\s\S]{0,300}return;/);
 });
 
-test('a burnt-out field is remembered on the item', () => {
-    const source = readFileSync(new URL('../script/dark-heresy.js', import.meta.url), 'utf8');
-    const fn = source.slice(source.indexOf('async function _forceFieldIntercept'));
-    const body = fn.slice(0, fn.indexOf('\n}'));
-    assert.match(body, /setFlag\("dark-heresy", "overloaded", true\)/);
-    assert.match(body, /getFlag\?\.\("dark-heresy", "overloaded"\)/, 'and read back on the next hit');
+test('a burnt-out field is persisted in its legacy flag namespace and cannot protect the next hit', async () => {
+    const f=damageFixture({field:true,fieldRolls:[5,30]});
+    f.system.context.Roll=globalThis.Roll;
+    const intercept=f.system.get('_forceFieldIntercept');
+    const first=await intercept(f.actor,f.source.getRollData(),null);
+    assert.equal(first.blocked,true);
+    assert.equal(first.overloaded,true);
+    assert.equal(f.field.flags['dark-heresy'].overloaded,true);
+    assert.equal(f.field.flags['apex-heresy-ru'],undefined);
+    const second=await intercept(f.actor,f.source.getRollData(),null);
+    assert.equal(second.blocked,false,'a burnt-out field must not protect even when the next die is below its rating');
+    assert.equal(second.reason,'overloaded','the persisted flag is read back on the next hit');
 });
 
 test('only an equipped field protects', () => {

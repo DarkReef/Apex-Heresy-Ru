@@ -19,15 +19,21 @@ jobs:
       - run: git diff --exit-code -- lang localization script/localization
       - run: npm test
       - name: Build root-level Foundry archive
-        run: zip -r apex-heresy-ru.zip system.json template.json script template css assets logo packs lang localization LICENSE README.md
-      - name: Publish release
+        run: |
+          node tools/build-release.mjs "$RUNNER_TEMP/apex-stage"
+          cd "$RUNNER_TEMP/apex-stage"
+          zip -r "$GITHUB_WORKSPACE/apex-heresy-ru.zip" .
+      - name: Prepare release for archive verification
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(node -p "JSON.parse(require('fs').readFileSync('system.json')).version")
-          OPTIONS=(--draft)
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             [[ "$GITHUB_REF_NAME" == "v${VERSION}-ru" ]] || exit 1
-            OPTIONS=(--verify-tag)
           fi
-          gh release create "v${VERSION}-ru" apex-heresy-ru.zip system.json --target "$GITHUB_SHA" --title "Apex Heresy RU ${VERSION}" "${OPTIONS[@]}" --notes-file docs/release-1.5.6.md
+          test -f "docs/release-${VERSION}.md"
+          if gh release view "v${VERSION}-ru" >/dev/null 2>&1; then
+            echo "Release already exists; verified assets are not overwritten."
+            exit 0
+          fi
+          gh release create "v${VERSION}-ru" apex-heresy-ru.zip system.json tools/Move-ApexWorld.ps1 --target "$GITHUB_SHA" --title "Apex Heresy RU ${VERSION}" --draft --notes-file "docs/release-${VERSION}.md"

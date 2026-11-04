@@ -33,7 +33,7 @@ export class EnvironmentApp extends HandlebarsApplicationMixin(ApplicationV2) {
     window: {title: "UI.ENVIRONMENT", resizable: true},
     position: {width: 560, height: 596}
   };
-  static PARTS = {body: {template: "systems/dark-heresy/template/apps/environment.hbs"}};
+  static PARTS = {body: {template: "systems/apex-heresy-ru/template/apps/environment.hbs"}};
 
   constructor(...args) { super(...args); this.envState = { cat: "weather" }; }
 
