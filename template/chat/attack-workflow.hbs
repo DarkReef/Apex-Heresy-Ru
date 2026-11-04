@@ -1,0 +1,25 @@
+<section class="dh-attack-workflow" data-workflow-id="{{id}}" data-workflow-generation="{{generation}}" aria-label="{{title}}">
+    <h4>{{title}}</h4>
+    {{#if canAllocate}}<button type="button" data-workflow-action="allocate">{{labels.allocate}}</button>{{/if}}
+    {{#each targets}}
+    <div class="dh-workflow-target" data-target-token-uuid="{{tokenUuid}}" data-target-actor-uuid="{{actorUuid}}" data-workflow-phase="{{phase}}">
+        <div class="dh-workflow-heading"><strong>{{name}}</strong><span>{{status}}</span></div>
+        {{#if reactionText}}<p class="dh-workflow-reaction" title="{{reactionTooltip}}">{{reactionText}}</p>{{/if}}
+        {{#if pinningText}}<p class="dh-workflow-pinning" title="{{pinningTooltip}}">{{pinningText}}</p>{{/if}}
+        {{#if applied.summary}}<p class="dh-workflow-applied">{{applied.summary}}</p>{{else}}{{#if applied.field.blocked}}<p class="dh-workflow-applied">{{../labels.field_blocked}}</p>{{/if}}{{/if}}
+        <div class="dh-workflow-summary"><span>{{../labels.hits}}: {{remainingHits}} / {{hits}}</span>
+            {{#if damage}}<span>{{../labels.damage}}: {{damage.total}}</span>{{/if}}
+        </div>
+        <div class="dh-workflow-actions">
+            {{#if canSuppress}}<button type="button" data-workflow-action="suppression">{{../labels.pinning}}</button>{{/if}}
+            {{#if canReact}}
+            <button type="button" data-workflow-action="dodge">{{dodgeLabel}}</button>
+            {{#if canParry}}<button type="button" data-workflow-action="parry">{{../labels.parry}}</button>{{/if}}
+            <button type="button" data-workflow-action="decline">{{../labels.decline}}</button>
+            {{/if}}
+            {{#if canDamage}}<button type="button" data-workflow-action="damage">{{../labels.roll_damage}}</button>{{/if}}
+            {{#if canApply}}<button type="button" data-workflow-action="apply">{{../labels.apply}}</button>{{/if}}
+        </div>
+    </div>
+    {{/each}}
+</section>

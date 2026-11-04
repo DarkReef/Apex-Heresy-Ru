@@ -25,7 +25,11 @@
         <div class="dh-dialog-row">
             <label for="selectedSkill">{{localize "DIALOG.ROLL_WITH"}}</label>
             <select id="selectedSkill">
+                {{#if workflowEvasionOptions}}
+                {{#each workflowEvasionOptions}}<option value="{{value}}" selected>{{label}}</option>{{/each}}
+                {{else}}
                 {{selectOptions (config "evasions") selected=evasions.selected localize=true}}
+                {{/if}}
             </select>
         </div>
     {{/if}}

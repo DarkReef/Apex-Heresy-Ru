@@ -1,3 +1,8 @@
+import {createFoundryAttackWorkflowBridge} from './combat/foundry-attack-workflow.mjs';
+import {createWorkflowNativeAdapters} from './combat/workflow-native.mjs';
+import {attackAreaDefaults, openAttackAreaReview} from './combat/attack-areas.mjs';
+import {processEffectBoundary, decorateEffectClockView, restartEffectClockUpdate, registerEffectClockHooks, expireEffectClocksForCombat} from './combat/effect-clock.mjs';
+import {openEffectClockDialog} from './combat/effect-clock-ui.mjs';
 import {resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock} from "./data/ammunition-link.mjs";
 import {decorateModifierTooltips} from "./data/modifier-breakdown.mjs";
 import {equipmentBonusMetadata, equipmentEffectApplies, equipmentItemEquippable, conditionalEquipmentBonuses, snapshotEquipmentBonuses, localizeEquipmentEffectNames} from "./data/equipment-bonuses.mjs";
@@ -266,6 +271,7 @@ class DarkHeresyCombat extends Combat {
 
     async _onStartTurn(combatant, context) {
         await super._onStartTurn(combatant, context);
+        await processEffectBoundary(this, combatant, 'start', context);
         return this._runTurnEvent("start", combatant, context, async actor => {
             // Ответный удар даётся раз за ход (стр. 126). Право возвращается с
             // началом собственного хода — иначе одно парирование в первом раунде
@@ -285,9 +291,11 @@ class DarkHeresyCombat extends Combat {
 
     async _onEndTurn(combatant, context) {
         await super._onEndTurn(combatant, context);
-        return this._runTurnEvent("end", combatant, context, async actor => {
+        const result = await this._runTurnEvent("end", combatant, context, async actor => {
             if (!actor.hasCondition("dead") && actor.hasCondition("poisond")) await _applyToxicEffect(actor, combatant);
         });
+        await processEffectBoundary(this, combatant, 'end', context);
+        return result;
     }
 
     async _onStartRound(context) {
@@ -2463,7 +2471,10 @@ class DarkHeresyActor extends Actor {
         const source = this._source?.system?.wounds ?? this.wounds;
         const updates = {'system.wounds.value':Number(source.value) + plan.wounds - plan.before.value,
             'system.wounds.critical':Number(source.critical) + plan.criticalWounds - plan.before.critical};
-        if (Hooks.call('modifyTokenAttribute',{attribute:'wounds.value',value:this.wounds.value,isDelta:false,isBar:true},updates) === false) return this;
+        if (Hooks.call('modifyTokenAttribute',{attribute:'wounds.value',value:this.wounds.value,isDelta:false,isBar:true},updates) === false) {
+            if(this._workflowApplying) this._workflowDamageVeto=true;
+            return this;
+        }
         await this.update(updates);
         // OW has location/type critical tables, never the old generic 2×TB death rule.
         await this._showCritMessage(plan.damageTaken,this.name,plan.wounds,plan.criticalWounds);
@@ -3213,6 +3224,33 @@ function _getAttackerToken(rollData) {
  * Roll a generic roll, and post the result to chat.
  * @param {object} rollData
  */
+let _attackWorkflowBridge;
+function _inlineFateCompatible() {
+    const smart=game.modules?.get?.('riftan-smart-assessment');
+    if(!smart?.active) return true;
+    const [major,minor]=String(smart.version??'0.0').split('.').map(Number);
+    return major>0||major===0&&minor>=4;
+}
+function _combatWorkflow() {
+    const host={game,foundry,canvas,ChatMessage:typeof ChatMessage==='undefined'?null:ChatMessage,Hooks,
+        fromUuid:typeof fromUuid==='undefined'?null:fromUuid,
+        fromUuidSync:typeof fromUuidSync==='undefined'?null:fromUuidSync,ui};
+    return _attackWorkflowBridge ??= createFoundryAttackWorkflowBridge({
+        host,
+        enabled:data=>game.settings.get('dark-heresy','combatWorkflow')===true
+            && _inlineFateCompatible() && Dh.rulesetFor(_actorFromRollData(data)).id==='ow',
+        actorFromRoll:_actorFromRollData,
+        ...createWorkflowNativeAdapters({host,util:DarkHeresyUtil,computeRemainingHits:_computeNumberOfHits,
+            entriesFromRoll:_damageEntriesFromRoll,queue:_queueDocumentOperation,
+            interceptField:_forceFieldIntercept,readFlag:getLegacyFlag}),
+        openReaction:prepareCommonRoll,rollDamage:damageRoll,applyPinning:applySuppressionPinning,
+        unnaturalDosBonus:_getUnnaturalDosBonus,
+        attackHits:data=>data.weaponJammed||data.weaponOverheated?0:_computeNumberOfHits(data.attackDos,0,data.attackType,data.shotsFired,data.weapon.traits),
+        renderRoll:data=>foundry.applications.handlebars.renderTemplate('systems/apex-heresy-ru/template/chat/roll.hbs',data),
+        getRollData:message=>getLegacyFlag(message,'rollData')
+    });
+}
+
 function createDarkHeresyAPI() {
     async function actorFor(uuid) {
         if (game.darkHeresy?.ready) await game.darkHeresy.ready;
@@ -3269,6 +3307,7 @@ function createDarkHeresyAPI() {
             else await actor.removeCondition(condition);
             return {actorUuid:actor.uuid, condition, active:!!actor.hasCondition(condition)};
         },
+        combat: _combatWorkflow(),
         damage: createFoundryDamageAPI({queue:_queueDocumentOperation,rulesetFor:actor=>Dh.rulesetFor(actor),attackerFromRoll:_actorFromRollData}),
         async applyDamage({messageId, tokenUuid, actorUuid} = {}) {
             const message = game.messages.get(messageId);
@@ -3294,6 +3333,10 @@ async function _runSystemRoll(rollData, execute) {
 
 async function commonRoll(rollData) { return _runSystemRoll(rollData, _resolveCommonRoll); }
 async function combatRoll(rollData) {
+    if (rollData.flags?.isReRoll && rollData.workflowRootMessageId && !_combatWorkflow().canReroll(rollData)) {
+        ui.notifications.warn(game.i18n.localize('COMBAT_FLOW.REROLL_BLOCKED'));
+        return {status:'cancelled',reason:'workflow'};
+    }
     const inventoryOwner = rollData.weapon?.isRange ? await _getActorFromOwnerId(
         rollData.vehicle?.actorId || rollData.actorUuid || rollData.ownerId,
         rollData.vehicle ? undefined : rollData.tokenId) : null;
@@ -3563,7 +3606,17 @@ async function _applyRegeneration(rollData) {
  * @param {object} rollData
  */
 async function _resolveCombatRoll(rollData) {
-    if (rollData.attackType?.name === "suppression") {
+    if (_combatWorkflow().enabled(rollData)) {
+        const defaults = attackAreaDefaults(rollData);
+        if (defaults && !(rollData.flags?.isReRoll && rollData.workflowRootMessageId)) {
+            const review = await openAttackAreaReview({...defaults, sourceToken:_getAttackerToken(rollData),
+                scene:canvas.scene, aimToken:canvas.tokens.get(rollData.targets?.[0]?.tokenId),
+                name:rollData.name, itemId:rollData.itemId, localize:key=>game.i18n.localize(key)});
+            if (review.status !== 'confirmed') return {status:'cancelled',reason:'area'};
+            rollData.targets = review.targets;
+            rollData.attackArea = {...review.area,regionUuid:review.regionUuid,review:review.review};
+        }
+    } else if (rollData.attackType?.name === "suppression") {
         await placeSuppressionCone(rollData, 45, rollData.weapon.range);
     }
 
@@ -3629,9 +3682,18 @@ async function _resolveCombatRoll(rollData) {
     
     if (rollData.weapon.traits.skipAttackRoll) {
         rollData.attackResult = 5; // Attacks that skip the hit roll always hit body; 05 reversed 50 = body
-        rollData.flags.isDamageRoll = true;
-        await _rollDamage(rollData);
-        await sendDamageToChat(rollData);
+        if (_combatWorkflow().enabled(rollData)) {
+            rollData.flags.isAttack = true;
+            rollData.flags.isSuccess = true;
+            rollData.flags.isDamageRoll = false;
+            rollData.numberOfHits = 1;
+            rollData.attackDos = 1;
+            await _sendRollToChat(rollData);
+        } else {
+            rollData.flags.isDamageRoll = true;
+            await _rollDamage(rollData);
+            await sendDamageToChat(rollData);
+        }
         // Consume ammo for skip attack roll
         await _consumeAmmo(rollData);
     } else {
@@ -3685,6 +3747,7 @@ async function damageRoll(rollData) {
 }
 
 function _shouldAutoApplyDamage(rollData) {
+    if (rollData.workflow) return false;
     // Don't auto-apply damage for mass evasion
     if (rollData?.flags?.isMassEvasion) return false;
     
@@ -4014,8 +4077,7 @@ async function _computeCommonTarget(rollData) {
     // В захвате реакций нет вовсе, а уклонение — реакция (BC, стр. 236).
     if (rollData.flags.isEvasion) {
         const evader = _actorFromRollData(rollData);
-        const evaderToken = evader?.getActiveTokens?.(true)?.[0];
-        if (evaderToken && _hasCondition(evaderToken, "grappled")) rollData.evasionBlocked = true;
+        if (_hasCondition(evader, "grappled")) rollData.evasionBlocked = true;
     }
 
     if (rollData.flags.isEvasion) {
@@ -4029,11 +4091,9 @@ async function _computeCommonTarget(rollData) {
             case "agility": skill = rollData.evasions.agility; break;
             case "strength": skill = rollData.evasions.strength; break;
         }
-        // Apply -10 penalty to parry if attacker's weapon is unbalanced
-        let parryPenalty = 0;
-        if (rollData.evasions.selected === "parry" && rollData.weapon?.traits?.unbalanced) {
-            parryPenalty = -10;
-        }
+        // The defender's prepared Parry already includes their weapon quality.
+        // The attacker's Unbalanced weapon never penalizes this reaction.
+        const parryPenalty = 0;
         // Гибкое оружие — цеп, кнут, цепь: оно хлещет мимо клинка, и парировать
         // его нельзя вовсе (BC, стр. 150). Уклонение при этом работает.
         if (rollData.evasions.selected === "parry" && rollData.weapon?.traits?.flexible) {
@@ -4294,7 +4354,7 @@ async function _resolveOnHitWeaponEffects(actor, damages) {
     if (damageDealt && traits.shock) {
         const test = await _rollWeaponEffectTest(actor, "toughness", 0, game.i18n.localize("WEAPON.TRAIT.SHOCKING"));
         if (test && !test.success) {
-            await actor.addCondition("stunned", { type: "minor" });
+            await actor.addCondition("stunned", { type: "minor", rounds:Math.max(1,test.dof) });
             announcements.push(game.i18n.format("WEAPON.TRAIT.STUNNED_ROUNDS", { rounds: test.dof }));
         }
     }
@@ -4305,7 +4365,7 @@ async function _resolveOnHitWeaponEffects(actor, damages) {
         const test = await _rollWeaponEffectTest(actor, "toughness", -10 * traits.concussive,
             `${game.i18n.localize("WEAPON.TRAIT.CONCUSSIVE")} (${traits.concussive})`);
         if (test && !test.success) {
-            await actor.addCondition("stunned", { type: "minor" });
+            await actor.addCondition("stunned", { type: "minor", rounds:Math.max(1,test.dof) });
             announcements.push(game.i18n.format("WEAPON.TRAIT.STUNNED_ROUNDS", { rounds: test.dof }));
         }
         const strengthBonus = Number(actor.characteristics?.strength?.displayBonus
@@ -5672,6 +5732,8 @@ async function _sendRollToChat(rollData) {
 }
 
 async function _sendSingleRollToChat(rollData) {
+    if (rollData.workflow || rollData.flags?.isReRoll && rollData.workflowRootMessageId)
+        return _combatWorkflow().submitRoll(rollData);
     // Requested checks may belong to another character than the selected token.
     const rollingActor = _actorFromRollData(rollData);
     let speaker = rollingActor ? {
@@ -5726,13 +5788,15 @@ async function _sendSingleRollToChat(rollData) {
     }
 
     ChatMessage.applyRollMode?.(chatData, chatData.rollMode);
-    return await ChatMessage.create(chatData);
+    await _combatWorkflow().create(rollData, chatData);
+    return await ChatMessage.create(chatData, {keepId:!!chatData._id});
 }
 /**
  * Post rolled damage to chat.
  * @param {object} rollData
  */
 async function sendDamageToChat(rollData) {
+    if (rollData.workflow) return _combatWorkflow().submitRoll(rollData);
     let speaker = ChatMessage.getSpeaker();
     // canRevert is now checked dynamically in renderChatMessage hook based on current user
     let chatData = {
@@ -5832,6 +5896,7 @@ async function prepareCommonRoll(rollData) {
                     }
                     rollData.flags.isDamageRoll = false;
                     rollData.flags.isCombatRoll = false;
+                    if(rollData.workflow) rollData.workflowSubmitted=true;
                     await commonRoll(rollData);
                     // Точка подключения для тех, кому мало карточки: действия
                     // машины читают степени успеха и вешают на неё последствия.
@@ -5841,12 +5906,12 @@ async function prepareCommonRoll(rollData) {
             cancel: {
                 icon: '<i class="fas fa-times"></i>',
                 label: game.i18n.localize("BUTTON.CANCEL"),
-                callback: () => {}
+                callback: () => rollData.workflow ? _combatWorkflow().cancelRoll(rollData) : undefined
             }
 
         },
         default: "roll",
-        close: () => {},
+        close: () => {if(rollData.workflow && !rollData.workflowSubmitted) return _combatWorkflow().cancelRoll(rollData);},
         render: html => {
             const formatSigned = value => {
                 const num = Number(value) || 0;
@@ -7716,19 +7781,21 @@ function effectView(effect) {
     const itemOnly = !!item && effect.transfer === false;
     const state = effect.duration?.expired ? "expired" : effect.disabled ? "disabled"
         : effect.isSuppressed ? "suppressed" : itemOnly ? "itemOnly" : "active";
-    return {id:effect.id,uuid:effect.uuid,name:effect.name,img:effect.img || "icons/svg/aura.svg",
+    return decorateEffectClockView({id:effect.id,uuid:effect.uuid,name:effect.name,img:effect.img || "icons/svg/aura.svg",
         disabled:effect.disabled, inactive:state !== "active", state, stateLabel:`EFFECTS.STATE.${state}`,
         source:item?.name || effect.sourceName || "Actor",item,flags:effect.flags || {},
         statuses:_effectStatuses(effect),isCondition:_effectStatuses(effect).length > 0,
         temporary:effect.isTemporary,itemOnly,expired:!!effect.duration?.expired,
         durationLabel:effect.isTemporary ? effect.duration?.label : null,
         durationValue:Number.isFinite(effect.duration?.value) ? effect.duration.value : null,
-        durationUnit:effect.duration?.units ? `EFFECT.DURATION.UNITS.${effect.duration.units}` : null};
+        durationUnit:effect.duration?.units ? `EFFECT.DURATION.UNITS.${effect.duration.units}` : null}, effect,
+        {combat:game.combat, localize:key=>game.i18n.localize(key)});
 }
 
 async function restartEffect(effect) {
     if (!effect) return;
-    return effect.update({disabled:false,"duration.expired":false,start:ActiveEffect.getEffectStart()});
+    return effect.update({...{disabled:false,"duration.expired":false,start:ActiveEffect.getEffectStart()},
+        ...restartEffectClockUpdate(effect,{combat:game.combat,worldTime:game.time?.worldTime??0})});
 }
 
 /**
@@ -7989,6 +8056,7 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         html.find(".list-create[data-type='effect']").click(ev => this._onEffectCreate(ev));
         html.find(".list-toggle").click(ev => this._onListToggle(ev));
         html.find(".list-restart").click(ev => { ev.preventDefault(); return restartEffect(this._getDocument(ev)); });
+        html.find('.effect-schedule').click(ev => {ev.preventDefault();return openEffectClockDialog(this._getDocument(ev));});
         html.find(".list-delete").click(ev => this._onListDelete(ev));
         html.find(".list-edit").click(ev => this._onListEdit(ev));
         html.find(".pip").click(ev => this._onConditionPipClick(ev));
@@ -12616,6 +12684,7 @@ class DarkHeresyItemSheet extends foundry.appv1.sheets.ItemSheet {
         html.find(".list-create[data-type='effect']").click(ev => this._onEffectCreate(ev));
         html.find(".list-toggle").click(ev => this._onListToggle(ev));
         html.find(".list-restart").click(ev => { ev.preventDefault(); return restartEffect(this._getDocument(ev)); });
+        html.find('.effect-schedule').click(ev => {ev.preventDefault();return openEffectClockDialog(this._getDocument(ev));});
         html.find(".list-delete").click(ev => this._onListDelete(ev));
         html.find(".list-edit").click(ev => this._onListEdit(ev));
         
@@ -14828,6 +14897,10 @@ function _fateActorFor(rollData) {
  * @returns {Promise}
  */
 function rerollTest(rollData) {
+    if (rollData.workflowRootMessageId && !_combatWorkflow().canReroll(rollData)) {
+        ui.notifications.warn(game.i18n.localize('COMBAT_FLOW.REROLL_BLOCKED'));
+        return;
+    }
     let actor = _fateActorFor(rollData);
     if (!actor) return;
     actor.update({ "system.fate.value": actor.fate.value -1 });
@@ -15471,6 +15544,7 @@ function _isHordeTarget(rollData) {
 }
 
 function _getCurrentTargetForDamage(rollData) {
+    if (rollData.workflow) return rollData.targets?.[0] ?? null;
     const currentTargets = DarkHeresyUtil.getCurrentTargets();
     if (currentTargets.length) return currentTargets[0];
     const targets = Array.isArray(rollData?.targets) ? rollData.targets : [];
@@ -17813,15 +17887,20 @@ Hooks.once("init", async function() {
     initializeHandlebars();
 
     registerSystemSettings();
+    registerEffectClockHooks({boundaries:false});
 
 });
 
 Hooks.once("ready", async function() {
+    if(!_inlineFateCompatible()) ui.notifications.warn(game.i18n.localize('COMBAT_FLOW.UPDATE_SMART'));
     applyAtmosphereSetting(game.settings.get("dark-heresy", "atmosphericEffects"));
     game.darkHeresy.ready = migratePackageReferences(game).then(() => migrateWorld());
     await game.darkHeresy.ready;
 
     game.socket.on("system.apex-heresy-ru", data => {
+        if (data?.type === 'combatWorkflowRequest') {
+            _combatWorkflow().processRequest(data.messageId).catch(error=>console.error('Apex Heresy | combat request',error));
+        }
         if (data?.type === "autoDamage") {
             applyAutoDamageFromSocket(data.payload).catch(error => {
                 console.error("dark-heresy | Damage operation", error);
@@ -17837,6 +17916,7 @@ Hooks.once("ready", async function() {
             _clearPendingRollButtons(data.payload?.messageId);
         }
     });
+    Hooks.on('createChatMessage', message => _combatWorkflow().onRequestMessage(message));
     CONFIG.ChatMessage.documentClass.prototype.getRollData = function() {
         return getLegacyFlag(this, "rollData");
     };
@@ -17914,6 +17994,7 @@ Hooks.on("updateActor", async (actor, changes, options, userId) => {
 
 Hooks.on("deleteCombat", async combat => {
     if (game.users.activeGM !== game.user) return;
+    await expireEffectClocksForCombat(combat);
     const seen = new Set();
     for (const cb of combat.combatants) {
         const ship = cb.actor;
@@ -18339,11 +18420,10 @@ function _getActorConditionModifier(actor, rollData = null) {
         }
     }
 
-    const tokens = actor.getActiveTokens(true);
-    const token = tokens[0];
+    const token = actor;
 
     // Fear gives -10 to everything
-    if (token && _hasCondition(token, "fear")) {
+    if (_hasCondition(actor, "fear")) {
         note("CONDITION.FEAR", -10);
     }
     
@@ -18356,20 +18436,20 @@ function _getActorConditionModifier(actor, rollData = null) {
     // решение остаётся за столом.
     // Навык опознаём по его метке: rollData.name у навыков — это ключ вида
     // SKILL.AWARENESS, отдельного поля с именем навыка в броске нет.
-    if (token && _hasCondition(token, "deafened") && DH_HEARING_SKILLS.includes(rollData?.name)) {
+    if (_hasCondition(actor, "deafened") && DH_HEARING_SKILLS.includes(rollData?.name)) {
         rollData.deafenedWarning = true;
     }
 
     // Слепота: −30 к Владению оружием и прочим проверкам, опирающимся на зрение.
     // Автопровал Меткости живёт не здесь — это не поправка, а блокировка броска.
-    if (token && _hasCondition(token, "blinded")
+    if (_hasCondition(actor, "blinded")
         && (isMelee || rollData?.characteristicKey === "weaponSkill")) {
         note("CONDITION.BLINDED", -30);
     }
 
     // Лежачий бьёт хуже и уворачивается ещё хуже: −10 к Владению оружием и
     // −20 к уклонению (BC, стр. 245). Стрельбе лёжа правила не мешают.
-    if (token && _hasCondition(token, "prone")) {
+    if (_hasCondition(actor, "prone")) {
         if (rollData?.flags?.isEvasion) note("CONDITION.PRONE", -20);
         else if (isMelee) note("CONDITION.PRONE", -10);
     }
@@ -19411,6 +19491,7 @@ function _addApplyRollButtons(message, html) {
  */
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
     _addApplyRollButtons(message, html);
+    _combatWorkflow().activate(message, html).catch(error=>console.error('Apex Heresy | combat card',error));
     const rollData = getLegacyFlag(message, "rollData");
 
     // Карточка пустотного выстрела своя, к rollData отношения не имеет.
