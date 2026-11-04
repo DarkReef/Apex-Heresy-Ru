@@ -1,3 +1,5 @@
+import {resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock} from "./data/ammunition-link.mjs";
+import {decorateModifierTooltips} from "./data/modifier-breakdown.mjs";
 import {getLegacyFlag, setLegacyFlag, unsetLegacyFlag} from "./package-identity.mjs";
 import {migratePackageReferences} from "./package-reference-migration.mjs";
 import {isWoundsBar,tokenWoundsUpdate,woundsTokenDocument} from './combat/token-wounds.mjs';
@@ -3281,7 +3283,10 @@ async function _runSystemRoll(rollData, execute) {
 
 async function commonRoll(rollData) { return _runSystemRoll(rollData, _resolveCommonRoll); }
 async function combatRoll(rollData) {
-    return _queueDocumentOperation(`attack:${rollData.actorUuid || rollData.ownerId}:${rollData.itemId}`, () =>
+    const inventoryOwner = rollData.weapon?.isRange ? await _getActorFromOwnerId(
+        rollData.vehicle?.actorId || rollData.actorUuid || rollData.ownerId,
+        rollData.vehicle ? undefined : rollData.tokenId) : null;
+    const execute = () => _queueDocumentOperation(`attack:${rollData.actorUuid || rollData.ownerId}:${rollData.itemId}`, () =>
         _runSystemRoll(rollData, async data => {
             const attacker = _actorFromRollData(data);
             if (["stunned", "unconscious", "dead"].some(key => _hasCondition(attacker, key))) {
@@ -3294,6 +3299,15 @@ async function combatRoll(rollData) {
                     data.vehicle ? undefined : data.tokenId);
                 const currentWeapon = owner?.items?.get(data.itemId);
                 const clip = currentWeapon?.clip || currentWeapon?.system?.clip;
+                if (data.weapon?.isRange && Number(data.weapon.clip?.max) > 0 && !currentWeapon) {
+                    ui.notifications.warn(game.i18n.localize("AMMUNITION.WEAPON_MISSING"));
+                    return {status:"cancelled", reason:"weapon"};
+                }
+                if (currentWeapon && data.weapon?.ammunitionFingerprint !== undefined
+                    && data.weapon.ammunitionFingerprint !== ammunitionProfileFingerprint(getAmmunitionProfile(owner, currentWeapon))) {
+                    ui.notifications.warn(game.i18n.localize("AMMUNITION.PROFILE_CHANGED"));
+                    return {status:"cancelled", reason:"ammunitionProfile"};
+                }
                 if (data.weapon?.isRange && clip) data.weapon.clip = {value:Number(clip.value) || 0, max:Number(clip.max) || 0};
                 const ammo = _checkAmmo(data);
                 if (!ammo.enough) {
@@ -3304,6 +3318,7 @@ async function combatRoll(rollData) {
             }
             return _resolveCombatRoll(data);
         }));
+    return inventoryOwner ? withAmmunitionLock(inventoryOwner, execute) : execute();
 }
 
 /**
@@ -3786,112 +3801,30 @@ function _checkAmmo(rollData) {
  * @returns {Promise<void>}
  */
 async function _consumeAmmo(rollData) {
-    if (rollData.flags?.isReRoll) return;
-    // Only consume for ranged weapons
-    if (!rollData.weapon?.isRange) {
-        return;
-    }
-    
-    const clip = rollData.weapon?.clip || {};
-    const clipMax = Number(clip.max) || 0;
-    
-    // If weapon has no clip system, skip
-    if (clipMax === 0) {
-        return;
-    }
-    
+    if (rollData.flags?.isReRoll || !rollData.weapon?.isRange || !(Number(rollData.weapon?.clip?.max) > 0)) return;
+    const owner = await _getActorFromOwnerId(rollData.vehicle?.actorId || rollData.actorUuid || rollData.ownerId,
+        rollData.vehicle ? undefined : rollData.tokenId);
+    const weapon = owner?.items?.get(rollData.itemId);
+    if (!weapon) throw new Error("Weapon no longer belongs to the firing Actor");
+    if (owner.isOwner === false) throw new Error("No permission to spend this Actor's ammunition");
+    const current = Number(weapon.system?.clip?.value) || 0;
     const required = _calculateRequiredAmmo(rollData);
-    const currentClip = Number(clip.value) || 0;
-    let newClip = Math.max(0, currentClip - required);
+    const remaining = Math.max(0, current - required);
+    // combatRoll holds the Actor ammunition queue. Never synchronize synthetic
+    // token inventory back to a base Actor or select another weapon by name.
+    await weapon.update({"system.clip.value": remaining});
+    rollData.weapon.clip.value = remaining;
+}
 
-    // Патроны машинного орудия лежат в машине, а не в карманах стрелка: искать
-    // предмет надо там же, где он записан, иначе выстрел уходит бесплатно.
-    if (rollData.vehicle?.actorId) {
-        const vehicle = game.actors.get(rollData.vehicle.actorId);
-        const weapon = vehicle?.items.get(rollData.itemId);
-        if (weapon) await weapon.update({ "system.clip.value": newClip });
-        else console.warn("Dark Heresy: _consumeAmmo - Vehicle weapon not found");
-        return;
-    }
-
-    // Get actor and weapon
-    const actor = await _getActorFromOwnerId(rollData.actorUuid || rollData.ownerId, rollData.tokenId);
-    if (!actor) {
-        console.warn("Dark Heresy: _consumeAmmo - Actor not found");
-        return;
-    }
-    
-    let weapon = actor.items.get(rollData.itemId);
-    
-    // For token actors, if weapon not found by ID, try to find by name
-    // (token items have different IDs than base actor items)
-    if (!weapon && actor.isToken) {
-        const weaponName = rollData.weapon?.name || rollData.name;
-        if (weaponName) {
-            weapon = actor.items.find(item => 
-                item.type === "weapon" && item.name === weaponName
-            );
-        }
-    }
-    
-    // Try UUID resolution as fallback
-    if (!weapon && rollData.itemId) {
-        try {
-            if (rollData.itemId.includes(".")) {
-                const resolved = await fromUuid(rollData.itemId);
-                if (resolved && resolved.type === "weapon") {
-                    // For token actors, if resolved weapon belongs to base actor, find by name in token
-                    if (actor.isToken && resolved.parent?.id !== actor.id) {
-                        const weaponName = resolved.name;
-                        weapon = actor.items.find(item => 
-                            item.type === "weapon" && item.name === weaponName
-                        );
-                    } else {
-                        weapon = resolved;
-                    }
-                }
-            }
-        } catch (e) {
-            // Ignore
-        }
-    }
-    
-    if (!weapon) {
-        console.warn("Dark Heresy: _consumeAmmo - Weapon not found", {
-            itemId: rollData.itemId,
-            weaponName: rollData.weapon?.name,
-            actorId: actor.id,
-            isToken: actor.isToken
-        });
-        return;
-    }
-    
-    // Считаем от того, что в стволе сейчас, а не от того, что запомнил диалог:
-    // два окна атаки, открытые подряд, оба помнили полный магазин, и второй
-    // выстрел записывал тот же остаток, что и первый, — патроны не убывали.
-    const loaded = Number(weapon.system?.clip?.value);
-    if (Number.isFinite(loaded)) newClip = Math.max(0, loaded - required);
-    await weapon.update({"system.clip.value": newClip});
-    
-    // Sync for unlinked acolyte tokens
-    if (actor?.isToken && ["acolyte", "heretic"].includes(actor?.type)) {
-        const isLinked = actor.prototypeToken?.actorLink ?? actor.getFlag("core", "actorLink") ?? false;
-        if (!isLinked) {
-            const sourceId = actor.getFlag("core", "sourceId");
-            const baseActor = sourceId ? game.actors.get(sourceId) : null;
-            if (baseActor) {
-                const baseWeapon = baseActor.items.find(item => 
-                    item.type === "weapon" && item.name === weapon.name
-                );
-                if (baseWeapon) {
-                    await baseWeapon.update({"system.clip.value": newClip});
-                }
-            }
-        }
-    }
-    
-    // Update rollData
-    rollData.weapon.clip.value = newClip;
+function ammunitionFailureMessage(result, weapon) {
+    const keys = {
+        out_of_ammo: "CHAT.RELOAD_OUT_OF_AMMO", no_ammunition: "CHAT.RELOAD_NO_AMMUNITION",
+        wrong_ammunition: "CHAT.RELOAD_WRONG_AMMUNITION", no_compatible_ammunition: "CHAT.RELOAD_NO_COMPATIBLE",
+        clip_full: "AMMUNITION.CLIP_FULL", different_ammunition_loaded: "AMMUNITION.DIFFERENT_LOADED",
+        invalid_quantity: "AMMUNITION.INVALID_QUANTITY", invalid_clip: "AMMUNITION.INVALID_CLIP",
+        wrong_owner: "AMMUNITION.OWNED_ONLY", no_permission: "AMMUNITION.OWNED_ONLY"
+    };
+    return game.i18n.format(keys[result?.reason] ?? "CHAT.RELOAD_FAILED", {weapon:weapon?.name ?? ""});
 }
 
 /**
@@ -3903,132 +3836,14 @@ async function _consumeAmmo(rollData) {
  * @returns {Promise<{success: boolean, reason?: string}>}
  */
 async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = true) {
-    // Выбранный для ствола боеприпас лежит в system.ammo — там же, где его читает
-    // getLoadedAmmunition. Раньше здесь и на листе оружия стояло ammunitionId,
-    // поля которого в модели нет: выбор не сохранялся, а эффекты патрона не доходили
-    // до атаки, потому что искали его в другом поле.
-    const ammunitionRef = weapon.system.ammo;
-
-    // Get actor
     const actor = await _getActorFromOwnerId(ownerId, tokenId);
-    if (!actor) {
-        return { success: false, reason: "no_actor" };
-    }
-
-    // Find ammunition
-    let ammunition = null;
-    if (!ammunitionRef || ammunitionRef.trim() === "") {
-        // Без заранее выбранного патрона перезарядка просто не шла: система знала
-        // только выбранный патрон и никогда не искала в снаряжении сама. Поэтому
-        // лазган с батареями в подсумке отказывался перезаряжаться, а расстановка
-        // категорий у патронов делу не помогала — сверять было не с чем.
-        ammunition = actor.items.find(item => item.type === "ammunition"
-            && (Number(item.system?.quantity) || 0) > 0
-            && DarkHeresyUtil.ammunitionFitsWeapon(item, weapon)) ?? null;
-        if (!ammunition) {
-            return { success: false, reason: "no_compatible_ammunition" };
-        }
-    } else if (ammunitionRef.startsWith("Actor.") || ammunitionRef.startsWith("Item.")) {
-        try {
-            const resolved = await fromUuid(ammunitionRef);
-            if (resolved && resolved.type === "ammunition") {
-                if (actor.isToken) {
-                    // For token actors, find by name
-                    const ammoName = resolved.name;
-                    ammunition = actor.items.find(item => 
-                        item.type === "ammunition" && item.name === ammoName
-                    );
-                } else {
-                    ammunition = resolved;
-                }
-            }
-        } catch (e) {
-            console.warn("Dark Heresy: Failed to resolve ammunition UUID:", e);
-        }
-    } else {
-        // Try to get by ID first
-        ammunition = actor.items.get(ammunitionRef);
-        if (ammunition && !ammunition.isAmmunition) {
-            ammunition = null;
-        }
-        
-        // For token actors, if not found by ID, try to find by resolving from base actor and then searching by name
-        if (!ammunition && actor.isToken) {
-            try {
-                // Try to get base actor to resolve the reference
-                const sourceId = actor.getFlag("core", "sourceId");
-                const baseActor = sourceId ? game.actors.get(sourceId) : null;
-                if (baseActor) {
-                    const baseAmmo = baseActor.items.get(ammunitionRef);
-                    if (baseAmmo && baseAmmo.type === "ammunition") {
-                        // Find by name in token actor
-                        ammunition = actor.items.find(item => 
-                            item.type === "ammunition" && item.name === baseAmmo.name
-                        );
-                    }
-                }
-            } catch (e) {
-                // Ignore errors
-            }
-        }
-    }
-    
-    if (!ammunition || !ammunition.isAmmunition) {
-        return { success: false, reason: "no_ammunition" };
-    }
-
-    // Патрон должен подходить стволу. Текстовое поле «к чему подходит» читает
-    // человек, а не система, поэтому болтерные снаряды спокойно заряжались
-    // в лазган. Списки типов и классов заполнены — сверяем; пусты — считаем
-    // патрон универсальным и не мешаем мастеру.
-    if (!DarkHeresyUtil.ammunitionFitsWeapon(ammunition, weapon)) {
-        return { success: false, reason: "wrong_ammunition" };
-    }
-
-    // Check quantity
-    const quantity = Number(ammunition.system.quantity) || 0;
-    if (quantity <= 0) {
-        return { success: false, reason: "out_of_ammo" };
-    }
-    
-    // Perform reload: decrease quantity by 1 and restore clip to max
-    const newQuantity = Math.max(quantity - 1, 0);
-    const clipMax = Number(weapon.system.clip.max) || 0;
-    
-    // Update ammunition and weapon. Что заряжено, запоминается на стволе: иначе
-    // патрон списывался, а его урон, пробитие и свойства к выстрелу не применялись.
-    await Promise.all([
-        ammunition.update({"system.quantity": newQuantity}),
-        weapon.update({"system.clip.value": clipMax, "system.ammo": ammunition.id})
-    ]);
-    
-    // Sync for unlinked acolyte tokens
-    if (actor?.isToken && ["acolyte", "heretic"].includes(actor?.type)) {
-        const isLinked = actor.prototypeToken?.actorLink ?? actor.getFlag("core", "actorLink") ?? false;
-        if (!isLinked) {
-            const sourceId = actor.getFlag("core", "sourceId");
-            const baseActor = sourceId ? game.actors.get(sourceId) : null;
-            if (baseActor) {
-                const baseWeapon = baseActor.items.find(item => 
-                    item.type === "weapon" && item.name === weapon.name
-                );
-                const baseAmmunition = baseActor.items.find(item => 
-                    item.type === "ammunition" && item.name === ammunition.name
-                );
-                if (baseWeapon && baseAmmunition) {
-                    await Promise.all([
-                        baseAmmunition.update({"system.quantity": newQuantity}),
-                        baseWeapon.update({"system.clip.value": clipMax})
-                    ]);
-                }
-            }
-        }
-    }
-    
+    if (!actor) return {success:false, reason:"no_actor"};
+    const result = await reloadAmmunition(actor, weapon, {fits:(ammo, gun) => DarkHeresyUtil.ammunitionFitsWeapon(ammo, gun)});
+    if (!result.success) return result;
     // Show chat message
     if (showChatMessage) {
         const actorName = actor.name || game.i18n.localize("ACTOR.UNKNOWN");
-        await ChatMessage.create({
+        try { await ChatMessage.create({
             user: game.user.id,
             // Та же карточка, что у остальных сообщений чата: шапка «кто · что» и тело.
             content: `<div class="dark-heresy chat roll">
@@ -4042,10 +3857,10 @@ async function _reloadWeapon(weapon, ownerId, tokenId = null, showChatMessage = 
                     </div>
                 </div>
             </div>`
-        });
+        }); } catch (error) { console.error("Apex Heresy RU | Reload chat", error); }
     }
     
-    return { success: true };
+    return result;
 }
 
 /**
@@ -6492,16 +6307,6 @@ async function prepareCombatRoll(rollData, actorRef) {
                             if (actor) {
                                 let currentWeapon = actor.items.get(rollData.itemId);
                                 
-                                // For token actors, if weapon not found by ID, try to find by name
-                                if (!currentWeapon && actor.isToken) {
-                                    const weaponName = rollData.weapon?.name || rollData.name;
-                                    if (weaponName) {
-                                        currentWeapon = actor.items.find(item => 
-                                            item.type === "weapon" && item.name === weaponName
-                                        );
-                                    }
-                                }
-                                
                                 if (currentWeapon) {
                                     const dbClip = currentWeapon.clip || {};
                                     rollData.weapon.clip = {
@@ -6525,16 +6330,6 @@ async function prepareCombatRoll(rollData, actorRef) {
                             
                             let weapon = actor.items.get(rollData.itemId);
                             
-                            // For token actors, if weapon not found by ID, try to find by name
-                            if (!weapon && actor.isToken) {
-                                const weaponName = rollData.weapon?.name || rollData.name;
-                                if (weaponName) {
-                                    weapon = actor.items.find(item => 
-                                        item.type === "weapon" && item.name === weaponName
-                                    );
-                                }
-                            }
-                            
                             if (weapon) {
                                 const messageText = game.i18n.format("DIALOG.RELOAD_MESSAGE", {
                                     required: ammoCheck.required,
@@ -6553,23 +6348,14 @@ async function prepareCombatRoll(rollData, actorRef) {
                                             icon: '<i class="fas fa-check"></i>',
                                             label: game.i18n.localize("BUTTON.RELOAD") || "Перезарядить",
                                             callback: async () => {
-                                                const reloadResult = await _reloadWeapon(weapon, rollData.ownerId, rollData.tokenId, true);
+                                                const reloadResult = await _reloadWeapon(weapon, rollData.actorUuid || rollData.ownerId, rollData.tokenId, true);
                                                 
                                                 if (reloadResult.success) {
+                                                    ui.notifications.info(game.i18n.localize("AMMUNITION.REOPEN_ATTACK"));
                                                     // Update rollData with new clip value
                                                     const updatedActor = await _getActorFromOwnerId(rollData.actorUuid || rollData.ownerId, rollData.tokenId);
                                                     if (updatedActor) {
                                                         let updatedWeapon = updatedActor.items.get(rollData.itemId);
-                                                        
-                                                        // For token actors, if weapon not found by ID, try to find by name
-                                                        if (!updatedWeapon && updatedActor.isToken) {
-                                                            const weaponName = rollData.weapon?.name || rollData.name;
-                                                            if (weaponName) {
-                                                                updatedWeapon = updatedActor.items.find(item => 
-                                                                    item.type === "weapon" && item.name === weaponName
-                                                                );
-                                                            }
-                                                        }
                                                         
                                                         if (updatedWeapon) {
                                                             const updatedClip = updatedWeapon.clip || {};
@@ -6582,12 +6368,8 @@ async function prepareCombatRoll(rollData, actorRef) {
                                                     // Сообщение должно совпадать с тем, что произошло: попап
                                                     // говорил «патронов нет», не различая, кончились они или
                                                     // ни один не подходит стволу.
-                                                    const reason = reloadResult.reason === "out_of_ammo"
-                                                        ? game.i18n.localize("CHAT.OUT_OF_AMMO")
-                                                        : reloadResult.reason === "no_compatible_ammunition"
-                                                            ? game.i18n.format("CHAT.RELOAD_NO_COMPATIBLE", { weapon: weapon?.name ?? "" })
-                                                            : game.i18n.localize("CHAT.RELOAD_FAILED");
-                                                    
+                                                    const reason = ammunitionFailureMessage(reloadResult, weapon);
+
                                                     await ChatMessage.create({
                                                         user: game.user.id,
                                                         content: `<div class="dark-heresy chat roll">
@@ -7281,9 +7063,7 @@ class DarkHeresyUtil {
             damageFormula += `${ammoDamage > 0 ? "+" : ""}${ammoDamage}`;
         }
         // Патрон может нести и своё пробитие — тогда оно заменяет штатное.
-        if (ammoEffect?.penetration) {
-            forcePenetrationValue = ammoEffect.penetration;
-        }
+        forcePenetrationValue = ammunitionPenetration(forcePenetrationValue, ammoEffect);
 
         const hordeBonusDice = _getHordeDamageBonusDiceFromActor(actor);
         if (hordeBonusDice > 0) {
@@ -7301,6 +7081,8 @@ class DarkHeresyUtil {
             damageProfileVersion: 1,
             weaponUuid: weaponItem.uuid,
             ammunitionUuid: loadedAmmo?.uuid ?? null,
+            ammunitionFingerprint: ammunitionProfileFingerprint(loadedAmmo),
+            ammoPenetrationBonus: Number(ammoEffect?.penetrationModifier) || 0,
             specialText: specialWithAmmo,
             unresolvedTraits: String(specialWithAmmo ?? '').split(/[,;]/).map(v=>v.trim()).filter(v => {
                 if (!v) return false;
@@ -7637,19 +7419,7 @@ class DarkHeresyUtil {
      * @returns {Item|null}
      */
     static getLoadedAmmunition(actor, weapon) {
-        const reference = weapon?.system?.ammo;
-        if (!reference || !actor) return null;
-
-        if (reference.startsWith("Actor.") || reference.startsWith("Item.")) {
-            const resolved = fromUuidSync(reference);
-            if (!resolved || resolved.type !== "ammunition") return null;
-            return actor.items.get(resolved.id)
-                || actor.items.find(item => item.type === "ammunition" && item.name === resolved.name)
-                || null;
-        }
-
-        const byId = actor.items.get(reference);
-        return byId?.type === "ammunition" ? byId : null;
+        return getAmmunitionProfile(actor, weapon);
     }
 
     /**
@@ -8248,6 +8018,10 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
     async getData() {
         const data = super.getData();
         data.system = sheetSystem(this.document);
+        decorateModifierTooltips(data.system, this.actor, {
+            localize:key => game.i18n.localize(key), ruleset:Dh.rulesetFor(this.actor),
+            extractWeaponTraits:(text, overrides) => DarkHeresyUtil.extractWeaponTraits(text, overrides)
+        });
         // The stored figures, before active effects are applied. An editable field bound
         // to a value that effects have already modified writes that modified value back
         // on the next submit, and the effect then adds its bonus on top again - so the
@@ -8920,23 +8694,14 @@ class DarkHeresySheet extends foundry.appv1.sheets.ActorSheet {
         }
         
         // Get ownerId and tokenId
-        const ownerId = this.actor.id;
+        const ownerId = this.actor.uuid || this.actor.id;
         const tokenId = (this.actor.isToken && this.actor.token) ? this.actor.token.id : null;
         
         // Reload weapon
         const reloadResult = await _reloadWeapon(weapon, ownerId, tokenId, true);
         
         if (!reloadResult.success) {
-            let message = game.i18n.localize("CHAT.RELOAD_FAILED") || "Failed to reload";
-            if (reloadResult.reason === "out_of_ammo") {
-                message = game.i18n.localize("CHAT.RELOAD_OUT_OF_AMMO") || "Out of ammunition";
-            } else if (reloadResult.reason === "no_ammunition") {
-                message = game.i18n.localize("CHAT.RELOAD_NO_AMMUNITION") || "Weapon has no ammunition configured";
-            } else if (reloadResult.reason === "wrong_ammunition") {
-                message = game.i18n.format("CHAT.RELOAD_WRONG_AMMUNITION", { weapon: weapon.name });
-            } else if (reloadResult.reason === "no_compatible_ammunition") {
-                message = game.i18n.format("CHAT.RELOAD_NO_COMPATIBLE", { weapon: weapon.name });
-            }
+            const message = ammunitionFailureMessage(reloadResult, weapon);
             ui.notifications.warn(message);
         }
     }
@@ -13072,34 +12837,92 @@ class WeaponSheet extends DarkHeresyItemSheet {
             if (data.system.clip && source.clip?.max !== undefined) data.system.clip.max = source.clip.max;
         }
 
-        // Get ammunition items from actor's inventory for the select dropdown
-        data.ammunitionOptions = [];
         const actor = this.item.actor || this.actor;
-        const currentAmmunitionId = this.item.system.ammo || "";
-        
-        if (actor && actor.items) {
-            const ammunitionItems = actor.items.filter(item => item.isAmmunition);
-            data.ammunitionOptions = ammunitionItems.map(item => {
-                const quantity = Number(item.system.quantity) || 0;
-                const displayName = quantity > 0 
-                    ? `${item.name} (${quantity})` 
-                    : item.name;
-                return {
-                    id: item.id,
-                    name: displayName,
-                    selected: item.id === currentAmmunitionId
-                };
-            });
+        const reference = this.item.system.ammo || "";
+        const localize = key => game.i18n.localize(key);
+        const unit = item => localize(item?.system?.quantityUnit === "rounds" ? "AMMUNITION.UNIT_ROUNDS" : "AMMUNITION.UNIT_MAGAZINES");
+        data.ammunitionOptions = ammunitionOptions(actor, this.item, {
+            fits:(ammo, gun) => DarkHeresyUtil.ammunitionFitsWeapon(ammo, gun)
+        }).map(option => ({...option, name:`${option.name} · ${option.quantity} ${unit(option.item)}${option.containerPath ? " · " + option.containerPath : ""}`}));
+        const selected = resolveOwnedAmmunition(actor, reference);
+        if (reference && !selected) data.ammunitionOptions.unshift({id:reference,
+            name:localize("AMMUNITION.SOURCE_MISSING"), selected:true, compatible:false});
+        data.ammunitionOptions.unshift({id:"", name:localize("AMMUNITION.AUTO_SOURCE"), selected:!reference, compatible:true});
+        data.linkedAmmunition = selected ? {name:selected.name, img:selected.img || "icons/svg/bullets.svg",
+            reserveLabel:`${Number(selected.system.quantity) || 0} ${unit(selected)}`,
+            containerPath:ammunitionContainerPath(actor, selected)} : null;
+        const loaded = getAmmunitionProfile(actor, this.item);
+        const effects = loaded?.system?.effect ?? {};
+        const summary = [];
+        const signed = n => `${n > 0 ? "+" : ""}${n}`;
+        if (Number(effects.penetrationModifier)) summary.push(`${localize("WEAPON.PENETRATION")} ${signed(Number(effects.penetrationModifier))}`);
+        if (effects.penetration !== undefined && effects.penetration !== null && String(effects.penetration).trim() !== "")
+            summary.push(`${localize("AMMUNITION.PENETRATION_OVERRIDE")} ${effects.penetration}`);
+        if (Number(effects.damage?.modifier)) summary.push(`${localize("WEAPON.DAMAGE_FULL")} ${signed(Number(effects.damage.modifier))}`);
+        if (Number(effects.attack?.modifier)) summary.push(`${localize("WEAPON.ATTACK")} ${signed(Number(effects.attack.modifier))}`);
+        if (effects.special) summary.push(ruleText(effects.special, actor?.system?.ruleset, game.i18n.lang));
+        data.loadedAmmunition = Number(this.item.system.clip?.value) > 0 ? {
+            name:loaded?.name || localize("AMMUNITION.GENERIC_LOADED"), effectSummary:summary.join(" · ")
+        } : null;
+        if (data.loadedAmmunition && (Number(effects.penetrationModifier)
+            || effects.penetration !== undefined && effects.penetration !== null && String(effects.penetration).trim() !== "")) {
+            const base = effects.penetration !== undefined && effects.penetration !== null && String(effects.penetration).trim() !== ""
+                ? effects.penetration : this.item.system.penetration;
+            data.ammunitionPenetration = {value:Number.isFinite(Number(base))
+                ? String(Number(base) + (Number(effects.penetrationModifier) || 0))
+                : ammunitionPenetration(this.item.system.penetration, effects)};
         }
         
-        // Add empty option at the beginning
-        data.ammunitionOptions.unshift({
-            id: "",
-            name: game.i18n.localize("WEAPON.AMMUNITION_NONE") || "None",
-            selected: !currentAmmunitionId || currentAmmunitionId === ""
-        });
-        
         return data;
+    }
+
+    activateListeners(html) {
+        super.activateListeners(html);
+        if (!this.isEditable) return;
+        html.find("[data-ammunition-drop]").on("dragover", event => event.preventDefault());
+        html.find("[data-ammunition-drop]").on("drop", event => this._onAmmunitionDrop(event));
+        html.find(".ammunition-link-open").on("click", event => {
+            event.preventDefault();
+            resolveOwnedAmmunition(this.item.actor, this.item.system.ammo)?.sheet?.render(true);
+        });
+        html.find(".ammunition-link-clear").on("click", event => {
+            event.preventDefault(); return this._connectAmmunition("");
+        });
+    }
+
+    async _connectAmmunition(reference) {
+        const actor = this.item.actor;
+        if (!actor) return ui.notifications.warn(game.i18n.localize("AMMUNITION.OWNED_ONLY"));
+        return withAmmunitionLock(actor, async () => {
+            const selection = ammunitionSelectionUpdate(actor, this.item, reference,
+                {fits:(ammo, gun) => DarkHeresyUtil.ammunitionFitsWeapon(ammo, gun)});
+            if (!selection.success) return ui.notifications.warn(ammunitionFailureMessage(selection, this.item));
+            return this.item.update(selection.update);
+        });
+    }
+
+    async _onAmmunitionDrop(event) {
+        event.preventDefault(); event.stopPropagation();
+        let data;
+        try { data = JSON.parse((event.originalEvent || event).dataTransfer?.getData("text/plain") || "null"); }
+        catch { return; }
+        if (data?.type !== "Item" || typeof data.uuid !== "string") return;
+        return this._connectAmmunition(data.uuid);
+    }
+
+    async _updateObject(event, formData) {
+        if (event?.target?.name === "system.ammo") return this._connectAmmunition(formData["system.ammo"] || "");
+        if (Object.hasOwn(formData, "system.ammo") && formData["system.ammo"] !== (this.item.system.ammo || "")) {
+            const actor = this.item.actor;
+            if (!actor) return ui.notifications.warn(game.i18n.localize("AMMUNITION.OWNED_ONLY"));
+            return withAmmunitionLock(actor, async () => {
+                const selection = ammunitionSelectionUpdate(actor, this.item, formData["system.ammo"],
+                    {fits:(ammo, gun) => DarkHeresyUtil.ammunitionFitsWeapon(ammo, gun)});
+                if (!selection.success) return ui.notifications.warn(ammunitionFailureMessage(selection, this.item));
+                return super._updateObject(event, {...formData, ...selection.update});
+            });
+        }
+        return super._updateObject(event, formData);
     }
 
     _getHeaderButtons() {
@@ -13108,9 +12931,7 @@ class WeaponSheet extends DarkHeresyItemSheet {
         return buttons;
     }
 
-    activateListeners(html) {
-        super.activateListeners(html);
-    }
+
 }
 
 class AmmunitionSheet extends DarkHeresyItemSheet {

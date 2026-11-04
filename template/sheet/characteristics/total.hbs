@@ -1,4 +1,5 @@
 <div class="total-wrapper">
-    <input class="total" type="number" value="{{characteristic.displayTotal}}" data-dtype="Number" disabled />
-    <input class="temp-modifier" name="system.characteristics.{{key}}.tempModifier" type="number" value="{{characteristic.tempModifier}}" data-dtype="Number" placeholder="±" />
+    <input class="total dh-modifier-total" type="number" value="{{characteristic.displayTotal}}" data-dtype="Number" readonly
+           title="{{characteristic.modifierTooltip}}" data-tooltip="{{characteristic.modifierTooltipHtml}}" aria-label="{{characteristic.modifierTooltip}}" />
+    <input class="temp-modifier" name="system.characteristics.{{key}}.tempModifier" type="number" value="{{lookup (lookup @root.source.characteristics key) 'tempModifier'}}" data-dtype="Number" placeholder="±" />
 </div>

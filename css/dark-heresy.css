@@ -14619,3 +14619,19 @@ body:not(.no-theme) .dark-heresy.app.window-app .voidship .ship-sp input {
 
 .dark-heresy .dh-special-translation {flex-basis:100%;font-size:12px;line-height:1.45;color:var(--dh-ink-muted,#b8b4aa);white-space:normal;}
 .gear-unified .gear-icon{width:24px;height:24px;object-fit:contain;vertical-align:middle;margin-right:6px;border:0;}
+
+/* Prepared totals remain read-only but can receive focus for their breakdown. */
+.dark-heresy input.dh-modifier-total { cursor: help; }
+.dark-heresy input.dh-modifier-total:focus-visible {
+    outline: 1px solid var(--dh-gold, #b89d60);
+    outline-offset: 2px;
+}
+/* Inventory source for the loaded weapon magazine. */
+.dark-heresy .ammunition-link-slot {border:1px solid #6a5528;padding:8px;margin:8px 0;min-width:0;}
+.dark-heresy .ammunition-link-slot .form-fields {display:flex;gap:4px;min-width:0;}
+.dark-heresy .ammunition-link-slot select {flex:1;min-width:0;}
+.dark-heresy .ammunition-link-slot button {flex:0 0 26px;width:26px;min-width:26px;padding:0;}
+.dark-heresy .ammunition-link-summary {display:flex;align-items:center;gap:8px;margin:6px 0;overflow-wrap:anywhere;}
+.dark-heresy .ammunition-link-summary img {flex:0 0 28px;width:28px;height:28px;object-fit:contain;}
+.dark-heresy .ammunition-link-slot .hint {font-size:11px;line-height:1.35;margin:6px 0;}
+.dark-heresy .ammunition-loaded-profile {font-size:12px;line-height:1.4;margin:6px 0 0;overflow-wrap:anywhere;}

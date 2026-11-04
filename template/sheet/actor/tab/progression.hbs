@@ -195,7 +195,7 @@
                             <select class="advance" name="system.skills.{{key}}.advance" data-dtype="Number">
                                 {{selectOptions (config "advanceStagesSkills") selected=skill.advance localize=true}}
                             </select>
-                            <input class="total" name="system.skills.{{key}}.total" type="number" value="{{skill.total}}" data-dtype="Number" disabled />
+                            <input class="total dh-modifier-total" type="number" value="{{skill.total}}" data-dtype="Number" readonly title="{{skill.modifierTooltip}}" data-tooltip="{{skill.modifierTooltipHtml}}" aria-label="{{skill.modifierTooltip}}" />
                             <input class="cost" name="system.skills.{{key}}.cost" type="number" value="{{skill.cost}}" data-dtype="Number" />
                             <input class="starter" name="system.skills.{{key}}.starter" type="checkbox" {{#if skill.starter}}checked{{/if}} data-dtype="Boolean" />
                         </div>
@@ -213,7 +213,7 @@
                                 <select class="advance" name="system.skills.{{key}}.specialities.{{keySpe}}.advance" data-dtype="Number">
                                     {{selectOptions (config "advanceStagesSkills") selected=speciality.advance localize=true}}
                                 </select>
-                                <input class="total" name="system.skills.{{key}}.specialities.{{keySpe}}.total" type="number" value="{{speciality.total}}" data-dtype="Number" disabled />
+                                <input class="total dh-modifier-total" type="number" value="{{speciality.total}}" data-dtype="Number" readonly title="{{speciality.modifierTooltip}}" data-tooltip="{{speciality.modifierTooltipHtml}}" aria-label="{{speciality.modifierTooltip}}" />
                                 <input class="cost" name="system.skills.{{key}}.specialities.{{keySpe}}.cost" type="number" value="{{speciality.cost}}" data-dtype="Number" />
                                 <input class="starter" name="system.skills.{{key}}.specialities.{{keySpe}}.starter" type="checkbox" {{#if speciality.starter}}checked{{/if}} data-dtype="Boolean" />
                                 {{#if (eq key "custom")}}

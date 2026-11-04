@@ -24,7 +24,7 @@ test('every shipped type resolves without leaving template directives',async()=>
     }
 });
 
-test('no default in template.json is null, which the model turns into an invalid field',async()=>{
+test('only explicitly nullable loaded-ammunition snapshots have null defaults',async()=>{
     // createDataModels maps a null default to a plain ObjectField with initial null, and an
     // ObjectField is not nullable: every document of that type then fails validation on
     // creation with "may not be null". Nothing reports this until an item is actually made.
@@ -36,7 +36,16 @@ test('no default in template.json is null, which the model turns into an invalid
             for(const [k,v] of Object.entries(node)) {if(k==='types')continue;walk(v,path?`${path}.${k}`:k);}
     };
     walk(data,'');
-    assert.deepEqual(found,[]);
+    assert.deepEqual(found,['Item.weapon.loadedAmmo','Item.vehicleWeapon.loadedAmmo']);
+    const {createDataModels}=await import(path);
+    class Field {constructor(a,b){this.options=b??a;}}
+    const fields={NumberField:Field,BooleanField:Field,StringField:Field,AnyField:Field,ObjectField:Field,ArrayField:Field,SchemaField:Field};
+    class TypeDataModel {}
+    const models=createDataModels(data,{data:{fields},abstract:{TypeDataModel}});
+    for(const type of ['weapon','vehicleWeapon']) {
+        assert.equal(models.Item[type].defineSchema().loadedAmmo.options.nullable,true);
+        assert.equal(models.Item[type].defineSchema().loadedAmmo.options.initial,null);
+    }
 });
 
 test('migration preserves unknown fields and repairs old numeric arrays without losing the source',async()=>{

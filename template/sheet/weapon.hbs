@@ -62,15 +62,33 @@
                         {{#if modified.clipMax}}<span class="weapon-modded" title="{{localize "WEAPON.WITH_MODS"}}">{{modified.clipMax}}</span>{{/if}}
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>{{localize "WEAPON.AMMUNITION"}}</label>
-                    <div class="form-fields">
-                        <select name="system.ammo">
-                            {{#each ammunitionOptions}}
-                                <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
-                            {{/each}}
-                        </select>
+                <div class="ammunition-link-slot" data-ammunition-drop="true">
+                    <div class="form-group">
+                        <label>{{localize "WEAPON.AMMUNITION_SOURCE"}}</label>
+                        <div class="form-fields">
+                            <select name="system.ammo">
+                                {{#each ammunitionOptions}}
+                                    <option value="{{id}}" {{#if selected}}selected{{/if}} {{#unless compatible}}disabled{{/unless}}>{{name}}</option>
+                                {{/each}}
+                            </select>
+                            <button type="button" class="ammunition-link-open" title="{{localize "WEAPON.OPEN_AMMUNITION"}}" {{#unless linkedAmmunition}}disabled{{/unless}}>
+                                <i class="fas fa-arrow-up-right-from-square"></i>
+                            </button>
+                            <button type="button" class="ammunition-link-clear" title="{{localize "WEAPON.UNLINK_AMMUNITION"}}" {{#unless system.ammo}}disabled{{/unless}}>
+                                <i class="fas fa-unlink"></i>
+                            </button>
+                        </div>
                     </div>
+                    {{#if linkedAmmunition}}
+                        <div class="ammunition-link-summary">
+                            <img src="{{linkedAmmunition.img}}" alt="" width="28" height="28" />
+                            <span>{{linkedAmmunition.name}} · {{linkedAmmunition.reserveLabel}}{{#if linkedAmmunition.containerPath}} · {{linkedAmmunition.containerPath}}{{/if}}</span>
+                        </div>
+                    {{/if}}
+                    <p class="hint">{{localize "WEAPON.AMMUNITION_LINK_HINT"}}</p>
+                    {{#if loadedAmmunition}}
+                        <p class="ammunition-loaded-profile"><strong>{{localize "WEAPON.LOADED_AMMUNITION"}}:</strong> {{loadedAmmunition.name}}{{#if loadedAmmunition.effectSummary}} · {{loadedAmmunition.effectSummary}}{{/if}}</p>
+                    {{/if}}
                 </div>
                 <div class="form-group">
                     <label>{{localize "WEAPON.DAMAGE_FULL"}}</label>
@@ -87,6 +105,7 @@
                     <div class="form-fields">
                         <input name="system.penetration" type="text" value="{{system.penetration}}" />
                         {{#if modified.penetration}}<span class="weapon-modded" title="{{localize "WEAPON.WITH_MODS"}}">{{modified.penetration}}</span>{{/if}}
+                        {{#if ammunitionPenetration}}<span class="weapon-modded" title="{{localize "AMMUNITION.EFFECTIVE_PENETRATION"}}">{{ammunitionPenetration.value}}</span>{{/if}}
                     </div>
                 </div>
                 <div class="form-group">
