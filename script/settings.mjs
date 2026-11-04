@@ -1,5 +1,9 @@
 /** System settings remain separate from optional module settings. */
 export function registerSystemSettings() {
+    game.settings.register('dark-heresy', 'combatWorkflow', {
+        name:'COMBAT_FLOW.SETTING', hint:'COMBAT_FLOW.SETTING_HINT',
+        scope:'world', config:true, type:Boolean, default:true
+    });
     // A storage namespace is not a package ID. Retain it to preserve existing
     // world/client preferences, including the selected ruleset, without copying.
     game.settings.register("dark-heresy", "packageReferenceMigrationVersion", {

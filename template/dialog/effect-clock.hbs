@@ -1,0 +1,23 @@
+<div class="dark-heresy effect-clock-form">
+    <p>{{localize "COMBAT_EFFECTS.HINT"}}</p>
+    <div class="form-group">
+        <label>{{localize "COMBAT_EFFECTS.TARGET"}}</label>
+        <select name="targetCombatantId"><option value="">{{localize "COMBAT_EFFECTS.AUTOMATIC"}}</option>
+            {{#each targets}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+    </div>
+    <div class="form-group">
+        <label>{{localize "COMBAT_EFFECTS.EXPIRY"}}</label>
+        <select name="mode">{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+    </div>
+    <div class="form-group">
+        <label>{{localize "COMBAT_EFFECTS.CYCLES"}}</label>
+        <input type="number" name="cycles" value="{{cycles}}" min="1" max="999" step="1" />
+    </div>
+    <div class="form-group">
+        <label>{{localize "COMBAT_EFFECTS.SOURCE"}}</label>
+        <select name="sourceCombatantId"><option value="">{{localize "COMBAT_EFFECTS.FROM_ORIGIN"}}</option>
+            {{#each references}}<option value="{{id}}" data-actor-uuid="{{actorUuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+    </div>
+</div>

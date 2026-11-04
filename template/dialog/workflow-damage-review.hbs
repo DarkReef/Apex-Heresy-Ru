@@ -1,0 +1,17 @@
+<div class="dh-workflow-review">
+    <p><strong>{{name}}</strong></p>
+    <table><thead><tr><th>{{localize "COMBAT_FLOW.LOCATION"}}</th><th>{{localize "COMBAT_FLOW.DAMAGE"}}</th><th>{{localize "WEAPON.PENETRATION"}}</th></tr></thead>
+    <tbody>{{#each damages}}<tr><td>{{location}}</td><td>{{amount}}</td><td>{{penetration}}</td></tr>
+    {{#if protection}}<tr><td colspan="3"><small>{{localize "COMBAT_FLOW.ARMOUR_AFTER_PEN"}}: {{protection.armourAfterPen}} ·
+        {{localize "COMBAT_FLOW.TOUGHNESS"}}: {{protection.toughnessForHit}} ·
+        {{localize "COMBAT_FLOW.WOUNDS_ADDED"}}: {{protection.damage}}</small></td></tr>{{/if}}
+    {{/each}}</tbody></table>
+    <p>{{localize "COMBAT_FLOW.RECEIVED_DAMAGE"}}: {{woundsBefore}} → {{woundsAfter}}</p>
+    <p>{{localize "COMBAT_FLOW.CRITICAL_DAMAGE"}}: {{criticalBefore}} → {{criticalAfter}}</p>
+    {{#if hasField}}<p>{{localize "COMBAT_FLOW.FIELD_PENDING"}}</p>{{/if}}
+    {{#if review}}<div class="dh-workflow-review-warning"><strong>{{localize "COMBAT_FLOW.SPECIAL_REVIEW"}}</strong>
+        <ul>{{#each review}}<li>{{this}}</li>{{/each}}</ul>
+        <label><input type="checkbox" name="reviewAcknowledged">{{localize "COMBAT_FLOW.ACKNOWLEDGE"}}</label>
+    </div>{{/if}}
+    <p>{{localize "COMBAT_FLOW.REVIEW_WARNING"}}</p>
+</div>

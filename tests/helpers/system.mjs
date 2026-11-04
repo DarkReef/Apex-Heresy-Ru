@@ -1,3 +1,8 @@
+import {createFoundryAttackWorkflowBridge} from '../../script/combat/foundry-attack-workflow.mjs';
+import {createWorkflowNativeAdapters} from '../../script/combat/workflow-native.mjs';
+import {attackAreaDefaults,openAttackAreaReview} from '../../script/combat/attack-areas.mjs';
+import {processEffectBoundary,decorateEffectClockView,restartEffectClockUpdate,registerEffectClockHooks,expireEffectClocksForCombat} from '../../script/combat/effect-clock.mjs';
+import {openEffectClockDialog} from '../../script/combat/effect-clock-ui.mjs';
 import {ruleName,matchesRuleName} from '../../script/localization/rule-name.mjs';
 import {resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock} from '../../script/data/ammunition-link.mjs';
 import {decorateModifierTooltips} from '../../script/data/modifier-breakdown.mjs';
@@ -43,6 +48,7 @@ export function loadSystem(overrides = {}) {
     const listeners = new Map();
     class Document {}
     const context = vm.createContext({
+        createFoundryAttackWorkflowBridge,createWorkflowNativeAdapters,attackAreaDefaults,openAttackAreaReview,processEffectBoundary,decorateEffectClockView,restartEffectClockUpdate,registerEffectClockHooks,expireEffectClocksForCombat,openEffectClockDialog,
         resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock, decorateModifierTooltips,
         getLegacyFlag, setLegacyFlag, unsetLegacyFlag, migratePackageReferences,
         characteristicTerm, ruleName, matchesRuleName, planOWDamage, owHitProtection, owCharacteristicBonus, createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,

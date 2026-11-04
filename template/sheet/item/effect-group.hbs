@@ -14,6 +14,7 @@
                 <small>{{localize stateLabel}}{{#if durationLabel}} · {{durationLabel}}{{/if}}</small>
             </div>
             <div class="button">
+                <a class="effect-schedule" data-uuid="{{uuid}}" title="{{localize 'COMBAT_EFFECTS.CONFIGURE'}}"><i class="fas fa-hourglass-half"></i></a>
                 {{#if expired}}
                 <a class="list-restart" title="{{localize 'EFFECTS.RESTART'}}"><i class="fas fa-clock-rotate-left"></i></a>
                 {{/if}}

@@ -14635,3 +14635,23 @@ body:not(.no-theme) .dark-heresy.app.window-app .voidship .ship-sp input {
 .dark-heresy .ammunition-link-summary img {flex:0 0 28px;width:28px;height:28px;object-fit:contain;}
 .dark-heresy .ammunition-link-slot .hint {font-size:11px;line-height:1.35;margin:6px 0;}
 .dark-heresy .ammunition-loaded-profile {font-size:12px;line-height:1.4;margin:6px 0 0;overflow-wrap:anywhere;}
+
+/* One attack, with a separate native resolution for every recorded token. */
+.dh-attack-workflow {margin:10px 0 0;border:1px solid #6a5528;background:#11100f;padding:8px;color:#e1d5b9;}
+.dh-attack-workflow h4 {margin:0 0 8px;text-align:center;color:#c9a55a;font-size:13px;}
+.dh-workflow-target {padding:9px 0;border-top:1px solid #443722;min-width:0;}
+.dh-workflow-heading {display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.dh-workflow-heading strong {overflow-wrap:anywhere;}
+.dh-workflow-heading>span {font-size:11px;color:#bcab88;}
+.dh-workflow-summary {display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin:5px 0;}
+.dh-workflow-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}
+.dh-attack-workflow button {min-height:28px;height:auto;line-height:1.3;white-space:normal;margin:0;padding:5px;font-size:11px;}
+.dh-workflow-reaction {margin:4px 0;font-size:12px;cursor:help;color:#e3cca0;}
+.dh-workflow-pinning {margin:5px 0;font-size:12px;color:#dfbc78;}
+.dh-workflow-applied {margin:5px 0;color:#b5c99c;font-size:12px;}
+.dh-workflow-target[data-workflow-phase="needsReview"] {border-left:2px solid #b95858;padding-left:7px;}
+.dh-attack-area label {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0;}
+.dh-attack-area input[type="number"] {max-width:130px;}
+.dh-workflow-review table {width:100%;font-size:13px;}
+.dh-workflow-review-warning {border:1px solid #9d5d42;padding:8px;margin:8px 0;}
+.dh-workflow-review-warning label {display:flex;align-items:flex-start;gap:7px;}
