@@ -169,3 +169,24 @@ test('private command journals are hidden from rendered chat without revealing t
     await f.bridge.activate(request,{closest:selector=>{assert.equal(selector,'li.message');return container;}});
     assert.equal(container.hidden,true);
 });
+
+test('authored reaction keeps named condition and equipment contributions in the workflow tooltip',async()=>{
+    for(const nativeEvasionSources of [false,true]) {
+        const f=await fixture({area:nativeEvasionSources?null:'spray'}),type=nativeEvasionSources?'dodge':'agility';
+        const claim=await f.request(type,{user:f.defenderUser});
+        const data=f.reaction(claim.id,{type});
+        data.target.modifier=5;data.difficulty={value:10};
+        data.actorConditionSources='Страх (−10)';
+        data.equipmentBonusSources='Пустотный костюм: тесты Ловкости (−10)';
+        if(nativeEvasionSources) data.evasionSources='Лёжа (−20), Страх (−10)';
+        else data.flags.isEvasion=false;
+        const result=await f.request('reactionResult',{user:f.defenderUser,operationId:claim.id,
+            resultData:data,rolls:[{total:20}]});
+        assert.equal(flag(result,'combatWorkflowRequestStatus').status,'complete');
+        const details=f.state().targets[0].reaction.modifiers;
+        assert.ok(details.includes(data.equipmentBonusSources));assert.ok(details.includes(data.actorConditionSources));
+        assert.equal(details.split('Страх').length-1,1,'condition details are not duplicated');
+        if(nativeEvasionSources) assert.ok(details.includes(data.evasionSources));
+        else {assert.match(details,/\+5/);assert.match(details,/\+10/);}
+    }
+});
