@@ -13,8 +13,10 @@ import {migratePackageReferences} from '../../script/package-reference-migration
 import {planOWDamage, owHitProtection, owCharacteristicBonus} from '../../script/combat/ow-damage.mjs';
 import {createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled} from '../../script/combat/damage-api.mjs';
 import {characteristicTerm} from "../../script/localization/field-terms.mjs";
+import SYSTEM_TEMPLATE_DATA from '../../script/data/template-data.mjs';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {fileURLToPath} from 'node:url';
 import {applyTraitOverrides, editTraitOverrides, validateTraitOverrides, WEAPON_TRAIT_TYPES, traitOverridesFromRows, traitOverridePatch} from '../../script/data/weapon-traits.mjs';
 import {patronOf} from '../../script/creation/bc-talents.mjs';
 import {targetSizeModifier, sizeToHitModifier, armourSizeModifier, describeTargetSize} from '../../script/data/size-rules.mjs';
@@ -43,6 +45,15 @@ import {PATRON_RELATIONS, BC_CHARACTERISTIC_COSTS, BC_SKILL_COSTS, BC_TALENT_COS
     from '../../script/creation/patron-data.mjs';
 
 const LANG = JSON.parse(readFileSync(new URL('../../lang/en.json', import.meta.url), 'utf8'));
+// Compile once per test process. Each invocation below still gets a fresh VM,
+// globals, classes and hook registry; only immutable compiled code is reused.
+// Preserve import characters as spaces so V8 source offsets and stack lines
+// refer to the actual entry file instead of a shortened synthetic copy.
+const ENTRY_URL = new URL('../../script/dark-heresy.js', import.meta.url);
+export const entrySourceForVM = source => source
+    .replace(/^import .*?;\r?\n/gm, line => line.replace(/[^\r\n]/g, ' '));
+const ENTRY_SOURCE = entrySourceForVM(readFileSync(ENTRY_URL, 'utf8'));
+const ENTRY_SCRIPT = new vm.Script(ENTRY_SOURCE, {filename:fileURLToPath(ENTRY_URL)});
 
 // Run the actual legacy entry module without booting a world or opening sheets.
 // Foundry's document persistence/UI are the external boundary, not copied rules.
@@ -54,7 +65,7 @@ export function loadSystem(overrides = {}) {
         resolveOwnedAmmunition, getAmmunitionProfile, ammunitionProfileFingerprint, ammunitionPenetration, ammunitionOptions, ammunitionContainerPath, ammunitionSelectionUpdate, reloadAmmunition, withAmmunitionLock, decorateModifierTooltips,
         equipmentBonusMetadata, equipmentEffectApplies, equipmentItemEquippable, conditionalEquipmentBonuses, snapshotEquipmentBonuses, localizeEquipmentEffectNames, syncEquipmentBonuses,
         getLegacyFlag, setLegacyFlag, unsetLegacyFlag, migratePackageReferences,
-        characteristicTerm, ruleName, matchesRuleName, planOWDamage, owHitProtection, owCharacteristicBonus, createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,
+        characteristicTerm, SYSTEM_TEMPLATE_DATA, ruleName, matchesRuleName, planOWDamage, owHitProtection, owCharacteristicBonus, createFoundryDamageAPI, registerDamageSettings, damageConfirmationEnabled, console, Set, Map, Math, Number, Promise, structuredClone, setTimeout, clearTimeout,
         applyTraitOverrides, editTraitOverrides, validateTraitOverrides, WEAPON_TRAIT_TYPES, traitOverridesFromRows, traitOverridePatch,
         patronOf, targetSizeModifier, sizeToHitModifier, armourSizeModifier, describeTargetSize,
         renownRankFor, dwTraumaModifier, dwInsanityStep, PURITY_THRESHOLD, purityBroken, cohesionPool, FOCUS_AUTO_FAIL,
@@ -96,9 +107,7 @@ export function loadSystem(overrides = {}) {
         if (!listeners.has(name)) listeners.set(name, []);
         listeners.get(name).push(fn);
     }
-    const source = readFileSync(new URL('../../script/dark-heresy.js', import.meta.url), 'utf8')
-        .replace(/^import .*?;\r?\n/gm, '');
-    vm.runInContext(source, context, {filename:'dark-heresy.js'});
+    ENTRY_SCRIPT.runInContext(context);
     return {context, listeners, get: expression => vm.runInContext(expression, context)};
 }
 

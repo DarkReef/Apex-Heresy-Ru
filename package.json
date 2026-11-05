@@ -2,7 +2,15 @@
   "name": "apex-heresy-ru",
   "private": true,
   "scripts": {
+    "models:build": "node tools/build-template-data.mjs",
     "test": "node --test tests/*.test.mjs",
+    "test:unit": "node tools/test-suite.mjs --tier unit",
+    "test:integration": "node tools/test-suite.mjs --tier integration",
+    "test:scenarios": "node tools/test-suite.mjs --tier scenario",
+    "test:contracts": "node tools/test-suite.mjs --tier contracts",
+    "test:combat": "node tools/test-suite.mjs --focus combat",
+    "test:coverage": "node tools/test-suite.mjs --coverage",
+    "test:inventory": "node tools/test-suite.mjs --list",
     "localization:build": "node tools/build-russian.mjs",
     "localization:test": "node --test tests/localization-ru.test.mjs tests/localization-only-war.test.mjs",
     "localization:interface": "node tools/build-interface.mjs"

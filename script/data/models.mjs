@@ -25,26 +25,32 @@ export function resolveTypeTemplate(data, documentName, type) {
     return result;
 }
 
-export function migrateModelSource(source, defaults) {
+export function migrateModelSource(source, defaults, {schema, isNumberField} = {}) {
     const result = structuredClone(source);
     const archive = structuredClone(source.legacyData ?? {});
-    function visit(value, shape, saved) {
+    const fieldFor = (schema, key) => typeof schema?.get === 'function' ? schema.get(key)
+        : schema?.fields?.[key] ?? schema?.[key];
+    function visit(value, shape, saved, currentSchema) {
         for (const [key, raw] of Object.entries(value)) {
             if (key === 'legacyData' || ['__proto__','constructor','prototype'].includes(key)) continue;
-            if (!(key in shape)) { saved[key] = structuredClone(raw); continue; }
-            if (typeof shape[key] === 'number' && (Array.isArray(raw) || typeof raw === 'string' && raw.includes(','))) {
+            const registered = fieldFor(currentSchema, key);
+            const known = currentSchema ? registered !== undefined : Object.hasOwn(shape, key);
+            if (!known) { saved[key] = structuredClone(raw); continue; }
+            const numeric = currentSchema && isNumberField ? isNumberField(registered) : typeof shape[key] === 'number';
+            if (numeric && (Array.isArray(raw) || typeof raw === 'string' && raw.includes(','))) {
                 const parts = Array.isArray(raw) ? raw.flat(Infinity) : raw.split(',');
                 const number = parts.map(Number).find(Number.isFinite);
                 if (number !== undefined) { saved[key] = structuredClone(raw); value[key] = number; }
             } else if (raw && typeof raw === 'object' && !Array.isArray(raw)
-                && !['skills','specialities'].includes(key) && shape[key] && Object.keys(shape[key]).length) {
+                && (currentSchema ? registered?.fields : !['skills','specialities'].includes(key)
+                    && shape[key] && Object.keys(shape[key]).length)) {
                 const nested = saved[key] ?? {};
-                visit(raw, shape[key], nested);
+                visit(raw, shape[key] ?? {}, nested, currentSchema ? registered : undefined);
                 if (Object.keys(nested).length) saved[key] = nested;
             }
         }
     }
-    visit(result, defaults, archive);
+    visit(result, defaults, archive, schema);
     result.legacyData = archive;
     return result;
 }
@@ -74,8 +80,13 @@ export function createDataModels(data, runtime) {
         for (const type of data[documentName].types) {
             const defaults = resolveTypeTemplate(data, documentName, type);
             models[documentName][type] = class extends runtime.abstract.TypeDataModel {
-                static migrateData(source) {
-                    return super.migrateData(migrateModelSource(source, defaults));
+                static migrateData(source, options) {
+                    // Modules extend these classes with legitimate persisted
+                    // fields. The effective subclass schema, not the shipped
+                    // template alone, decides which fields need archiving.
+                    return super.migrateData(migrateModelSource(source, defaults, {
+                        schema:this.schema, isNumberField:field => field instanceof fields.NumberField
+                    }), options);
                 }
                 static defineSchema() {
                     return {...Object.fromEntries(Object.entries(defaults).map(([key,value]) => [key,field(value,key)])),

@@ -7,13 +7,24 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run localization:build
       - run: git diff --exit-code -- lang localization script/localization
-      - run: npm test
+      - run: npm run test:coverage
+      - name: Keep test log and measured coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-node-${{ matrix.node }}
+          path: coverage/test-audit/
+          if-no-files-found: warn

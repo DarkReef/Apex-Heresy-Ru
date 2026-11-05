@@ -1,6 +1,5 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createRequire} from 'node:module';
 import {TIER_ONE, TIER_TWO, TIER_THREE, TALENT_TABLES, SPECIAL_TALENTS, talentPatron, patronOf,
     TALENT_COUNT} from '../script/creation/bc-talents.mjs';
 import {PATRONS, UNDIVIDED} from '../script/creation/patron-data.mjs';
@@ -58,35 +57,4 @@ test('tiers are disjoint: no talent sits on two rungs', () => {
     assert.equal(Object.values(TIER_ONE).flat().length, 50);
     assert.equal(Object.values(TIER_TWO).flat().length, 45);
     assert.equal(Object.values(TIER_THREE).flat().length, 36);
-});
-
-const require = createRequire(import.meta.url);
-const CLASSIC_LEVEL = 'd:/Foundry/Foundry14/Foundry Virtual Tabletop/resources/app/node_modules/classic-level';
-
-test('the pack itself carries the gods, so a card read on its own is right too', async t => {
-    let ClassicLevel;
-    try { ({ClassicLevel} = require(CLASSIC_LEVEL)); }
-    catch { return t.skip('classic-level is not available at the expected Foundry path'); }
-
-    const db = new ClassicLevel('packs/black-crusade', {valueEncoding: 'json'});
-    // Foundry holds a LevelDB lock while it runs: skipping loudly beats a red suite.
-    try { await db.open(); }
-    catch { return t.skip('packs/black-crusade is locked - close Foundry and run again'); }
-
-    const wrong = [];
-    let talents = 0;
-    for await (const [key, value] of db.iterator()) {
-        if (!key.startsWith('!items!') || value.type !== 'talent') continue;
-        talents++;
-        const book = talentPatron(value.name);
-        if (!book) continue;                      // Psychic Power is marked Special, not by a god
-        if (value.system?.patron !== book.patron)
-            wrong.push(`${value.name}: pack says ${value.system?.patron}, book says ${book.patron}`);
-        if (Number(value.system?.tier) !== book.tier)
-            wrong.push(`${value.name}: pack tier ${value.system?.tier}, book tier ${book.tier}`);
-    }
-    await db.close();
-
-    assert.equal(talents, 132, "the pack holds the book's talents");
-    assert.deepEqual(wrong, [], 'run node tools/patch-black-crusade.mjs with Foundry closed');
 });

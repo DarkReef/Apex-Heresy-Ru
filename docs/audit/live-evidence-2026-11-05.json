@@ -1,0 +1,257 @@
+{
+  "date": "2026-11-05",
+  "status": "candidate; not certified stable",
+  "systemCandidate": "1.7.1",
+  "moduleCandidates": {
+    "itempileffg": "0.2.4",
+    "charbar": "0.1.6",
+    "smartAssessment": "0.4.0"
+  },
+  "foundry": "14.368",
+  "companion": "1.8.0",
+  "gateway": "1.8.0",
+  "runtimeIdentity": "Candidate runtime files were deployed and verified by SHA256. Installed manifest files were deliberately left unchanged at system 1.7.0 / ItemPile 0.2.3 / Charbar 0.1.5. No server restart or release ZIP installation was performed.",
+  "codeHashes": [
+    {
+      "file": "Apex-Heresy-Stability/script/dark-heresy.js",
+      "sha256": "eca0145bac9a5ff20b0517f3a2799cc0453cb09313d179cfbdd8a78cbb71e69d"
+    },
+    {
+      "file": "Apex-Heresy-Stability/script/combat/effect-clock.mjs",
+      "sha256": "d2612066bbb66e72a3bcb02784e83b69547582c972962c1667d4a9d8002a823c"
+    },
+    {
+      "file": "Apex-Heresy-Stability/script/combat/foundry-attack-workflow.mjs",
+      "sha256": "2d3f9a019a8adcdc081fb79dd357af0e03940b945cc48049a014e8e8e5e44e97"
+    },
+    {
+      "file": "standalone/itempileffg/scripts/container-service.mjs",
+      "sha256": "8e89cfd17f2ca71e524579a1d3fcd6abfa8600ec39a8d692afcd867ee0a57b34"
+    },
+    {
+      "file": "Apex-Heresy-Stability/script/data/models.mjs",
+      "sha256": "32a50a290f8764dfbe66dd5e838fc8be15c7c67fa3be045766b84e9f5d47c4e0"
+    },
+    {
+      "file": "Apex-Heresy-Stability/script/data/template-data.mjs",
+      "sha256": "1b4f4e56a6e8f4f7c1fd5e4c534b09afd5992f95e7bce444732cd3efa083da70"
+    },
+    {
+      "file": "standalone/itempileffg/scripts/main.mjs",
+      "sha256": "78b4eabed374ec552c7180fc3b0017bf601bfdb5d4d1247ab2ab63d420a2e8f2"
+    },
+    {
+      "file": "standalone/itempileffg/scripts/schema.mjs",
+      "sha256": "9a5a29b6b4727d23493a0483d96eb803c812572eb0bbaea6af58a47265d250c6"
+    },
+    {
+      "file": "standalone/riftan-charbar/scripts/main.mjs",
+      "sha256": "5811206173762959bafb078f37b3dace5a3c40e23bbc82793ad63db8de747064"
+    },
+    {
+      "file": "standalone/riftan-charbar/lang/en.json",
+      "sha256": "9907701c70dbd0953f4d14991863f9fef6d02b74a28a4ce014d0b4bc0413a1e3"
+    },
+    {
+      "file": "standalone/riftan-charbar/lang/ru.json",
+      "sha256": "6e59434942a68ffb2705710687316fb771b450e6eb0dc0a20873c14c7fd89e19"
+    },
+    {
+      "file": "standalone/riftan-charbar/style.css",
+      "sha256": "9226cbfeb24eb9316cd313efdbf2eabc13c610a45e066b0f7e1e94957eec5a5a"
+    }
+  ],
+  "systemTests": {
+    "passed": 1109,
+    "failed": 0,
+    "skipped": 0,
+    "unitPassed": 549
+  },
+  "moduleTests": {
+    "itempileffg": 49,
+    "charbar": 16,
+    "smartAssessment": 39
+  },
+  "live": {
+    "inventory": [
+      {
+        "detail": {
+          "credits": 0
+        },
+        "name": "native Actor.create with ItemPileFFG economy",
+        "pass": true
+      },
+      {
+        "detail": {
+          "strength": 40
+        },
+        "name": "equipped item effect applies once",
+        "pass": true
+      },
+      {
+        "detail": {
+          "strength": 30
+        },
+        "name": "unequipping suspends transferred effect",
+        "pass": true
+      },
+      {
+        "name": "ammunition stored in backpack",
+        "pass": true
+      },
+      {
+        "detail": {
+          "clip": 30,
+          "reserve": 50
+        },
+        "name": "reload consumes backpack reserve atomically",
+        "pass": true
+      },
+      {
+        "name": "loaded ammunition retains AP bonus",
+        "pass": true
+      },
+      {
+        "name": "full magazine consumes no reserve",
+        "pass": true
+      },
+      {
+        "name": "kit creates complete tree",
+        "pass": true
+      },
+      {
+        "detail": {
+          "expected": "DqV7EFEdhmcc8LEf",
+          "loaded": "DqV7EFEdhmcc8LEf",
+          "reference": "DqV7EFEdhmcc8LEf"
+        },
+        "name": "kit remaps ammunition references",
+        "pass": true
+      },
+      {
+        "name": "Item Piles transfer preserves full backpack",
+        "pass": true
+      },
+      {
+        "name": "transfer keeps loaded clip and remaps reserve",
+        "pass": true
+      },
+      {
+        "detail": {
+          "wounds": {
+            "critical": 5,
+            "criticalPercent": 42,
+            "max": 12,
+            "regeneration": 0,
+            "remaining": -5,
+            "showRemaining": true,
+            "sourceRemaining": -5,
+            "spentPercent": 100,
+            "value": 12
+          }
+        },
+        "name": "OW wounds can display negative remaining",
+        "pass": true
+      }
+    ],
+    "fullClientReload": {
+      "passed": true,
+      "items": 6,
+      "backpacks": 2,
+      "weapons": 2,
+      "ammoStacks": 2,
+      "clips": 30,
+      "reserves": 50,
+      "allReferencesPreserved": true,
+      "extensionFieldsNotArchived": true
+    },
+    "tokenWounds": {
+      "after": {
+        "bar": {
+          "attribute": "wounds",
+          "editable": true,
+          "max": 12,
+          "type": "bar",
+          "value": -5
+        },
+        "base": 12,
+        "remaining": -5
+      },
+      "pass": true
+    },
+    "clock": {
+      "baseline": [
+        {
+          "id": "dormant-native-reapply",
+          "passed": false
+        },
+        {
+          "id": "disabled-absolute-deadline",
+          "passed": false
+        }
+      ],
+      "fixed": [
+        {
+          "id": "dormant-native-reapply",
+          "passed": true
+        },
+        {
+          "id": "disabled-absolute-deadline",
+          "passed": true
+        }
+      ],
+      "scope": "Persisted QA Actor/Effects/Scene/Tokens, configured Combat in memory only. Global combat advancement not exercised."
+    },
+    "playerReaction": {
+      "roll": 55,
+      "target": -20,
+      "degreesOfFailure": 8,
+      "rootCardUpdated": true,
+      "separateNativeResult": false
+    },
+    "playerRequestedCheck": {
+      "roll": 21,
+      "target": 45,
+      "degreesOfSuccess": 3,
+      "requestedModifier": 10,
+      "appliedModifier": 15,
+      "difficulty": -10,
+      "inline": true,
+      "hiddenAuthoredReceipts": 1,
+      "extraNativeResultCards": 0
+    },
+    "internalJournal": {
+      "hiddenAfterFix": true,
+      "verified": "Player accessibility tree; no blind request placeholders or generic apply/heal buttons"
+    },
+    "gmApply": {
+      "status": "not confirmed",
+      "damage": 12,
+      "reason": "Native CUA window lacked input geometry; user reported not seeing the test prompt. Prompt cancelled without applying damage."
+    }
+  },
+  "cleanup": {
+    "remainingQAActors": 0,
+    "remainingQAScenes": 0,
+    "remainingQAItems": 0,
+    "remainingQAUsers": 0,
+    "remainingMessagesWithQASpeaker": 0,
+    "worldTimeBefore": 0,
+    "worldTimeAfter": 0,
+    "originalSceneRestored": true,
+    "runScriptMode": "off",
+    "runMacroScriptMode": "confirm",
+    "note": "Initial cleanup removed disposable documents, then target restoration hit an obsolete User API. Harness corrected to Token.setTarget; idempotent rerun verified no fixtures remain and restored script policy."
+  },
+  "notExecuted": [
+    "Interactive Blast/Spray/suppression placement and full outcomes",
+    "Real GM authority transfer and disconnect/reconnect",
+    "Complete GM application step and duplicate application E2E",
+    "Release ZIP installation and full Foundry server restart"
+  ],
+  "ci": {
+    "system": "https://github.com/DarkReef/Apex-Heresy-Ru/actions/runs/41976688649",
+    "itempileffg": "https://github.com/DarkReef/itempileffg/actions/runs/41976770825",
+    "charbar": "https://github.com/DarkReef/riftan-charbar/actions/runs/41976777923"
+  }
+}

@@ -16,6 +16,7 @@ desktop.ini
 
 # Node modules (if any)
 node_modules/
+coverage/
 yarn.lock
 
 # Executable files
