@@ -10,7 +10,7 @@
   "foundry": "14.368",
   "companion": "1.8.0",
   "gateway": "1.8.0",
-  "runtimeIdentity": "Candidate runtime files were deployed and verified by SHA256; live manifests remained cached at system 1.7.0 / ItemPile 0.2.3 / Charbar 0.1.5. No server restart or release ZIP installation was performed.",
+  "runtimeIdentity": "Candidate runtime files were deployed and verified by SHA256. Installed manifest files were deliberately left unchanged at system 1.7.0 / ItemPile 0.2.3 / Charbar 0.1.5. No server restart or release ZIP installation was performed.",
   "codeHashes": [
     {
       "file": "Apex-Heresy-Stability/script/dark-heresy.js",
