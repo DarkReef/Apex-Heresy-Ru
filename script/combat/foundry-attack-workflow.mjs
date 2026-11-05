@@ -271,7 +271,7 @@ export function createFoundryAttackWorkflowBridge(native={}) {
     }
 
     async function executeRequest(req) {
-        if(!authority()) return;
+        if(!authority()) throw Error('Active GM changed before the operation');
         const spec=flag(req,'combatWorkflowRequest');if(!spec||typeof spec.workflowId!=='string') return;
         const root=message(spec.workflowId),state=stateFor(spec.workflowId);
         if(!root||!state) throw Error('Attack card no longer exists');
@@ -374,8 +374,24 @@ export function createFoundryAttackWorkflowBridge(native={}) {
         const rootId=flag(req,'combatWorkflowRequest').workflowId;
         const previous=rootQueues.get(rootId)??Promise.resolve();
         const pending=previous.catch(()=>{}).then(async()=>{
-            try {await executeRequest(req);await req.update({[`flags.${SCOPE}.combatWorkflowRequestStatus`]:{status:'complete'}});}
-            catch(error) {await req.update({[`flags.${SCOPE}.combatWorkflowRequestStatus`]:{status:'error',error:String(error?.message??error).slice(0,240)}});notify(error);}
+            // Election can change while this request waits behind another one.
+            // Leave its authored journal pending for the next GM in that case.
+            if(!authority()) return;
+            try {
+                await executeRequest(req);
+                if(!authority()) return;
+                const spec=flag(req,'combatWorkflowRequest');
+                if(['damage','apply'].includes(spec.action)) {
+                    const row=stateFor(rootId)?.targets?.find(row=>row.tokenUuid===spec.tokenUuid);
+                    const operationId=spec.operationId??req.id;
+                    if(!row?.receipts?.some(receipt=>receipt.id===operationId&&receipt.kind===spec.action))
+                        throw Error('Native operation has no completion receipt; GM review required before retrying');
+                }
+                await req.update({[`flags.${SCOPE}.combatWorkflowRequestStatus`]:{status:'complete'}});
+            } catch(error) {
+                if(!authority()) return;
+                await req.update({[`flags.${SCOPE}.combatWorkflowRequestStatus`]:{status:'error',error:String(error?.message??error).slice(0,240)}});notify(error);
+            }
         });processing.set(id,pending);rootQueues.set(rootId,pending);
         try {await pending;} finally {processing.delete(id);if(rootQueues.get(rootId)===pending) rootQueues.delete(rootId);}
     }
@@ -391,7 +407,8 @@ export function createFoundryAttackWorkflowBridge(native={}) {
 
     async function activate(root,html) {
         if(flag(root,'combatWorkflowRequest')) {const element=html?.[0]??html;
-            const container=element?.closest?.('li.message')??element;if(container) container.hidden=true;return;}
+            const container=element?.closest?.('li.message')??element;
+            if(container) {container.hidden=true;container.style.display='none';}return;}
         const state=flag(root,'combatWorkflow');if(!state) return;
         const element=html?.[0]??html;if(!element?.querySelector) return;
         const user=host().user,ownership=new Map();

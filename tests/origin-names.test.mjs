@@ -1,11 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createRequire} from 'node:module';
 import {readdirSync, readFileSync} from 'node:fs';
 import {findContent, GRANT_ITEM_TYPES} from '../script/creation/content-lookup.mjs';
+import {withCopiedPack} from './helpers/pack-copy.mjs';
 
-const require = createRequire(import.meta.url);
-const CLASSIC_LEVEL = 'd:/Foundry/Foundry14/Foundry Virtual Tabletop/resources/app/node_modules/classic-level';
 const PACKS = ['dark-heresy', 'black-crusade', 'rogue-trader', 'only-war', 'deathwatch'];
 const TYPES = GRANT_ITEM_TYPES;
 
@@ -33,25 +31,15 @@ function grantedNames() {
     return [...out.values()];
 }
 
-test('every name an origin grants resolves to a real compendium entry', async t => {
-    let ClassicLevel;
-    try { ({ClassicLevel} = require(CLASSIC_LEVEL)); }
-    catch { return t.skip('classic-level is not available at the expected Foundry path'); }
-
+test('every name an origin grants resolves to a real compendium entry', async () => {
     const index = {};
     for (const pack of PACKS) {
-        const db = new ClassicLevel(`packs/${pack}`, {valueEncoding: 'json'});
-        try { await db.open(); }
-        catch {
-            // Foundry holds a LevelDB lock while it runs. Skipping loudly beats a red suite
-            // that says nothing about the code: run this again with Foundry closed.
-            for (const open of Object.keys(index)) { /* nothing to close, open failed first */ }
-            return t.skip(`packs/${pack} is locked - close Foundry and run again`);
-        }
-        index[pack] = [];
-        for await (const [key, value] of db.iterator())
-            if (key.startsWith('!items!')) index[pack].push({name: value.name, type: value.type});
-        await db.close();
+        index[pack] = await withCopiedPack(pack,async db=>{
+            const entries=[];
+            for await (const [key, value] of db.iterator())
+                if(key.startsWith('!items!'))entries.push({name:value.name,type:value.type});
+            return entries;
+        });
     }
 
     const missing = [];

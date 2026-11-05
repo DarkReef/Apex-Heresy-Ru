@@ -128,7 +128,7 @@ function effectsInCombat(combat, game) {
 
 function isDue(effect, combat, combatant, phase, context) {
     const policy = policyOf(effect);
-    if (!policy || policy.version !== 1 || policy.combatId !== id(combat) || effect.disabled || effect.duration?.expired) return false;
+    if (!policy || policy.version !== 1 || policy.combatId !== id(combat) || effect.duration?.expired) return false;
     if (!EFFECT_CLOCK_MODES.includes(policy.mode) || policy.mode === 'native') return false;
     if (!Number.isInteger(policy.dueRound) || Number(context.round) < policy.dueRound) return false;
     if (Number(context.round) < policy.anchor.round || Number(context.round) === policy.anchor.round && Number(context.turn) < policy.anchor.turn) return false;

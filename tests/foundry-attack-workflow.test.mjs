@@ -165,9 +165,13 @@ test('native damage failure requires review and cannot be replayed by a later re
 });
 
 test('private command journals are hidden from rendered chat without revealing their contents',async()=>{
-    const f=await fixture(),request=await f.request('decline'),container={hidden:false};
+    const f=await fixture(),request=await f.request('decline'),container={hidden:false,style:{display:'flex'}};
+    const flags=structuredClone(request.flags),writes=request.updates.length;
     await f.bridge.activate(request,{closest:selector=>{assert.equal(selector,'li.message');return container;}});
     assert.equal(container.hidden,true);
+    assert.equal(container.style.display,'none','Foundry message display:flex must not override the journal hiding');
+    assert.deepEqual(request.flags,flags,'rendering must preserve request evidence and completion receipt');
+    assert.equal(request.updates.length,writes,'hiding a journal only changes its rendered element');
 });
 
 test('authored reaction keeps named condition and equipment contributions in the workflow tooltip',async()=>{

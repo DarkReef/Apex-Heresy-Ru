@@ -18,6 +18,7 @@ import "./localization/babele.mjs";
 import {ruleName, matchesRuleName} from "./localization/rule-name.mjs";
 import {ruleText, ruleTerm} from "./localization/rule-text.mjs";
 import { createDataModels } from "./data/models.mjs";
+import SYSTEM_TEMPLATE_DATA from './data/template-data.mjs';
 import { halfRoundedUp } from "./data/rounding.mjs";
 import { carryingLimits, baseLeapAndJump } from "./data/carry.mjs";
 import { effectiveMaxAgility } from "./data/max-agility.mjs";
@@ -2223,9 +2224,16 @@ class DarkHeresyActor extends Actor {
         const dormant = !existing && this.effects.find(effect =>
             _effectConditionKey(effect) === key || _effectStatuses(effect).includes(key));
         if (dormant) {
-            return dormant.update({...createData, disabled: false,
-                duration: {...createData.duration, expired: false},
-                start: ActiveEffect.getEffectStart()});
+            // Document updates merge nested data. A fresh native condition must
+            // replace a previous combat-boundary schedule, not inherit it.
+            const restart={...createData, disabled:false,
+                duration:{value:null,units:'seconds',...createData.duration,
+                    expiry:Object.hasOwn(createData.duration??{},'expiry') ? createData.duration.expiry
+                        : Number.isFinite(createData.duration?.value) ? 'turnStart' : null,expired:false},
+                start:ActiveEffect.getEffectStart()};
+            if(!createData.flags?.['dark-heresy']?.effectClock)
+                restart['flags.dark-heresy.-=effectClock']=null;
+            return dormant.update(restart);
         }
 
         // If existing, update it (escalate minor to major)
@@ -3275,12 +3283,14 @@ function createDarkHeresyAPI() {
             if (Object.keys(patch).length) await item.update(patch);
             return {actorUuid:actor.uuid, itemId, traits:{...traits}};
         },
-        async rollTest({actorUuid, characteristic, skill, modifier = 0, dialog = false} = {}) {
+        async rollTest({actorUuid, characteristic, skill, modifier = 0, dialog = false, chat = true} = {}) {
             const actor = await actorFor(actorUuid);
+            if (typeof chat !== 'boolean') throw new Error('Chat option must be boolean');
             if (!Number.isFinite(Number(modifier))) throw new Error("Modifier must be finite");
             if (characteristic ? !actor.characteristics?.[characteristic] : !actor.skills?.[skill]) throw new Error("Unknown test");
             const data = characteristic ? DarkHeresyUtil.createCharacteristicRollData(actor, characteristic)
                 : DarkHeresyUtil.createSkillRollData(actor, skill);
+            if (!chat) data.flags.suppressChat = true;
             data.target.modifier += Number(modifier);
             if (dialog) { await prepareCommonRoll(data); return {status:"dialog", context:data}; }
             return commonRoll(data);
@@ -5719,6 +5729,8 @@ function _normalizeDamageType(value) {
  * @param {object} rollData
  */
 async function _sendRollToChat(rollData) {
+    // Request cards persist their own authored response instead of a duplicate.
+    if (rollData.flags?.suppressChat === true) return;
     if (rollData?.flags?.isAttack) {
         const targets = Array.isArray(rollData.targets) ? rollData.targets : [];
         if (!targets.length) {
@@ -17707,18 +17719,16 @@ function updateTokenHordeLabel(token) {
 
 Hooks.once("init", async function() {
     registerDamageSettings();
-    // Load template.json for accessing skill specialities
-    let templateData = {};
-    try {
-        const response = await fetch("systems/apex-heresy-ru/template.json");
-        templateData = await response.json();
-    } catch (e) {
-        console.warn("Dark Heresy: Could not load template.json", e);
-    }
+    // init listeners are synchronous: register every schema before core starts
+    // constructing world Documents, regardless of network/cache timing.
+    const templateData = SYSTEM_TEMPLATE_DATA;
     
     const dataModels = createDataModels(templateData, foundry);
     Object.assign(CONFIG.Actor.dataModels, dataModels.Actor);
     Object.assign(CONFIG.Item.dataModels, dataModels.Item);
+    // Extensions must register fields before core constructs world Documents.
+    // Foundry's setup hook runs after that construction.
+    Hooks.callAll('darkHeresy.dataModelsReady', dataModels);
 
     CONFIG.Combat.initiative = { formula: "@initiative.base + @initiative.bonus", decimals: 0 };
     CONFIG.Combat.documentClass = DarkHeresyCombat;
@@ -19490,6 +19500,12 @@ function _addApplyRollButtons(message, html) {
  * Register chat message click handlers
  */
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+    if (getLegacyFlag(message, "combatWorkflowRequest")) {
+        const element = html?.[0] ?? html;
+        const container = element?.closest?.("li.message") ?? element;
+        if (container) {container.hidden = true; container.style.display = "none";}
+        return;
+    }
     _addApplyRollButtons(message, html);
     _combatWorkflow().activate(message, html).catch(error=>console.error('Apex Heresy | combat card',error));
     const rollData = getLegacyFlag(message, "rollData");
