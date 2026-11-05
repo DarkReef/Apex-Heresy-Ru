@@ -10,6 +10,7 @@ export async function cleanupAudit(state,{restoreScriptPolicy=true}={}) {
   const targetText=app.element?.textContent??'';
   if(targetText.includes('[QA] Target'))await app.close();
  }
+ if(game.__apexStabilityAudit?.pendingFinalApply)await game.__apexStabilityAudit.pendingFinalApply;
  for(const message of game.messages){
   const system=message.flags?.['dark-heresy'],party=message.flags?.['riftan-charbar'];
   const uuid=system?.rollData?.actorUuid??party?.partyResponse?.actorUuid;
@@ -26,7 +27,8 @@ export async function cleanupAudit(state,{restoreScriptPolicy=true}={}) {
  for(const id of state.users){const d=game.users.get(id);if(!d)continue;if(!tagged(d)||d.role!==1)throw Error('QA User cleanup guard');await d.delete();report.deleted.users.push(id);}
  if(beforeScene&&canvas.scene?.id===beforeScene.id){
   canvas.tokens.releaseAll();for(const id of state.controlledBefore??[])canvas.tokens.get(id)?.control({releaseOthers:false});
-  game.user.updateTokenTargets((state.targetsBefore??[]).filter(id=>canvas.tokens.get(id)));
+  for(const token of [...game.user.targets])token.setTarget(false,{releaseOthers:false});
+  for(const id of state.targetsBefore??[])canvas.tokens.get(id)?.setTarget(true,{releaseOthers:false});
  }
  report.remaining={actors:state.actors.filter(id=>game.actors.has(id)),scenes:state.scenes.filter(id=>game.scenes.has(id)),items:state.items.filter(id=>game.items.has(id)),users:state.users.filter(id=>game.users.has(id))};
  report.worldTime={before:state.worldTimeBefore,after:game.time.worldTime};
